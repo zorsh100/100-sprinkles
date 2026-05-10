@@ -178,10 +178,11 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
 
 function renderBakeScreen(gameState, currentStage, srWindow) {
   const { player, session } = gameState;
+  const progress = session.saleReady ? 100 : session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
 
   return `
     <section class="flow-screen">
-      <section class="panel">
+      <section class="panel kinder-hero-panel regular-bake-hero">
         <div class="section-head">
           <div>
             <p class="eyebrow">Start Bake</p>
@@ -190,14 +191,57 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
           </div>
           <div class="badge">${getSRMode(player.SR)}</div>
         </div>
-        <div class="pill-row">
-          <span class="pill">Target window ${srWindow.min}-${srWindow.max}</span>
-          <span class="pill">Streak ${player.skill.currentStreak}</span>
-          <span class="pill">Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
+        <div class="kinder-summary regular-bake-summary">
+          <div class="kinder-summary-card">
+            <span class="muted tiny">Skill Rating</span>
+            <strong>${player.SR}</strong>
+          </div>
+          <div class="kinder-summary-card">
+            <span class="muted tiny">Streak</span>
+            <strong>${player.skill.currentStreak}</strong>
+          </div>
+          <div class="kinder-summary-card">
+            <span class="muted tiny">Accuracy</span>
+            <strong>${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</strong>
+          </div>
+        </div>
+        <div class="kinder-stage-banner-row">
+          <div class="kinder-stage-banner">
+            <span>${STAGE_META[currentStage].icon}</span>
+            <span>${STAGE_META[currentStage].title}</span>
+          </div>
+          <div class="badge">${Math.round(progress)}% complete</div>
+        </div>
+        <div class="kinder-path-block">
+          <p class="muted tiny">Stage Tracker</p>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${progress}%"></div>
+          </div>
+          <div class="stage-grid">
+            ${STAGES.map((stage) => {
+              const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
+              const active = !session.saleReady && currentStage === stage && session.order;
+              const className = done ? "done" : active ? "active" : "";
+
+              return `
+                <div class="stage-chip ${className}">
+                  <div>${STAGE_META[stage].icon}</div>
+                  <div>${stage}</div>
+                </div>
+              `;
+            }).join("")}
+          </div>
+        </div>
+        <div class="panel flow-panel-spacer regular-bake-pantry">
+          <div class="pill-row">
+            <span class="pill">Target window ${srWindow.min}-${srWindow.max}</span>
+            <span class="pill">Flour ${player.pantry.flour}</span>
+            <span class="pill">Sugar ${player.pantry.sugar}</span>
+            <span class="pill">Eggs ${player.pantry.eggs}</span>
+          </div>
         </div>
       </section>
       ${renderQuestionPanel(gameState, currentStage)}
-      ${renderStagePanel(gameState, currentStage, session)}
     </section>
   `;
 }
@@ -282,48 +326,6 @@ function renderQuestionPanel(gameState, currentStage) {
             `;
           })
           .join("")}
-      </div>
-    </section>
-  `;
-}
-
-function renderStagePanel(gameState, currentStage, session) {
-  const { player } = gameState;
-  const progress = session.saleReady ? 100 : session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
-
-  return `
-    <section class="panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Bake Path</p>
-          <h2>Stage Tracker</h2>
-          <p class="muted">${isVisualMode(player.SR) ? "Picture counting powers the whole tray." : "Each correct answer clears the next bakery stage."}</p>
-        </div>
-        <div class="badge">${Math.round(progress)}% complete</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%"></div>
-      </div>
-      <div class="stage-grid" style="margin-top: 16px;">
-        ${STAGES.map((stage) => {
-          const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
-          const active = !session.saleReady && currentStage === stage && session.order;
-          const className = done ? "done" : active ? "active" : "";
-
-          return `
-            <div class="stage-chip ${className}">
-              <div>${STAGE_META[stage].icon}</div>
-              <div>${stage}</div>
-            </div>
-          `;
-        }).join("")}
-      </div>
-      <div class="panel flow-panel-spacer">
-        <div class="pill-row">
-          <span class="pill">Flour ${player.pantry.flour}</span>
-          <span class="pill">Sugar ${player.pantry.sugar}</span>
-          <span class="pill">Eggs ${player.pantry.eggs}</span>
-        </div>
       </div>
     </section>
   `;

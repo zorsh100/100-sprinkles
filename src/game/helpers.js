@@ -91,6 +91,13 @@ export function getUnlockedRecipes(player) {
   );
 }
 
+export function getNewlyUnlockedRecipes(previousSR, nextSR, unlockedRecipeIds = []) {
+  return RECIPES.filter(
+    (recipe) =>
+      unlockedRecipeIds.includes(recipe.id) && previousSR < recipe.unlockSR && nextSR >= recipe.unlockSR,
+  );
+}
+
 export function getPantryNeed(recipe, batchCount) {
   const totals = {};
 

@@ -3,6 +3,7 @@ import {
   canAffordIngredients,
   clamp,
   getMissingPantry,
+  getNewlyUnlockedRecipes,
   getOrderCount,
   getOrderRevenue,
   getPantryNeed,
@@ -196,9 +197,10 @@ export function submitAnswer(gameState, selectedAnswer) {
 
   const nextStageIndex = session.order.stageIndex + 1;
   const completedStages = [...session.order.completedStages, question.stage];
+  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.SR, srResult.nextSR, player.unlockedRecipes);
 
   if (nextStageIndex >= STAGES.length) {
-    return finishOrder(gameState, srResult.player, completedStages);
+    return finishOrder(gameState, srResult.player, completedStages, newlyUnlockedRecipes);
   }
 
   const recipe = getRecipeById(session.order.recipeId);
@@ -234,6 +236,7 @@ export function submitAnswer(gameState, selectedAnswer) {
       },
       currentQuestion: nextQuestion,
       recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
+      pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
     },
     flash: {
       kind: "success",
@@ -242,7 +245,7 @@ export function submitAnswer(gameState, selectedAnswer) {
   };
 }
 
-function finishOrder(gameState, updatedPlayer, completedStages) {
+function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRecipes = []) {
   const { session } = gameState;
   const recipe = getRecipeById(session.order.recipeId);
   const revenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
@@ -269,6 +272,7 @@ function finishOrder(gameState, updatedPlayer, completedStages) {
         batchCount: getOrderCount(updatedPlayer.SR, session.batchCount),
         recentTemplates: session.recentTemplates,
         recentSale: session.recentSale,
+        pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
       }),
       saleReady: {
         recipeId: recipe.id,
@@ -285,6 +289,16 @@ function finishOrder(gameState, updatedPlayer, completedStages) {
     flash: {
       kind: "success",
       text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${revenue} coins.`,
+    },
+  };
+}
+
+export function dismissRecipeUnlocks(gameState) {
+  return {
+    ...gameState,
+    session: {
+      ...gameState.session,
+      pendingRecipeUnlocks: [],
     },
   };
 }
@@ -319,4 +333,14 @@ export function sellCurrentOrder(gameState) {
         : `Sold ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`,
     },
   };
+}
+
+function queueRecipeUnlocks(existingUnlocks = [], newlyUnlockedRecipes = []) {
+  const unlockMap = new Map((existingUnlocks ?? []).map((recipe) => [recipe.id, recipe]));
+
+  for (const recipe of newlyUnlockedRecipes) {
+    unlockMap.set(recipe.id, recipe);
+  }
+
+  return [...unlockMap.values()];
 }

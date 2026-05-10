@@ -30,6 +30,8 @@ function handleAction(action) {
 
       if (gameState.session.order || gameState.session.saleReady) {
         uiState = { ...uiState, route: "bake" };
+      } else if (gameState.session.pendingRecipeUnlocks?.length) {
+        uiState = { ...uiState, route: "unlock" };
       } else if (gameState.session.recentSale) {
         uiState = { ...uiState, route: "stats" };
       }

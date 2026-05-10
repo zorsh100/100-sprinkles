@@ -2,6 +2,7 @@ import { navigate } from "../app/router.js?v=20260509-205459";
 import {
   buyIngredient,
   clearQuestionResult,
+  dismissRecipeUnlocks,
   selectRecipe,
   sellCurrentOrder,
   setBatchCount,
@@ -15,6 +16,7 @@ import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-20545
 import { renderSettingsScreen } from "./screens/settings.js?v=20260509-205459";
 import { renderStatsScreen } from "./screens/stats.js?v=20260509-205459";
 import { renderTitleScreen } from "./screens/title.js?v=20260509-205459";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-205459";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -26,7 +28,7 @@ export function renderApp(root, gameState, uiState, dispatch) {
       screenMarkup: renderTitleScreen(saveSummary),
     });
     attachTitleEvents(root, dispatch);
-    attachPageEvents(root, dispatch);
+    attachPageEvents(root, gameState, dispatch);
     return;
   }
 
@@ -36,7 +38,7 @@ export function renderApp(root, gameState, uiState, dispatch) {
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
-    attachPageEvents(root, dispatch);
+    attachPageEvents(root, gameState, dispatch);
     return;
   }
 
@@ -49,7 +51,7 @@ export function renderApp(root, gameState, uiState, dispatch) {
   attachRecipeEvents(root, gameState, dispatch);
   attachShopEvents(root, gameState, dispatch);
   attachQuestionEvents(root, gameState, dispatch);
-  attachPageEvents(root, dispatch);
+  attachPageEvents(root, gameState, dispatch);
 }
 
 function getScreenMarkup(gameState, route, saveSummary) {
@@ -59,6 +61,10 @@ function getScreenMarkup(gameState, route, saveSummary) {
 
   if (route === "settings") {
     return renderSettingsScreen(saveSummary);
+  }
+
+  if (route === "unlock") {
+    return renderUnlockScreen(gameState);
   }
 
   return renderBakeryScreen(gameState);
@@ -177,7 +183,7 @@ function attachQuestionEvents(root, gameState, dispatch) {
   });
 }
 
-function attachPageEvents(root, dispatch) {
+function attachPageEvents(root, gameState, dispatch) {
   root.querySelectorAll("[data-go-route]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.disabled) return;
@@ -196,6 +202,14 @@ function attachPageEvents(root, dispatch) {
     button.addEventListener("click", () => {
       if (button.disabled) return;
       dispatch({ type: "NAVIGATE", payload: navigate("settings") });
+    });
+  });
+
+  root.querySelectorAll("[data-dismiss-unlocks]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const updated = dismissRecipeUnlocks(gameState);
+      dispatch({ type: "UPDATE_GAME", payload: updated });
+      dispatch({ type: "NAVIGATE", payload: navigate(button.dataset.goRoute || "recipe") });
     });
   });
 
