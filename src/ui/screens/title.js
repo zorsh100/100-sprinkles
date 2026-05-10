@@ -1,7 +1,7 @@
 export function renderTitleScreen(saveSummary) {
   return `
     <section class="panel title-screen flow-screen">
-      <img class="title-logo" src="./logo.png" alt="100 Sprinkles logo" />
+      <img class="title-logo" src="./logo.png?v=20260509-174353" alt="100 Sprinkles logo" />
       <p class="eyebrow">Title Page</p>
       <h2>100 Sprinkles</h2>
       <p class="title-copy">
