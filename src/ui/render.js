@@ -87,22 +87,48 @@ function attachTitleEvents(root, dispatch) {
 function attachOnboardingEvents(root, dispatch) {
   const gradeInput = root.querySelector("#grade");
   const gradePreview = root.querySelector("#grade-preview");
+  const gradePreviewCard = root.querySelector("#grade-preview-card");
+  const usernameInput = root.querySelector("#username");
+  const submitButton = root.querySelector("#start-baking");
+
+  function updatePreview(button) {
+    const { grade, sr, note } = button.dataset;
+    gradePreview.textContent =
+      grade === "K"
+        ? `Kindergarten starts at SR ${sr} with ${note.toLowerCase()} and no reading required.`
+        : `${button.querySelector("strong").textContent} starts at SR ${sr} with ${note.toLowerCase()}.`;
+    gradePreviewCard.classList.add("preview-live");
+  }
+
+  function syncSubmitState() {
+    const ready = Boolean(String(usernameInput.value ?? "").trim()) && Boolean(gradeInput.value);
+    submitButton.disabled = !ready;
+    submitButton.setAttribute("aria-disabled", String(!ready));
+  }
 
   root.querySelectorAll("[data-grade]").forEach((button) => {
     button.addEventListener("click", () => {
-      const { grade, sr, note } = button.dataset;
+      const { grade } = button.dataset;
       gradeInput.value = grade;
 
       root.querySelectorAll("[data-grade]").forEach((card) => {
         card.classList.toggle("active", card === button);
       });
 
-      gradePreview.textContent =
-        grade === "K"
-          ? `Kindergarten starts at SR ${sr} with ${note.toLowerCase()} and no reading required.`
-          : `${button.querySelector("strong").textContent} starts at SR ${sr} with ${note.toLowerCase()}.`;
+      updatePreview(button);
+      syncSubmitState();
     });
   });
+
+  usernameInput.addEventListener("input", () => {
+    syncSubmitState();
+  });
+
+  const activeGrade = root.querySelector("[data-grade].active");
+  if (activeGrade) {
+    updatePreview(activeGrade);
+  }
+  syncSubmitState();
 
   root.querySelector("#onboarding-form").addEventListener("submit", (event) => {
     event.preventDefault();
@@ -112,6 +138,7 @@ function attachOnboardingEvents(root, dispatch) {
     const grade = String(formData.get("grade") ?? "K");
 
     if (!username) {
+      syncSubmitState();
       return;
     }
 

@@ -13,27 +13,27 @@ const GRADE_CARDS = [
 export function renderOnboardingScreen() {
   return `
     <section class="panel onboarding-card flow-screen">
-      <div class="section-head">
+      <div class="section-head onboarding-head">
         <div>
-          <p class="eyebrow">User Info</p>
+          <p class="eyebrow eyebrow-pill">User Info</p>
           <h2>Open your bakery</h2>
-          <p class="muted">Pick a grade so the Skill Rating starts in the right sweet spot.</p>
+          <p class="muted onboarding-subcopy">Pick a grade so the Skill Rating starts in the right sweet spot.</p>
         </div>
-        <div class="badge">Adaptive SR 0-1000</div>
+        <div class="badge onboarding-badge">✨ Gets harder as you grow</div>
       </div>
-      <form id="onboarding-form" class="form-grid">
+      <form id="onboarding-form" class="form-grid onboarding-form">
         <label class="field full">
-          <span>Baker name</span>
-          <input id="username" name="username" maxlength="24" placeholder="Chef Sunny" required />
+          <span>Your chef name</span>
+          <input id="username" name="username" maxlength="24" placeholder="Chef Sunny 🧁" required />
         </label>
         <input id="grade" name="grade" type="hidden" value="K" />
-        <div class="info-card">
-          <strong>Grade preview</strong>
-          <p class="muted tiny" id="grade-preview">Kindergarten starts at SR 50 with visual counting and no reading required.</p>
+        <div class="info-card onboarding-info-card" id="grade-preview-card">
+          <strong>About this grade</strong>
+          <p class="muted tiny" id="grade-preview">Kindergarten starts at SR 50 with picture counting and no reading required.</p>
         </div>
         <div class="field full">
           <span>Choose a grade</span>
-          <div class="grade-grid">
+          <div class="grade-grid onboarding-grade-grid">
             ${GRADE_CARDS.map(
               (grade) => `
                 <button
@@ -52,7 +52,7 @@ export function renderOnboardingScreen() {
           </div>
         </div>
         <div class="field full">
-          <button class="primary-button" type="submit">Start Baking</button>
+          <button class="primary-button onboarding-submit-button" id="start-baking" type="submit" disabled aria-disabled="true">Start Baking</button>
         </div>
       </form>
     </section>
