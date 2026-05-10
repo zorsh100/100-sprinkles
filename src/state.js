@@ -1,4 +1,4 @@
-import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-050500";
+import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-054400";
 
 const STORAGE_KEY = "sprinkles-100-player";
 const SAVE_VERSION = 3;
@@ -245,7 +245,7 @@ export function createNewPlayer(gameState, { username, grade, slotId }) {
   const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? findFirstEmptySlotId(syncedState.saveSlots));
   const SR = GRADE_TO_SR[grade];
   const trimmedName = String(username ?? "").trim().slice(0, 24);
-  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sprinkles";
+  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
   const createdAt = Date.now();
   const player = normalizePlayer({
     ...DEFAULT_PLAYER,
@@ -272,6 +272,47 @@ export function createNewPlayer(gameState, { username, grade, slotId }) {
       session: createInitialSession(),
       flash,
       savedAt: createdAt,
+    });
+  });
+
+  return buildGameState({
+    saveSlots: nextSaveSlots,
+    activeSaveSlot: targetSlotId,
+    flashOverride: flash,
+  });
+}
+
+export function updatePlayerProfile(gameState, { username, slotId }) {
+  const syncedState = syncActiveSlot(gameState);
+  const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? syncedState.activeSaveSlot);
+  const targetSlot = syncedState.saveSlots.find((slot) => slot.id === targetSlotId);
+
+  if (!targetSlot?.player) {
+    return syncedState;
+  }
+
+  const trimmedName = String(username ?? "").trim().slice(0, 24);
+  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
+  const flash = {
+    kind: "success",
+    text: `${safeName}'s notebook is updated and ready for more bakery math.`,
+  };
+
+  const nextSaveSlots = syncedState.saveSlots.map((slot) => {
+    if (slot.id !== targetSlotId) {
+      return slot;
+    }
+
+    const nextPlayer = normalizePlayer({
+      ...slot.player,
+      username: safeName,
+    });
+
+    return createSaveSlot(slot.id, {
+      player: nextPlayer,
+      session: slot.session,
+      flash,
+      savedAt: slot.savedAt ?? Date.now(),
     });
   });
 

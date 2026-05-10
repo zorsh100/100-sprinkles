@@ -1,4 +1,4 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260510-050500";
+import { createInitialSession, STAGES } from "./data.js?v=20260510-054400";
 import {
   canAffordIngredients,
   clamp,
@@ -13,10 +13,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260510-050500";
-import { formatSignedValue } from "./math.js?v=20260510-050500";
-import { generateQuestion } from "./questions/generator.js?v=20260510-050500";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260510-050500";
+} from "./helpers.js?v=20260510-054400";
+import { formatSignedValue } from "./math.js?v=20260510-054400";
+import { generateQuestion } from "./questions/generator.js?v=20260510-054400";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260510-054400";
 
 export function setFlash(gameState, kind, text) {
   return {

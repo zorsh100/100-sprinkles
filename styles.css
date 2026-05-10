@@ -1750,6 +1750,7 @@ body.title-route .app-shell {
 .danger-button {
   background: rgba(216, 87, 87, 0.14);
   color: #b34141;
+  box-shadow: inset 0 0 0 1px rgba(216, 87, 87, 0.28);
 }
 
 
@@ -2603,6 +2604,9 @@ body.title-route .title-screen-minimal {
 }
 
 .settings-save-card {
+  display: grid;
+  align-content: start;
+  min-height: 280px;
   background: linear-gradient(135deg, rgba(255, 252, 247, 0.98), rgba(255, 239, 229, 0.98));
 }
 
@@ -2610,11 +2614,18 @@ body.title-route .title-screen-minimal {
   background: linear-gradient(135deg, rgba(255, 247, 245, 0.98), rgba(255, 235, 228, 0.98));
 }
 
+.settings-current-card {
+  display: grid;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(255, 251, 245, 0.98), rgba(255, 240, 228, 0.98));
+}
+
 .settings-summary-grid,
 .shop-summary-grid {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.settings-current-card,
 .settings-hero-card,
 .shop-overview-card,
 .learn-overview-card,
@@ -2626,6 +2637,7 @@ body.title-route .title-screen-minimal {
   overflow: hidden;
 }
 
+.settings-current-card::after,
 .settings-hero-card::after,
 .shop-overview-card::after,
 .learn-overview-card::after,
@@ -2665,37 +2677,68 @@ body.title-route .title-screen-minimal {
   background: rgba(248, 240, 216, 0.92);
 }
 
-.settings-link-card {
-  min-height: 220px;
+.settings-summary-line {
+  margin: 0;
+  color: #654c40;
+  font-weight: 800;
+  line-height: 1.4;
 }
 
-.settings-link-card-recipe {
-  background: linear-gradient(135deg, rgba(255, 241, 236, 0.98), rgba(255, 249, 244, 0.98));
+.settings-saved-line {
+  margin: 0;
+  white-space: nowrap;
 }
 
-.settings-link-card-shop {
-  background: linear-gradient(135deg, rgba(255, 248, 225, 0.98), rgba(255, 252, 242, 0.98));
+.settings-switch-note {
+  margin: 0;
 }
 
-.settings-link-card-learn {
-  background: linear-gradient(135deg, rgba(233, 248, 245, 0.98), rgba(247, 255, 253, 0.98));
+.settings-empty-card {
+  justify-items: center;
+  align-content: center;
+  text-align: center;
 }
 
-.settings-link-art {
-  display: inline-grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.8);
-  font-size: 1.9rem;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72);
+.settings-empty-actions {
+  width: min(240px, 100%);
 }
 
-.settings-reset-grid {
+.save-slot-danger-zone {
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(227, 196, 173, 0.72);
+}
+
+.reset-confirmation {
   display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(135deg, rgba(255, 244, 244, 0.98), rgba(255, 234, 234, 0.98));
+  border: 1px solid rgba(216, 87, 87, 0.24);
+}
+
+.reset-confirmation p {
+  margin: 0;
+  color: #6b3d3d;
+  line-height: 1.4;
+}
+
+.reset-confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.reset-confirm-actions .ghost-button,
+.reset-confirm-actions .primary-button {
+  flex: 1 1 150px;
+}
+
+.danger-confirm-button {
+  background: linear-gradient(135deg, #d85757, #bf3d49);
+  box-shadow: 0 14px 28px rgba(216, 87, 87, 0.28);
 }
 
 .pantry-shop-grid {

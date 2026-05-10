@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260510-050500";
+import { navigate } from "../app/router.js?v=20260510-054400";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,17 +8,17 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260510-050500";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-050500";
-import { renderShell } from "./shell.js?v=20260510-050500";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-050500";
-import { renderLearnScreen } from "./screens/learn.js?v=20260510-050500";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-050500";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260510-050500";
-import { renderShopScreen } from "./screens/shop.js?v=20260510-050500";
-import { renderStatsScreen } from "./screens/stats.js?v=20260510-050500";
-import { renderTitleScreen } from "./screens/title.js?v=20260510-050500";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-050500";
+} from "../game/engine.js?v=20260510-054400";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-054400";
+import { renderShell } from "./shell.js?v=20260510-054400";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-054400";
+import { renderLearnScreen } from "./screens/learn.js?v=20260510-054400";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-054400";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260510-054400";
+import { renderShopScreen } from "./screens/shop.js?v=20260510-054400";
+import { renderStatsScreen } from "./screens/stats.js?v=20260510-054400";
+import { renderTitleScreen } from "./screens/title.js?v=20260510-054400";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-054400";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -97,13 +97,19 @@ function attachTitleEvents(root, dispatch) {
 }
 
 function attachOnboardingEvents(root, gameState, uiState, dispatch) {
+  const form = root.querySelector("#onboarding-form");
   const gradeInput = root.querySelector("#grade");
   const gradePreview = root.querySelector("#grade-preview");
   const gradePreviewCard = root.querySelector("#grade-preview-card");
   const usernameInput = root.querySelector("#username");
   const submitButton = root.querySelector("#start-baking");
+  const onboardingMode = form?.dataset.onboardingMode ?? "create";
 
   function updatePreview(button) {
+    if (!gradePreview || !gradePreviewCard) {
+      return;
+    }
+
     const { grade, sr, note } = button.dataset;
     gradePreview.textContent =
       grade === "K"
@@ -113,7 +119,8 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
   }
 
   function syncSubmitState() {
-    const ready = isValidPlayerName(usernameInput.value) && Boolean(gradeInput.value);
+    const trimmedName = String(usernameInput.value ?? "").trim();
+    const ready = Boolean(gradeInput.value) && (!trimmedName || isValidPlayerName(trimmedName));
     submitButton.disabled = !ready;
     submitButton.setAttribute("aria-disabled", String(!ready));
   }
@@ -142,15 +149,27 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
   }
   syncSubmitState();
 
-  root.querySelector("#onboarding-form").addEventListener("submit", (event) => {
+  form.addEventListener("submit", (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
     const username = String(formData.get("username") ?? "").trim();
     const grade = String(formData.get("grade") ?? "K");
 
-    if (!isValidPlayerName(username)) {
+    if (username && !isValidPlayerName(username)) {
       syncSubmitState();
+      return;
+    }
+
+    if (onboardingMode === "edit") {
+      dispatch({
+        type: "UPDATE_PLAYER_PROFILE",
+        payload: {
+          username,
+          slotId: uiState.pendingSaveSlotId ?? gameState.activeSaveSlot,
+        },
+      });
+      dispatch({ type: "NAVIGATE", payload: navigate("settings") });
       return;
     }
 
@@ -272,6 +291,45 @@ function attachPageEvents(root, gameState, dispatch) {
       const updated = dismissRecipeUnlocks(gameState);
       dispatch({ type: "UPDATE_GAME", payload: updated });
       dispatch({ type: "NAVIGATE", payload: navigate(button.dataset.goRoute || "recipe") });
+    });
+  });
+
+  root.querySelectorAll("[data-edit-player-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      dispatch({ type: "SET_PENDING_SAVE_SLOT", payload: button.dataset.editPlayerSlot });
+      dispatch({ type: "NAVIGATE", payload: navigate("profile") });
+    });
+  });
+
+  root.querySelectorAll("[data-reset-save-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const slotId = button.dataset.resetSavePrompt;
+
+      root.querySelectorAll(".reset-confirmation").forEach((panel) => {
+        const shouldOpen = panel.dataset.resetConfirmSlot === slotId ? panel.hidden : false;
+        panel.hidden = !shouldOpen;
+      });
+
+      root.querySelectorAll("[data-reset-save-prompt]").forEach((promptButton) => {
+        promptButton.setAttribute("aria-expanded", String(promptButton === button && button.getAttribute("aria-expanded") !== "true"));
+      });
+    });
+  });
+
+  root.querySelectorAll("[data-cancel-reset-save]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const slotId = button.dataset.cancelResetSave;
+      const panel = root.querySelector(`.reset-confirmation[data-reset-confirm-slot="${slotId}"]`);
+      const promptButton = root.querySelector(`[data-reset-save-prompt="${slotId}"]`);
+
+      if (panel) {
+        panel.hidden = true;
+      }
+
+      if (promptButton) {
+        promptButton.setAttribute("aria-expanded", "false");
+      }
     });
   });
 

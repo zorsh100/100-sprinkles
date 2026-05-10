@@ -1,6 +1,6 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260510-050500";
-import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260510-050500";
-import { renderApp } from "./ui/render.js?v=20260510-050500";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260510-054400";
+import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260510-054400";
+import { renderApp } from "./ui/render.js?v=20260510-054400";
 
 const appRoot = document.querySelector("#app");
 
@@ -33,6 +33,13 @@ function handleAction(action) {
       uiState = {
         ...uiState,
         route: "recipe",
+        pendingSaveSlotId: gameState.activeSaveSlot,
+      };
+      break;
+    case "UPDATE_PLAYER_PROFILE":
+      gameState = updatePlayerProfile(gameState, action.payload);
+      uiState = {
+        ...uiState,
         pendingSaveSlotId: gameState.activeSaveSlot,
       };
       break;
