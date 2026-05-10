@@ -65,9 +65,11 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
   const a = randomInt(3, maxValue);
   const b = randomInt(3, maxValue);
   const answer = a + b;
+  const easyPrompt = `${a} sprinkles. Then ${b} more. How many now?`;
+  const standardPrompt = `You have ${a} sprinkles. You get ${b} more. How many sprinkles now?`;
 
   return {
-    prompt: `During ${stage}, you gather ${a} sprinkles for your ${getRecipeLabel(context)} and then ${b} more. How many sprinkles do you have now?`,
+    prompt: targetDifficulty < 180 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, 10),
     hint: "Add the first amount and the extra amount together.",
@@ -78,9 +80,11 @@ export function arithmeticSubtractionStory({ targetDifficulty, stage, context })
   const total = randomInt(12, getScale(targetDifficulty, 18, 95));
   const used = randomInt(3, Math.max(5, Math.floor(total * 0.65)));
   const answer = total - used;
+  const easyPrompt = `${total} sprinkles. Use ${used}. How many left?`;
+  const standardPrompt = `You have ${total} sprinkles. You use ${used}. How many are left?`;
 
   return {
-    prompt: `Your ${getRecipeLabel(context)} starts ${stage} with ${total} sprinkles. You use ${used}. How many are left?`,
+    prompt: targetDifficulty < 220 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, 10),
     hint: "Start with the total, then take away the part you used.",
@@ -105,9 +109,11 @@ export function costRevenue({ targetDifficulty, stage, context }) {
   const trays = randomInt(Math.max(2, batchCount), getScale(targetDifficulty, 4, 10));
   const coins = randomInt(3, getScale(targetDifficulty, 6, 12));
   const answer = trays * coins;
+  const easyPrompt = `${trays} trays. ${coins} coins each. How many coins?`;
+  const standardPrompt = `You sell ${trays} trays. Each tray is ${coins} coins. How many coins do you get?`;
 
   return {
-    prompt: `Each tray of ${getRecipeLabel(context)} earns ${coins} coins in ${stage}. If you sell ${trays} trays, how many coins do you earn?`,
+    prompt: targetDifficulty < 230 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, 12),
     hint: "Same price each time means multiply the price by the number of trays.",

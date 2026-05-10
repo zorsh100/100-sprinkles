@@ -9,7 +9,7 @@ import {
   getShopCost,
 } from "./helpers.js";
 import { generateQuestion } from "./questions/generator.js";
-import { applySRResult } from "./sr.js";
+import { applySRResult, isVisualMode } from "./sr.js";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -142,7 +142,7 @@ export function startOrder(gameState) {
     flash: {
       kind: "success",
       text:
-        player.SR < 100
+        isVisualMode(player.SR)
           ? "Tap the right number to finish the treat tray."
           : `The ${recipe.name.toLowerCase()} order is rolling into prep.`,
     },

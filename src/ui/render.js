@@ -1,59 +1,81 @@
 import { navigate } from "../app/router.js";
-import { buyIngredient, clearQuestionResult, selectRecipe, sellCurrentOrder, setBatchCount, startOrder, submitAnswer } from "../game/engine.js";
+import {
+  buyIngredient,
+  clearQuestionResult,
+  selectRecipe,
+  sellCurrentOrder,
+  setBatchCount,
+  startOrder,
+  submitAnswer,
+} from "../game/engine.js";
 import { getSaveSummary } from "../state.js";
 import { renderShell } from "./shell.js";
 import { renderBakeryScreen } from "./screens/bakery.js";
-import { renderLearnScreen } from "./screens/learn.js";
 import { renderOnboardingScreen } from "./screens/onboarding.js";
-import { renderShopScreen } from "./screens/shop.js";
+import { renderStatsScreen } from "./screens/stats.js";
+import { renderTitleScreen } from "./screens/title.js";
 
 export function renderApp(root, gameState, uiState, dispatch) {
-  if (uiState.route === "onboarding" || !gameState.player) {
+  const saveSummary = getSaveSummary(gameState);
+
+  if (uiState.route === "title") {
+    root.innerHTML = renderShell({
+      player: gameState.player,
+      route: "title",
+      flash: gameState.flash,
+      saveSummary,
+      screenMarkup: renderTitleScreen(saveSummary),
+    });
+    attachTitleEvents(root, dispatch);
+    return;
+  }
+
+  if (uiState.route === "profile" || !gameState.player) {
     root.innerHTML = renderShell({
       player: null,
-      route: "onboarding",
+      route: "profile",
       flash: gameState.flash,
-      saveSummary: null,
+      saveSummary,
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
     return;
   }
 
-  renderGame(root, gameState, uiState, dispatch);
-}
-
-function renderGame(root, gameState, uiState, dispatch) {
-  const screenMarkup = getScreenMarkup(gameState, uiState.route);
   root.innerHTML = renderShell({
     player: gameState.player,
     route: uiState.route,
     flash: gameState.flash,
-    saveSummary: getSaveSummary(gameState),
-    screenMarkup,
+    saveSummary,
+    screenMarkup: getScreenMarkup(gameState, uiState.route),
   });
 
-  root.querySelectorAll("[data-route]").forEach((button) => {
-    button.addEventListener("click", () => {
-      dispatch({ type: "NAVIGATE", payload: navigate(button.dataset.route) });
-    });
-  });
-
+  attachTitleEvents(root, dispatch);
   attachRecipeEvents(root, gameState, dispatch);
   attachShopEvents(root, gameState, dispatch);
   attachQuestionEvents(root, gameState, dispatch);
 }
 
 function getScreenMarkup(gameState, route) {
-  if (route === "shop") {
-    return renderShopScreen(gameState.player);
-  }
-
-  if (route === "learn") {
-    return renderLearnScreen(gameState.player);
+  if (route === "stats") {
+    return renderStatsScreen(gameState);
   }
 
   return renderBakeryScreen(gameState);
+}
+
+function attachTitleEvents(root, dispatch) {
+  root.querySelectorAll("[data-go-profile]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatch({ type: "NAVIGATE", payload: navigate("profile") });
+    });
+  });
+
+  root.querySelectorAll("[data-go-recipe]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatch({ type: "NAVIGATE", payload: navigate("recipe") });
+    });
+  });
 }
 
 function attachOnboardingEvents(root, dispatch) {
@@ -91,115 +113,8 @@ function attachOnboardingEvents(root, dispatch) {
       type: "START_GAME",
       payload: { username, grade },
     });
+    dispatch({ type: "NAVIGATE", payload: navigate("recipe") });
   });
-}
-
-function renderQuestionPanel(gameState, currentStage) {
-  const { player, session } = gameState;
-  const question = session.currentQuestion;
-
-  if (!question) {
-    return `
-      <section class="panel question-card">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Math challenge</p>
-            <h2>Ready to bake</h2>
-            <p class="muted">Start an order to get your next adaptive question.</p>
-          </div>
-          <div class="stage-banner">🍬 SR ${player.SR}</div>
-        </div>
-        <div class="empty-state">
-          Choose a recipe, then press <strong>Start Order</strong>.
-        </div>
-      </section>
-    `;
-  }
-
-  const visuals = question.visuals
-    ? `
-      <div class="visual-group">
-        ${question.visuals.left.map((token) => `<div class="visual-token">${token}</div>`).join("")}
-      </div>
-      <div class="visual-group">
-        ${question.visuals.right.map((token) => `<div class="visual-token">${token}</div>`).join("")}
-      </div>
-    `
-    : "";
-
-  return `
-    <section class="panel question-card stage-panel stage-${currentStage}">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Math challenge</p>
-          <h2>${STAGE_META[currentStage].title}</h2>
-          <p class="muted">${escapeHtml(question.prompt)}</p>
-        </div>
-        <div class="stage-banner">${STAGE_META[currentStage].icon} ${currentStage}</div>
-      </div>
-      ${question.promptSecondary ? `<p><strong>${escapeHtml(question.promptSecondary)}</strong></p>` : ""}
-      ${visuals}
-      <div class="answer-grid">
-        ${question.choices
-          .map((choice) => {
-            const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
-            const label =
-              question.type === "optimization" && choice === question.answer && question.answerLabel
-                ? question.answerLabel
-                : String(choice);
-
-            return `
-              <button class="choice-button ${resultClass}" type="button" data-answer="${choice}">
-                ${escapeHtml(label)}
-              </button>
-            `;
-          })
-          .join("")}
-      </div>
-    </section>
-  `;
-}
-
-function renderStagePanel(gameState, currentStage) {
-  const { player, session } = gameState;
-  const progress = session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
-
-  return `
-    <section class="panel">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Bakery flow</p>
-          <h2>Stage Tracker</h2>
-          <p class="muted">${player.SR < 100 ? "Picture counting powers the whole tray." : "Each correct answer clears the next bakery stage."}</p>
-        </div>
-        <div class="badge">${Math.round(progress)}% complete</div>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" style="width: ${progress}%"></div>
-      </div>
-      <div class="stage-grid" style="margin-top: 16px;">
-        ${STAGES.map((stage, index) => {
-          const done = session.order && session.order.completedStages.includes(stage);
-          const active = currentStage === stage && session.order;
-          const className = done ? "done" : active ? "active" : "";
-
-          return `
-            <div class="stage-chip ${className}">
-              <div>${STAGE_META[stage].icon}</div>
-              <div>${stage}</div>
-            </div>
-          `;
-        }).join("")}
-      </div>
-      <div class="panel" style="margin-top: 18px;">
-        <div class="pill-row">
-          <span class="pill">Flour ${player.pantry.flour}</span>
-          <span class="pill">Sugar ${player.pantry.sugar}</span>
-          <span class="pill">Eggs ${player.pantry.eggs}</span>
-        </div>
-      </div>
-    </section>
-  `;
 }
 
 function attachRecipeEvents(root, gameState, dispatch) {
@@ -225,6 +140,7 @@ function attachRecipeEvents(root, gameState, dispatch) {
     startButton.addEventListener("click", () => {
       const updated = startOrder(gameState);
       dispatch({ type: "UPDATE_GAME", payload: updated });
+      dispatch({ type: "NAVIGATE", payload: navigate("bake") });
     });
   }
 
@@ -232,6 +148,7 @@ function attachRecipeEvents(root, gameState, dispatch) {
     sellButton.addEventListener("click", () => {
       const updated = sellCurrentOrder(gameState);
       dispatch({ type: "UPDATE_GAME", payload: updated });
+      dispatch({ type: "NAVIGATE", payload: navigate("stats") });
     });
   });
 }

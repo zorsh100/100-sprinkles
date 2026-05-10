@@ -1,26 +1,24 @@
 const ROUTES = {
-  onboarding: "#/onboarding",
-  bakery: "#/bakery",
-  shop: "#/shop",
-  learn: "#/learn",
+  title: "#/title",
+  profile: "#/profile",
+  recipe: "#/recipe",
+  bake: "#/bake",
+  stats: "#/stats",
 };
 
 function routeFromHash(hashValue) {
   const hash = hashValue || window.location.hash;
 
-  if (hash === ROUTES.shop) return "shop";
-  if (hash === ROUTES.learn) return "learn";
-  if (hash === ROUTES.bakery) return "bakery";
-  return "onboarding";
+  if (hash === ROUTES.profile) return "profile";
+  if (hash === ROUTES.recipe) return "recipe";
+  if (hash === ROUTES.bake) return "bake";
+  if (hash === ROUTES.stats) return "stats";
+  return "title";
 }
 
 export function syncRouteFromState(gameState) {
   const currentRoute = routeFromHash();
-  const desiredRoute = gameState.player
-    ? currentRoute === "onboarding"
-      ? "bakery"
-      : currentRoute
-    : "onboarding";
+  const desiredRoute = getAllowedRoute(gameState, currentRoute);
   const desiredHash = ROUTES[desiredRoute];
 
   if (window.location.hash !== desiredHash) {
@@ -31,7 +29,7 @@ export function syncRouteFromState(gameState) {
 }
 
 export function navigate(routeName) {
-  const nextHash = ROUTES[routeName] ?? ROUTES.onboarding;
+  const nextHash = ROUTES[routeName] ?? ROUTES.title;
 
   if (window.location.hash !== nextHash) {
     window.location.hash = nextHash;
@@ -44,4 +42,32 @@ export function subscribeToRouteChanges(onRouteChange) {
   window.addEventListener("hashchange", () => {
     onRouteChange(routeFromHash());
   });
+}
+
+function getAllowedRoute(gameState, requestedRoute) {
+  if (requestedRoute === "title") {
+    return "title";
+  }
+
+  if (!gameState.player) {
+    return requestedRoute === "profile" ? "profile" : "title";
+  }
+
+  if (gameState.session.order || gameState.session.saleReady) {
+    return "bake";
+  }
+
+  if (gameState.session.recentSale) {
+    if (requestedRoute === "stats" || requestedRoute === "recipe") {
+      return requestedRoute;
+    }
+
+    return "stats";
+  }
+
+  if (requestedRoute === "profile") {
+    return "profile";
+  }
+
+  return "recipe";
 }

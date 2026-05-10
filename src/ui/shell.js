@@ -1,24 +1,4 @@
-const NAV_ITEMS = [
-  { route: "bakery", label: "Bakery" },
-  { route: "shop", label: "Pantry Shop" },
-  { route: "learn", label: "Math Lab" },
-];
-
 export function renderShell({ player, route, screenMarkup, flash, saveSummary }) {
-  const navMarkup = player
-    ? `
-      <div class="tabs">
-        ${NAV_ITEMS.map(
-          (item) => `
-            <button class="tab-button ${route === item.route ? "active" : ""}" data-route="${item.route}" type="button">
-              ${item.label}
-            </button>
-          `,
-        ).join("")}
-      </div>
-    `
-    : "";
-
   const playerSummary = player
     ? `
       <p class="muted">${player.grade === "K" ? "Kindergarten" : `Grade ${player.grade}`} baker</p>
@@ -28,13 +8,16 @@ export function renderShell({ player, route, screenMarkup, flash, saveSummary })
   return `
     <div class="layout-stack">
       <section class="panel">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Project shell</p>
-            <h2>${player ? `${escapeHtml(player.username)}'s Shop` : "Sprinkles 100"}</h2>
-            ${playerSummary}
+        <div class="section-head shell-head">
+          <div class="shell-brand">
+            <img class="shell-logo" src="./logo.png" alt="100 Sprinkles logo" />
+            <div>
+              <p class="eyebrow">Project shell</p>
+              <h2>${player ? `${escapeHtml(player.username)}'s Shop` : "100 Sprinkles"}</h2>
+              ${playerSummary}
+            </div>
           </div>
-          ${navMarkup}
+          ${player ? renderFlowSteps(route) : ""}
         </div>
         ${flash ? `<div class="message ${flash.kind}">${escapeHtml(flash.text)}</div>` : ""}
         ${
@@ -52,6 +35,30 @@ export function renderShell({ player, route, screenMarkup, flash, saveSummary })
       </section>
       ${screenMarkup}
       <p class="footer-note">Progress saves on this device with local storage.</p>
+    </div>
+  `;
+}
+
+function renderFlowSteps(route) {
+  const steps = [
+    { route: "title", label: "Title" },
+    { route: "profile", label: "User Info" },
+    { route: "recipe", label: "Recipe" },
+    { route: "bake", label: "Bake" },
+    { route: "stats", label: "Stats" },
+  ];
+
+  return `
+    <div class="flow-steps">
+      ${steps
+        .map(
+          (step) => `
+            <div class="flow-step ${step.route === route ? "active" : ""}">
+              ${step.label}
+            </div>
+          `,
+        )
+        .join("")}
     </div>
   `;
 }

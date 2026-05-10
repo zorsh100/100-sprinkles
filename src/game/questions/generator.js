@@ -1,16 +1,17 @@
 import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js";
+import { isVisualMode } from "../sr.js";
 import { QUESTION_BANK } from "./bank.js";
 
 export function generateQuestion({ SR, stage, context = {}, recentTemplates = [] }) {
   const targetDifficulty = SR + randomInt(-20, 20);
   const candidatePool = QUESTION_BANK.filter((template) =>
     allowedTypes(SR).includes(template.type) &&
-    (SR < 100 || template.stages.includes(stage)) &&
+    (isVisualMode(SR) || template.stages.includes(stage)) &&
     Math.abs(template.difficulty - targetDifficulty) <= 30,
   );
   const fallbackPool = QUESTION_BANK.filter((template) =>
     allowedTypes(SR).includes(template.type) &&
-    (SR < 100 || template.stages.includes(stage)),
+    (isVisualMode(SR) || template.stages.includes(stage)),
   );
   const selectable = (candidatePool.length ? candidatePool : fallbackPool).filter(Boolean);
   const selectedTemplate = weightedPick(selectable, (template) => {

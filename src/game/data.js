@@ -1,5 +1,5 @@
 export const GRADE_TO_SR = {
-  K: 50,
+  K: 0,
   1: 150,
   2: 250,
   3: 350,
@@ -72,7 +72,7 @@ export const RECIPES = [
 export const DEFAULT_PLAYER = {
   username: "",
   grade: "K",
-  SR: 50,
+  SR: 0,
   bank: 0,
   sprinkles: 0,
   skill: {

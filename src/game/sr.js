@@ -2,6 +2,9 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+export const VISUAL_MODE_END_SR = 110;
+export const VISUAL_BRIDGE_START_SR = 80;
+
 export function getSRWindow(sr) {
   return {
     min: clamp(sr - 20, 0, 1000),
@@ -9,8 +12,17 @@ export function getSRWindow(sr) {
   };
 }
 
+export function isVisualMode(sr) {
+  return sr < VISUAL_MODE_END_SR;
+}
+
+export function isBridgeMode(sr) {
+  return sr >= VISUAL_BRIDGE_START_SR && sr < VISUAL_MODE_END_SR;
+}
+
 export function getSRMode(sr) {
-  if (sr < 100) return "Visual Arithmetic";
+  if (sr < VISUAL_BRIDGE_START_SR) return "Visual Arithmetic";
+  if (sr < VISUAL_MODE_END_SR) return "Visual Bridge";
   if (sr < 300) return "Story Math";
   if (sr < 500) return "Pantry Math";
   if (sr < 700) return "Full Simulator";
@@ -18,7 +30,7 @@ export function getSRMode(sr) {
 }
 
 export function getAllowedQuestionTypes(sr) {
-  if (sr < 100) return ["arithmetic_visual"];
+  if (isVisualMode(sr)) return ["arithmetic_visual"];
 
   const types = ["arithmetic", "cost"];
 
@@ -55,6 +67,14 @@ export function applySRResult({ player, question, correct, attemptNumber }) {
     penalty += Math.round(clamp((player.SR - (question.difficulty ?? player.SR)) / 40, -1, 4));
     penalty += Math.min(Math.max(0, attemptNumber - 1), 2);
     delta = -clamp(penalty, 3, 11);
+  }
+
+  if (player.SR < VISUAL_MODE_END_SR) {
+    if (correct) {
+      delta = clamp(Math.round(delta * 0.65), 3, 8);
+    } else {
+      delta = -clamp(Math.round(Math.abs(delta) * 0.6), 2, 6);
+    }
   }
 
   const nextSR = clamp(player.SR + delta, 0, 1000);

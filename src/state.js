@@ -97,8 +97,8 @@ export function createNewPlayer({ username, grade }) {
     flash: {
       kind: "success",
       text:
-        SR < 100
-          ? "Welcome to cupcake counting mode. Tap the right answer to earn sprinkles."
+        SR < 110
+          ? "Welcome to cupcake counting mode. The first-grade bridge stays visual a little longer so the jump feels gentler."
           : "Your bakery is open. Pick a recipe and start solving sweet math.",
     },
     saveMeta: {

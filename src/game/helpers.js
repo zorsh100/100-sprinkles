@@ -25,7 +25,8 @@ export function formatGrade(grade) {
 }
 
 export function srToBand(sr) {
-  if (sr < 100) return "Kindergarten";
+  if (sr < 80) return "Kindergarten";
+  if (sr < 110) return "Kindergarten Bridge";
   if (sr < 200) return "1st Grade";
   if (sr < 300) return "2nd Grade";
   if (sr < 400) return "3rd Grade";

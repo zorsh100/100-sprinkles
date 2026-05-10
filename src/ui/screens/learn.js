@@ -1,4 +1,4 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow } from "../../game/sr.js";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js";
 
 export function renderLearnScreen(player) {
   const window = getSRWindow(player.SR);
@@ -18,7 +18,7 @@ export function renderLearnScreen(player) {
         <div class="mini-card">
           <span class="muted tiny">Current mode</span>
           <strong>${getSRMode(player.SR)}</strong>
-          <p class="muted tiny">The SR engine changes the style of math as the player grows.</p>
+          <p class="muted tiny">The SR engine now keeps kids in visual math through SR 109, with a gentler bridge into 1st grade.</p>
         </div>
         <div class="mini-card">
           <span class="muted tiny">Accuracy</span>
@@ -33,7 +33,7 @@ export function renderLearnScreen(player) {
         <div class="mini-card">
           <span class="muted tiny">Question types</span>
           <strong>${allowedTypes.length}</strong>
-          <p class="muted tiny">${allowedTypes.join(", ")}</p>
+          <p class="muted tiny">${allowedTypes.join(", ")}${isBridgeMode(player.SR) ? " • bridge zone" : isVisualMode(player.SR) ? " • visual zone" : ""}</p>
         </div>
       </div>
     </section>

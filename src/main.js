@@ -15,6 +15,7 @@ function syncAndRender() {
     ...uiState,
     route: syncRouteFromState(gameState),
   };
+
   saveGame(gameState);
   renderApp(appRoot, gameState, uiState, handleAction);
 }
@@ -23,9 +24,16 @@ function handleAction(action) {
   switch (action.type) {
     case "START_GAME":
       gameState = createNewPlayer(action.payload);
+      uiState = { ...uiState, route: "recipe" };
       break;
     case "UPDATE_GAME":
       gameState = action.payload;
+
+      if (gameState.session.order || gameState.session.saleReady) {
+        uiState = { ...uiState, route: "bake" };
+      } else if (gameState.session.recentSale) {
+        uiState = { ...uiState, route: "stats" };
+      }
       break;
     case "NAVIGATE":
       uiState = {
@@ -36,6 +44,7 @@ function handleAction(action) {
     case "RESET_SAVE":
       resetGame();
       gameState = loadGame();
+      uiState = { ...uiState, route: "title" };
       break;
     default:
       break;
