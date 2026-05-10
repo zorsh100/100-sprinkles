@@ -840,6 +840,12 @@ h1 {
   }
 }
 
+.shell-strip {
+  display: grid;
+  gap: 14px;
+  padding: 6px 4px 2px;
+}
+
 .flow-screen {
   display: grid;
   gap: 18px;
@@ -959,6 +965,7 @@ h1 {
 
 .shell-head {
   align-items: flex-start;
+  margin-bottom: 0;
 }
 
 @media (max-width: 720px) {

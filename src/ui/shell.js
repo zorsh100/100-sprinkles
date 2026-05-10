@@ -7,12 +7,11 @@ export function renderShell({ player, route, screenMarkup, flash, saveSummary })
 
   return `
     <div class="layout-stack">
-      <section class="panel">
+      <section class="shell-strip">
         <div class="section-head shell-head">
           <div class="shell-brand">
             <img class="shell-logo" src="./logo.png?v=20260509-174353" alt="100 Sprinkles logo" />
             <div>
-              <p class="eyebrow">Project shell</p>
               <h2>${player ? `${escapeHtml(player.username)}'s Shop` : "100 Sprinkles"}</h2>
               ${playerSummary}
             </div>
