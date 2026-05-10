@@ -980,3 +980,9 @@ h1 {
     height: 60px;
   }
 }
+
+.utility-bar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 4px 16px;
+}
