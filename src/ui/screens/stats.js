@@ -1,3 +1,4 @@
+import { formatOrderCount } from "../../game/helpers.js?v=20260509-205459";
 import { getSRMode } from "../../game/sr.js?v=20260509-205459";
 
 export function renderStatsScreen(gameState) {
@@ -17,7 +18,7 @@ export function renderStatsScreen(gameState) {
           ? `
             <div class="receipt-card sale-report">
               <strong>${sale.recipeIcon} ${sale.recipeName}</strong>
-              <span>${sale.batchCount} batch${sale.batchCount > 1 ? "es" : ""} sold</span>
+              <span>${formatOrderCount(player.SR, sale.batchCount) ? `${formatOrderCount(player.SR, sale.batchCount)} sold` : "Sold and served"}</span>
               <span>${sale.revenue} coins earned</span>
               <span>${sale.sprinklesEarned} sprinkles earned</span>
             </div>

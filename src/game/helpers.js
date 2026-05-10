@@ -38,6 +38,25 @@ export function srToBand(sr) {
   return "Advanced";
 }
 
+export const SETS_UNLOCK_SR = 400;
+
+export function supportsRecipeSets(sr) {
+  return sr >= SETS_UNLOCK_SR;
+}
+
+export function getOrderCount(sr, count = 1) {
+  return supportsRecipeSets(sr) ? clamp(Number(count) || 1, 1, 6) : 1;
+}
+
+export function formatOrderCount(sr, count) {
+  if (!supportsRecipeSets(sr)) {
+    return "";
+  }
+
+  const total = getOrderCount(sr, count);
+  return `${total} set${total === 1 ? "" : "s"}`;
+}
+
 export function allowedTypes(sr) {
   return getAllowedQuestionTypes(sr);
 }

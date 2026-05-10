@@ -1,11 +1,14 @@
 import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-205459";
 import {
+  formatOrderCount,
   getMissingPantry,
+  getOrderCount,
   getPantryNeed,
   getRecipeById,
   getTotalShopCost,
   getUnlockedRecipes,
   srToBand,
+  supportsRecipeSets,
 } from "../../game/helpers.js?v=20260509-205459";
 import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-205459";
 import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-205459";
@@ -14,41 +17,14 @@ export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
   const recipes = getUnlockedRecipes(player);
   const selectedRecipe = getRecipeById(session.selectedRecipeId) ?? recipes[0] ?? RECIPES[0];
-  const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, session.batchCount) : null;
+  const orderCount = getOrderCount(player.SR, session.batchCount);
+  const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, orderCount) : null;
   const currentStage = session.order ? STAGES[session.order.stageIndex] : "prep";
   const srWindow = getSRWindow(player.SR);
 
   if (session.order || session.saleReady) {
     if (isVisualMode(player.SR)) {
-      return `
-        <section class="flow-screen">
-          <section class="panel">
-            <div class="section-head">
-              <div>
-                <p class="eyebrow">Start Bake</p>
-                <h2>Play Tray</h2>
-                <p class="muted">${srToBand(player.SR)} skill band • visual counting only</p>
-              </div>
-              <div class="badge">Picture math</div>
-            </div>
-            <div class="stats-grid kindergarten-stats-grid">
-              <div class="stat-card">
-                <span class="muted tiny">Skill Rating</span>
-                <strong>${player.SR}</strong>
-              </div>
-              <div class="stat-card">
-                <span class="muted tiny">Sprinkles</span>
-                <strong>${player.sprinkles}</strong>
-              </div>
-              <div class="stat-card">
-                <span class="muted tiny">Streak</span>
-                <strong>${player.skill.currentStreak}</strong>
-              </div>
-            </div>
-          </section>
-          ${renderKindergartenBakery({ player, session, currentStage, selectedRecipe })}
-        </section>
-      `;
+      return renderKindergartenBakery({ player, session, currentStage, selectedRecipe });
     }
 
     return renderBakeScreen(gameState, currentStage, srWindow);
@@ -59,6 +35,8 @@ export function renderBakeryScreen(gameState) {
 
 function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
   const { player, session } = gameState;
+  const orderCount = getOrderCount(player.SR, session.batchCount);
+  const countLabel = formatOrderCount(player.SR, orderCount);
   const missingPantry = player.SR >= 300 && pantryNeed ? getMissingPantry(player, pantryNeed) : {};
   const isReadyToBake = Object.keys(missingPantry).length === 0;
   const missingCost = getTotalShopCost(missingPantry);
@@ -99,9 +77,9 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
           <div>
             <p class="eyebrow">Recipe Selection</p>
             <h2>Choose Today’s Bake</h2>
-            <p class="muted">Pick a recipe, set your batches, and get the bakery ready.</p>
+            <p class="muted">${supportsRecipeSets(player.SR) ? "Pick a recipe, choose your sets, and get the bakery ready." : "Pick a recipe and get the bakery ready."}</p>
           </div>
-          <div class="badge">${session.batchCount} batch${session.batchCount > 1 ? "es" : ""}</div>
+          ${countLabel ? `<div class="badge">${countLabel}</div>` : ""}
         </div>
 
         <div class="recipe-grid">
@@ -142,10 +120,16 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
             <div class="badge">${isVisualMode(player.SR) ? "Picture Mode" : "5-stage bake"}</div>
           </div>
 
-          <label class="field">
-            <span>Batches</span>
-            <input id="batch-count" type="number" min="1" max="6" value="${session.batchCount}" />
-          </label>
+          ${
+            supportsRecipeSets(player.SR)
+              ? `
+                <label class="field">
+                  <span>Sets</span>
+                  <input id="batch-count" type="number" min="1" max="6" value="${orderCount}" />
+                </label>
+              `
+              : `<p class="muted tiny">Bigger bakery orders unlock in 4th grade. For now, each bake is one recipe at a time.</p>`
+          }
 
           ${
             player.SR >= 300 && pantryNeed
@@ -231,7 +215,7 @@ function renderQuestionPanel(gameState, currentStage) {
             <h2>${session.saleReady.recipeIcon} Fresh ${session.saleReady.recipeName}</h2>
             <p class="muted">The baking is done. Serve the order to see your stats.</p>
           </div>
-          <div class="badge">${session.saleReady.batchCount} batch${session.saleReady.batchCount > 1 ? "es" : ""}</div>
+          <div class="badge">${formatOrderCount(player.SR, session.saleReady.batchCount) || "Ready to serve"}</div>
         </div>
         <div class="receipt-card">
           <span>Sale value: ${session.saleReady.revenue} coins</span>

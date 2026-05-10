@@ -3,10 +3,12 @@ import {
   canAffordIngredients,
   clamp,
   getMissingPantry,
+  getOrderCount,
   getOrderRevenue,
   getPantryNeed,
   getRecipeById,
   getShopCost,
+  supportsRecipeSets,
 } from "./helpers.js?v=20260509-205459";
 import { generateQuestion } from "./questions/generator.js?v=20260509-205459";
 import { applySRResult, isVisualMode } from "./sr.js?v=20260509-205459";
@@ -44,7 +46,7 @@ export function setBatchCount(gameState, batchCount) {
     ...gameState,
     session: {
       ...gameState.session,
-      batchCount: clamp(Number(batchCount) || 1, 1, 6),
+      batchCount: getOrderCount(gameState.player.SR, batchCount),
       questionResult: null,
     },
   };
@@ -88,8 +90,10 @@ export function startOrder(gameState) {
     return setFlash(gameState, "error", "Serve and sell your finished bake before starting another one.");
   }
 
+  const orderCount = getOrderCount(player.SR, session.batchCount);
+
   if (player.SR >= 300) {
-    const need = getPantryNeed(recipe, session.batchCount);
+    const need = getPantryNeed(recipe, orderCount);
 
     if (!canAffordIngredients(player, need)) {
       const missing = getMissingPantry(player, need);
@@ -104,12 +108,12 @@ export function startOrder(gameState) {
     }
   }
 
-  const pantryNeed = getPantryNeed(recipe, session.batchCount);
-  const estimatedRevenue = getOrderRevenue(recipe, session.batchCount, player.SR);
-  const sprinkleReward = recipe.sprinkleReward * session.batchCount;
+  const pantryNeed = getPantryNeed(recipe, orderCount);
+  const estimatedRevenue = getOrderRevenue(recipe, orderCount, player.SR);
+  const sprinkleReward = recipe.sprinkleReward * orderCount;
   const order = {
     recipeId: recipe.id,
-    batchCount: session.batchCount,
+    batchCount: orderCount,
     stageIndex: 0,
     completedStages: [],
     pantryNeed,
@@ -124,7 +128,7 @@ export function startOrder(gameState) {
     context: {
       recipeId: recipe.id,
       recipeName: recipe.name,
-      batchCount: session.batchCount,
+      batchCount: orderCount,
     },
     recentTemplates: session.recentTemplates,
   });
@@ -262,7 +266,7 @@ function finishOrder(gameState, updatedPlayer, completedStages) {
     session: {
       ...createInitialSession({
         selectedRecipeId: session.selectedRecipeId,
-        batchCount: session.batchCount,
+        batchCount: getOrderCount(updatedPlayer.SR, session.batchCount),
         recentTemplates: session.recentTemplates,
         recentSale: session.recentSale,
       }),
@@ -290,7 +294,7 @@ export function sellCurrentOrder(gameState) {
   const saleReady = session.saleReady;
 
   if (!saleReady) {
-    return setFlash(gameState, "error", "Finish baking a batch before trying to sell it.");
+    return setFlash(gameState, "error", "Finish baking this order before trying to sell it.");
   }
 
   return {
@@ -310,7 +314,9 @@ export function sellCurrentOrder(gameState) {
     },
     flash: {
       kind: "success",
-      text: `Sold ${saleReady.batchCount} batch${saleReady.batchCount > 1 ? "es" : ""} of ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`,
+      text: supportsRecipeSets(player.SR)
+        ? `Sold ${saleReady.batchCount} set${saleReady.batchCount > 1 ? "s" : ""} of ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`
+        : `Sold ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`,
     },
   };
 }

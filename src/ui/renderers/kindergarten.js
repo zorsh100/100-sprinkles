@@ -6,9 +6,9 @@ export function renderKindergartenBakery({ player, session, currentStage, select
       <section class="panel kinder-hero-panel">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Kindergarten renderer</p>
-            <h2>Count the treats</h2>
-            <p class="muted">Tap the number that matches the treats you see.</p>
+            <p class="eyebrow">Start Bake</p>
+            <h2>Count the Treats</h2>
+            <p class="muted">Kindergarten path. Tap the number that matches the treats you see.</p>
           </div>
           <div class="badge">Picture mode</div>
         </div>
@@ -26,9 +26,18 @@ export function renderKindergartenBakery({ player, session, currentStage, select
             <strong>${player.skill.currentStreak}</strong>
           </div>
         </div>
-        <div class="kinder-stage-banner">
-          <span>${STAGE_META[currentStage].icon}</span>
-          <span>${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</span>
+        <div class="kinder-stage-banner-row">
+          <div class="kinder-stage-banner">
+            <span>${STAGE_META[currentStage].icon}</span>
+            <span>${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</span>
+          </div>
+          <div class="badge">SR ${player.SR}</div>
+        </div>
+        <div class="kinder-path-block">
+          <p class="muted tiny">Bakery Path</p>
+          <div class="kinder-stage-track">
+            ${renderKindergartenStageTrack(session, currentStage)}
+          </div>
         </div>
       </section>
 
@@ -39,20 +48,6 @@ export function renderKindergartenBakery({ player, session, currentStage, select
             ? renderKindergartenQuestion({ session, currentStage })
             : renderKindergartenStart()
       }
-
-      <section class="panel kinder-progress-panel">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Sweet progress</p>
-            <h2>Bakery Path</h2>
-            <p class="muted">Each right answer fills the sprinkle trail.</p>
-          </div>
-          <div class="badge">SR ${player.SR}</div>
-        </div>
-        <div class="kinder-stage-track">
-          ${renderKindergartenStageTrack(session, currentStage)}
-        </div>
-      </section>
     </section>
   `;
 }

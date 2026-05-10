@@ -22,7 +22,6 @@ export function renderApp(root, gameState, uiState, dispatch) {
 
   if (uiState.route === "title") {
     root.innerHTML = renderShell({
-      flash: gameState.flash,
       screenMarkup: renderTitleScreen(saveSummary),
     });
     attachTitleEvents(root, dispatch);
@@ -31,7 +30,6 @@ export function renderApp(root, gameState, uiState, dispatch) {
 
   if (uiState.route === "profile" || !gameState.player) {
     root.innerHTML = renderShell({
-      flash: gameState.flash,
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
@@ -39,7 +37,6 @@ export function renderApp(root, gameState, uiState, dispatch) {
   }
 
   root.innerHTML = renderShell({
-    flash: gameState.flash,
     screenMarkup: getScreenMarkup(gameState, uiState.route, saveSummary),
   });
 
