@@ -1,5 +1,5 @@
-import { STAGE_META } from "../../game/data.js?v=20260510-040900";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-040900";
+import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260510-050500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-050500";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -20,7 +20,7 @@ export function renderKindergartenBakery({ player, session, currentStage, select
           </div>
           <div class="kinder-summary-card kinder-summary-sprinkles">
             <span class="muted tiny">Sprinkles</span>
-            <strong>${player.sprinkles}</strong>
+            <strong>${player.sprinkles >= MAX_SPRINKLES ? "Expert Baker" : `${player.sprinkles}/${MAX_SPRINKLES}`}</strong>
           </div>
           <div class="kinder-summary-card kinder-summary-streak">
             <span class="muted tiny">Streak</span>

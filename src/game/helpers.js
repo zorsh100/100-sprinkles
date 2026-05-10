@@ -1,8 +1,8 @@
-import { clamp } from "./math.js?v=20260510-040900";
-import { INGREDIENT_COSTS, RECIPES } from "./data.js?v=20260510-040900";
-import { getAllowedQuestionTypes } from "./sr.js?v=20260510-040900";
+import { clamp } from "./math.js?v=20260510-050500";
+import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260510-050500";
+import { getAllowedQuestionTypes } from "./sr.js?v=20260510-050500";
 
-export { clamp } from "./math.js?v=20260510-040900";
+export { clamp } from "./math.js?v=20260510-050500";
 
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -86,15 +86,29 @@ export function getRecipeById(recipeId) {
 
 export function getUnlockedRecipes(player) {
   return RECIPES.filter(
-    (recipe) => player.knownRecipes.includes(recipe.id) && player.SR >= recipe.unlockSR,
+    (recipe) => player.knownRecipes.includes(recipe.id) && player.sprinkles >= recipe.unlockSprinkles,
   );
 }
 
-export function getNewlyUnlockedRecipes(previousSR, nextSR, knownRecipeIds = []) {
+export function getNewlyUnlockedRecipes(previousSprinkles, nextSprinkles, knownRecipeIds = []) {
   return RECIPES.filter(
     (recipe) =>
-      knownRecipeIds.includes(recipe.id) && previousSR < recipe.unlockSR && nextSR >= recipe.unlockSR,
+      knownRecipeIds.includes(recipe.id) &&
+      previousSprinkles < recipe.unlockSprinkles &&
+      nextSprinkles >= recipe.unlockSprinkles,
   );
+}
+
+export function getSprinkleCapForBake(recipe) {
+  return clamp(recipe?.sprinkleReward ?? 0, 0, 5);
+}
+
+export function clampSprinkles(value) {
+  return clamp(Number(value) || 0, 0, MAX_SPRINKLES);
+}
+
+export function getSprinklePercent(value) {
+  return Math.round((clampSprinkles(value) / MAX_SPRINKLES) * 100);
 }
 
 export function getPantryNeed(recipe, batchCount) {

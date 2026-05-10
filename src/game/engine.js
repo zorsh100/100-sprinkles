@@ -1,7 +1,8 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260510-040900";
+import { createInitialSession, STAGES } from "./data.js?v=20260510-050500";
 import {
   canAffordIngredients,
   clamp,
+  clampSprinkles,
   getAccuracyAdjustedRevenue,
   getMissingPantry,
   getNewlyUnlockedRecipes,
@@ -10,11 +11,12 @@ import {
   getPantryNeed,
   getRecipeById,
   getShopCost,
+  getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260510-040900";
-import { formatSignedValue } from "./math.js?v=20260510-040900";
-import { generateQuestion } from "./questions/generator.js?v=20260510-040900";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260510-040900";
+} from "./helpers.js?v=20260510-050500";
+import { formatSignedValue } from "./math.js?v=20260510-050500";
+import { generateQuestion } from "./questions/generator.js?v=20260510-050500";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260510-050500";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -113,7 +115,6 @@ export function startOrder(gameState) {
 
   const pantryNeed = getPantryNeed(recipe, orderCount);
   const estimatedRevenue = getOrderRevenue(recipe, orderCount, player.SR);
-  const sprinkleReward = recipe.sprinkleReward * orderCount;
   const order = {
     recipeId: recipe.id,
     batchCount: orderCount,
@@ -121,9 +122,10 @@ export function startOrder(gameState) {
     completedStages: [],
     pantryNeed,
     estimatedRevenue,
-    sprinkleReward,
     totalAttempts: 0,
     correctAnswers: 0,
+    firstTryCorrectAnswers: 0,
+    streakBonusSprinkles: 0,
     status: "baking",
     startedAt: Date.now(),
   };
@@ -205,15 +207,18 @@ export function submitAnswer(gameState, selectedAnswer) {
 
   const nextStageIndex = session.order.stageIndex + 1;
   const completedStages = [...session.order.completedStages, question.stage];
-  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.SR, srResult.nextSR, player.knownRecipes);
+  const earnedFirstTrySprinkle = attemptNumber === 1 ? 1 : 0;
+  const earnedStreakSprinkle = attemptNumber === 1 && srResult.player.skill.currentStreak >= 5 ? 1 : 0;
 
   const nextOrderTotals = {
     totalAttempts: (session.order.totalAttempts ?? 0) + 1,
     correctAnswers: (session.order.correctAnswers ?? 0) + 1,
+    firstTryCorrectAnswers: (session.order.firstTryCorrectAnswers ?? 0) + earnedFirstTrySprinkle,
+    streakBonusSprinkles: (session.order.streakBonusSprinkles ?? 0) + earnedStreakSprinkle,
   };
 
   if (nextStageIndex >= STAGES.length) {
-    return finishOrder(gameState, srResult.player, completedStages, newlyUnlockedRecipes, nextOrderTotals);
+    return finishOrder(gameState, srResult.player, completedStages, nextOrderTotals);
   }
 
   const recipe = getRecipeById(session.order.recipeId);
@@ -230,10 +235,7 @@ export function submitAnswer(gameState, selectedAnswer) {
 
   return {
     ...gameState,
-    player: {
-      ...srResult.player,
-      sprinkles: srResult.player.sprinkles + 2,
-    },
+    player: srResult.player,
     session: {
       ...session,
       order: {
@@ -247,10 +249,10 @@ export function submitAnswer(gameState, selectedAnswer) {
         selectedAnswer: Number(selectedAnswer),
         attemptNumber,
         srDelta: srResult.delta,
+        sprinklesEarned: earnedFirstTrySprinkle + earnedStreakSprinkle,
       },
       currentQuestion: nextQuestion,
       recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
-      pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
     },
     flash: {
       kind: "success",
@@ -259,18 +261,24 @@ export function submitAnswer(gameState, selectedAnswer) {
   };
 }
 
-function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRecipes = [], orderTotals = {}) {
+function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}) {
   const { session } = gameState;
   const recipe = getRecipeById(session.order.recipeId);
   const baseRevenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
-  const sprinklesEarned = recipe.sprinkleReward * session.order.batchCount;
   const totalAttempts = orderTotals.totalAttempts ?? session.order.totalAttempts ?? completedStages.length;
   const correctAnswers = orderTotals.correctAnswers ?? session.order.correctAnswers ?? completedStages.length;
+  const firstTryCorrectAnswers = orderTotals.firstTryCorrectAnswers ?? session.order.firstTryCorrectAnswers ?? 0;
+  const streakBonusSprinkles = orderTotals.streakBonusSprinkles ?? session.order.streakBonusSprinkles ?? 0;
   const { accuracyPercent, adjustedRevenue } = getAccuracyAdjustedRevenue(
     baseRevenue,
     correctAnswers,
     totalAttempts,
   );
+  const sprinklesEarned = getBakeProgressSprinkles({
+    recipe,
+    firstTryCorrectAnswers,
+    streakBonusSprinkles,
+  });
   const pantry = { ...updatedPlayer.pantry };
 
   if (updatedPlayer.SR >= 300) {
@@ -294,7 +302,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRec
         recentTemplates: session.recentTemplates,
         recentSale: session.recentSale,
         recentSales: session.recentSales,
-        pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
+        pendingRecipeUnlocks: session.pendingRecipeUnlocks,
       }),
       saleReady: {
         recipeId: recipe.id,
@@ -307,8 +315,10 @@ function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRec
         accuracyPercent,
         totalAttempts,
         correctAnswers,
-        sprinklesEarned: sprinklesEarned + 2,
+        firstTryCorrectAnswers,
+        streakBonusSprinkles,
         pantryUsed: session.order.pantryNeed,
+        sprinklesEarned,
         bakedAt: Date.now(),
       },
     },
@@ -343,19 +353,22 @@ export function sellCurrentOrder(gameState) {
   };
   const recentSales = [completedSale, ...(Array.isArray(session.recentSales) ? session.recentSales : session.recentSale ? [session.recentSale] : [])]
     .slice(0, 5);
+  const nextSprinkles = clampSprinkles(player.sprinkles + saleReady.sprinklesEarned);
+  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.sprinkles, nextSprinkles, player.knownRecipes);
 
   return {
     ...gameState,
     player: {
       ...player,
       bank: player.bank + saleReady.revenue,
-      sprinkles: player.sprinkles + saleReady.sprinklesEarned,
+      sprinkles: nextSprinkles,
     },
     session: {
       ...session,
       saleReady: null,
       recentSale: completedSale,
       recentSales,
+      pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
     },
     flash: {
       kind: "success",
@@ -364,6 +377,15 @@ export function sellCurrentOrder(gameState) {
         : `Sold ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`,
     },
   };
+}
+
+function getBakeProgressSprinkles({ recipe, firstTryCorrectAnswers = 0, streakBonusSprinkles = 0 }) {
+  // Sprinkles now act as the bake progression meter, so one bake should only
+  // move the player a little even when the recipe's legacy reward value is high.
+  const cappedBakeReward = getSprinkleCapForBake(recipe);
+  const rawBakeProgress = Number(firstTryCorrectAnswers || 0) + Number(streakBonusSprinkles || 0) + 1;
+
+  return clamp(rawBakeProgress, 0, cappedBakeReward);
 }
 
 function queueRecipeUnlocks(existingUnlocks = [], newlyUnlockedRecipes = []) {

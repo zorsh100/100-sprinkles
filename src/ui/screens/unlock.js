@@ -1,5 +1,5 @@
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-040900";
-import { renderMascot } from "../components/mascot.js?v=20260510-040900";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-050500";
+import { renderMascot } from "../components/mascot.js?v=20260510-050500";
 
 export function renderUnlockScreen(gameState) {
   const unlocks = gameState.session.pendingRecipeUnlocks ?? [];
@@ -23,7 +23,7 @@ export function renderUnlockScreen(gameState) {
 
         <div class="empty-state utility-empty-card unlock-empty-card">
           <h3>No new unlocks yet</h3>
-          <p class="muted">Keep baking and raising SR to discover the next treat in the recipe book.</p>
+          <p class="muted">Keep baking and collecting sprinkles to discover the next treat in the recipe book.</p>
         </div>
 
         <div class="flow-actions settings-actions">
@@ -70,7 +70,7 @@ export function renderUnlockScreen(gameState) {
                 <div class="unlock-icon">${recipe.icon}</div>
                 <p class="eyebrow">Fresh Addition</p>
                 <h3>${escapeHtml(recipe.name)}</h3>
-                <p class="muted tiny">Unlocked at SR ${recipe.unlockSR}</p>
+                <p class="muted tiny">Unlocked at ✨ ${recipe.unlockSprinkles} sprinkles</p>
                 <div class="recipe-icon-row unlock-ingredient-row">
                   <span>${renderIngredientIcon("flour", "ingredient-mark-inline")} ${recipe.ingredients.flour}</span>
                   <span>${renderIngredientIcon("sugar", "ingredient-mark-inline")} ${recipe.ingredients.sugar}</span>
@@ -78,7 +78,6 @@ export function renderUnlockScreen(gameState) {
                 </div>
                 <div class="recipe-meta unlock-meta">
                   <span>${renderCoinIcon("coin-icon-sm")} ${recipe.baseReward} base coins</span>
-                  <span>${recipe.sprinkleReward} sparkle bonus</span>
                 </div>
                 <p class="muted tiny">${getRecipeUnlockNote(recipe)}</p>
               </article>

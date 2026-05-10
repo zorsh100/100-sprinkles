@@ -1,19 +1,22 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-040900";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-040900";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-040900";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-050500";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-050500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-050500";
 import {
+  clampSprinkles,
   formatOrderCount,
   getMissingPantry,
   getOrderCount,
   getPantryNeed,
   getRecipeById,
+  getSprinklePercent,
   getShopCost,
   getTotalShopCost,
+  getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260510-040900";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-040900";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-040900";
+} from "../../game/helpers.js?v=20260510-050500";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-050500";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-050500";
 
 const INGREDIENT_META = {
   flour: {
@@ -36,9 +39,9 @@ const INGREDIENT_META = {
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
   const knownRecipes = RECIPES.filter((recipe) => player.knownRecipes.includes(recipe.id));
-  const unlockedRecipes = knownRecipes.filter((recipe) => player.SR >= recipe.unlockSR);
+  const unlockedRecipes = getUnlockedRecipes(player);
   const selectedRecipe =
-    knownRecipes.find((recipe) => recipe.id === session.selectedRecipeId && player.SR >= recipe.unlockSR) ??
+    knownRecipes.find((recipe) => recipe.id === session.selectedRecipeId && player.sprinkles >= recipe.unlockSprinkles) ??
     unlockedRecipes[0] ??
     knownRecipes[0] ??
     RECIPES[0];
@@ -88,8 +91,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
             <strong class="hud-value">${player.bank}</strong>
           </div>
           <div class="hud-pill sprinkle-pill">
-            <span class="hud-label">Sparkle Bonus</span>
-            <strong class="hud-value">${player.sprinkles}</strong>
+            ${renderSprinkleHud(player)}
           </div>
           <div class="hud-pill mode-pill">
             <span class="hud-label">Math Mode</span>
@@ -110,14 +112,14 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
         <div class="recipe-grid bakery-recipe-grid">
           ${knownRecipes
             .map((recipe) => {
-              const isUnlocked = player.SR >= recipe.unlockSR;
+              const isUnlocked = player.sprinkles >= recipe.unlockSprinkles;
               const isSelected = selectedRecipe && selectedRecipe.id === recipe.id;
               return `
                 <article class="recipe-card bakery-recipe-card ${isSelected ? "selected" : ""} ${isUnlocked ? "" : "locked"}">
                   <div class="recipe-card-head">
                     <div>
                       <h3>${recipe.icon} ${recipe.name}</h3>
-                      <p class="recipe-label">${isSelected ? "Today's star bake" : isUnlocked ? "Ready for a fresh batch" : "Keep climbing SR to unlock this treat"}</p>
+                      <p class="recipe-label">${isSelected ? "Today's star bake" : isUnlocked ? "Ready for a fresh batch" : `Collect ✨ ${recipe.unlockSprinkles} sprinkles to unlock this treat`}</p>
                     </div>
                     ${renderRecipeStatusBadge(recipe, isSelected, isUnlocked)}
                   </div>
@@ -134,7 +136,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                       <span class="recipe-info-title">Rewards</span>
                       <div class="recipe-icon-row recipe-reward-list">
                         <span>${renderCoinIcon("coin-icon-sm")} ${recipe.baseReward} base coins</span>
-                        <span>${recipe.sprinkleReward} sparkle bonus</span>
+                        <span>Up to ${Math.min(recipe.sprinkleReward, 5)} sprinkle progress per bake</span>
                       </div>
                     </div>
                   </div>
@@ -227,7 +229,7 @@ function renderRecipeStatusBadge(recipe, isSelected, isUnlocked) {
     return '<span class="recipe-status-badge recipe-status-unlocked">Unlocked</span>';
   }
 
-  return `<span class="recipe-status-badge recipe-status-locked">SR ${recipe.unlockSR}</span>`;
+  return `<span class="recipe-status-badge recipe-status-locked">✨ ${recipe.unlockSprinkles}</span>`;
 }
 
 function renderRecipeAction(recipe, isSelected, isUnlocked) {
@@ -239,7 +241,7 @@ function renderRecipeAction(recipe, isSelected, isUnlocked) {
     return `
       <div class="recipe-card-footer">
         <button class="recipe-button recipe-button-locked" type="button" disabled>
-          Locked For Now
+          Collect More Sprinkles
         </button>
       </div>
     `;
@@ -368,7 +370,7 @@ function renderQuestionPanel(gameState, currentStage) {
         <div class="receipt-card">
           <span>Sale value: ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue} of ${session.saleReady.baseRevenue ?? session.saleReady.revenue}</span>
           <span>Bake accuracy: ${session.saleReady.accuracyPercent ?? 100}%</span>
-          <span>Sparkle bonus: ${session.saleReady.sprinklesEarned}</span>
+          <span>Sprinkles earned: ${session.saleReady.sprinklesEarned}/${Math.min(activeRecipe?.sprinkleReward ?? 5, 5)}</span>
         </div>
         <div class="flow-actions">
           <button class="primary-button" data-sell-order type="button">Serve & Sell</button>
@@ -439,6 +441,35 @@ function renderQuestionPanel(gameState, currentStage) {
           .join("")}
       </div>
     </section>
+  `;
+}
+
+function renderSprinkleHud(player) {
+  const sprinkleCount = clampSprinkles(player.sprinkles);
+  const sprinklePercent = getSprinklePercent(sprinkleCount);
+
+  if (sprinkleCount >= MAX_SPRINKLES) {
+    return `
+      <div class="sprinkle-progress-card">
+        <div class="sprinkle-progress-head">
+          <span class="sprinkle-progress-label">✨ Sprinkles</span>
+          <strong class="sprinkle-progress-total">${sprinkleCount}/${MAX_SPRINKLES}</strong>
+        </div>
+        <div class="expert-baker-badge">⭐ Expert Baker</div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="sprinkle-progress-card">
+      <div class="sprinkle-progress-head">
+        <span class="sprinkle-progress-label">✨ Sprinkles</span>
+        <strong class="sprinkle-progress-total">${sprinkleCount}/${MAX_SPRINKLES}</strong>
+      </div>
+      <div class="progress-bar sprinkle-progress-bar" aria-label="${sprinkleCount} of ${MAX_SPRINKLES} sprinkles">
+        <div class="progress-fill sprinkle-progress-fill" style="width: ${sprinklePercent}%"></div>
+      </div>
+    </div>
   `;
 }
 

@@ -1,3 +1,5 @@
+import { clamp } from "./math.js?v=20260510-050500";
+
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
   K: 50,
@@ -27,12 +29,14 @@ export const INGREDIENT_COSTS = {
   eggs: 4,
 };
 
+export const MAX_SPRINKLES = 100;
+
 export const RECIPES = [
   {
     id: "cupcakes",
     name: "Cupcakes",
     icon: "🧁",
-    unlockSR: 0,
+    unlockSprinkles: 0,
     baseReward: 12,
     sprinkleReward: 6,
     difficultyBonus: 0,
@@ -42,7 +46,7 @@ export const RECIPES = [
     id: "cookies",
     name: "Cookies",
     icon: "🍪",
-    unlockSR: 75,
+    unlockSprinkles: 0,
     baseReward: 12,
     sprinkleReward: 6,
     difficultyBonus: 0,
@@ -52,7 +56,7 @@ export const RECIPES = [
     id: "donuts",
     name: "Donuts",
     icon: "🍩",
-    unlockSR: 150,
+    unlockSprinkles: 0,
     baseReward: 15,
     sprinkleReward: 8,
     difficultyBonus: 10,
@@ -62,11 +66,91 @@ export const RECIPES = [
     id: "muffins",
     name: "Muffins",
     icon: "🧁",
-    unlockSR: 225,
+    unlockSprinkles: 0,
     baseReward: 18,
     sprinkleReward: 9,
     difficultyBonus: 20,
     ingredients: { flour: 3, sugar: 2, eggs: 2 },
+  },
+  {
+    id: "brownies",
+    name: "Brownies",
+    icon: "🍫",
+    unlockSprinkles: 15,
+    baseReward: 20,
+    sprinkleReward: 5,
+    difficultyBonus: 24,
+    ingredients: { flour: 3, sugar: 3, eggs: 2 },
+  },
+  {
+    id: "sugar-cookies",
+    name: "Sugar Cookies",
+    icon: "🍪",
+    unlockSprinkles: 25,
+    baseReward: 22,
+    sprinkleReward: 5,
+    difficultyBonus: 28,
+    ingredients: { flour: 3, sugar: 3, eggs: 2 },
+  },
+  {
+    id: "cake",
+    name: "Cake",
+    icon: "🎂",
+    unlockSprinkles: 35,
+    baseReward: 25,
+    sprinkleReward: 5,
+    difficultyBonus: 34,
+    ingredients: { flour: 4, sugar: 3, eggs: 3 },
+  },
+  {
+    id: "cinnamon-rolls",
+    name: "Cinnamon Rolls",
+    icon: "🥐",
+    unlockSprinkles: 45,
+    baseReward: 28,
+    sprinkleReward: 5,
+    difficultyBonus: 40,
+    ingredients: { flour: 4, sugar: 3, eggs: 2 },
+  },
+  {
+    id: "macarons",
+    name: "Macarons",
+    icon: "🍬",
+    unlockSprinkles: 55,
+    baseReward: 31,
+    sprinkleReward: 5,
+    difficultyBonus: 46,
+    ingredients: { flour: 4, sugar: 4, eggs: 3 },
+  },
+  {
+    id: "ice-cream-sandwiches",
+    name: "Ice Cream Sandwiches",
+    icon: "🍨",
+    unlockSprinkles: 65,
+    baseReward: 35,
+    sprinkleReward: 5,
+    difficultyBonus: 52,
+    ingredients: { flour: 4, sugar: 4, eggs: 3 },
+  },
+  {
+    id: "cheesecake-slices",
+    name: "Cheesecake Slices",
+    icon: "🍰",
+    unlockSprinkles: 75,
+    baseReward: 38,
+    sprinkleReward: 5,
+    difficultyBonus: 58,
+    ingredients: { flour: 4, sugar: 4, eggs: 4 },
+  },
+  {
+    id: "pies",
+    name: "Pies",
+    icon: "🥧",
+    unlockSprinkles: 85,
+    baseReward: 42,
+    sprinkleReward: 5,
+    difficultyBonus: 64,
+    ingredients: { flour: 5, sugar: 4, eggs: 4 },
   },
 ];
 
@@ -90,7 +174,7 @@ export const DEFAULT_PLAYER = {
     sugar: 0,
     eggs: 0,
   },
-  knownRecipes: ["cupcakes", "cookies", "donuts", "muffins"],
+  knownRecipes: RECIPES.map((recipe) => recipe.id),
   createdAt: 0,
 };
 
@@ -105,10 +189,12 @@ export function normalizePlayer(player = {}) {
     : Array.isArray(legacyUnlockedRecipes)
       ? legacyUnlockedRecipes
       : DEFAULT_PLAYER.knownRecipes;
+  const normalizedKnownRecipes = [...new Set([...DEFAULT_PLAYER.knownRecipes, ...knownRecipes])];
 
   return {
     ...DEFAULT_PLAYER,
     ...playerData,
+    sprinkles: clamp(Number(playerData.sprinkles ?? DEFAULT_PLAYER.sprinkles) || 0, 0, MAX_SPRINKLES),
     pantry: {
       ...DEFAULT_PLAYER.pantry,
       ...(playerData.pantry ?? {}),
@@ -120,7 +206,7 @@ export function normalizePlayer(player = {}) {
         ? playerData.skill.recentResults.slice(-8)
         : [],
     },
-    knownRecipes,
+    knownRecipes: normalizedKnownRecipes,
   };
 }
 
