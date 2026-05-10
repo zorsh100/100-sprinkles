@@ -1,5 +1,6 @@
 import { navigate } from "../app/router.js";
-import { buyIngredient, clearQuestionResult, selectRecipe, setBatchCount, startOrder, submitAnswer } from "../game/engine.js";
+import { buyIngredient, clearQuestionResult, selectRecipe, sellCurrentOrder, setBatchCount, startOrder, submitAnswer } from "../game/engine.js";
+import { getSaveSummary } from "../state.js";
 import { renderShell } from "./shell.js";
 import { renderBakeryScreen } from "./screens/bakery.js";
 import { renderLearnScreen } from "./screens/learn.js";
@@ -12,6 +13,7 @@ export function renderApp(root, gameState, uiState, dispatch) {
       player: null,
       route: "onboarding",
       flash: gameState.flash,
+      saveSummary: null,
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
@@ -27,6 +29,7 @@ function renderGame(root, gameState, uiState, dispatch) {
     player: gameState.player,
     route: uiState.route,
     flash: gameState.flash,
+    saveSummary: getSaveSummary(gameState),
     screenMarkup,
   });
 
@@ -54,6 +57,25 @@ function getScreenMarkup(gameState, route) {
 }
 
 function attachOnboardingEvents(root, dispatch) {
+  const gradeInput = root.querySelector("#grade");
+  const gradePreview = root.querySelector("#grade-preview");
+
+  root.querySelectorAll("[data-grade]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const { grade, sr, note } = button.dataset;
+      gradeInput.value = grade;
+
+      root.querySelectorAll("[data-grade]").forEach((card) => {
+        card.classList.toggle("active", card === button);
+      });
+
+      gradePreview.textContent =
+        grade === "K"
+          ? `Kindergarten starts at SR ${sr} with ${note.toLowerCase()} and no reading required.`
+          : `${button.querySelector("strong").textContent} starts at SR ${sr} with ${note.toLowerCase()}.`;
+    });
+  });
+
   root.querySelector("#onboarding-form").addEventListener("submit", (event) => {
     event.preventDefault();
 
@@ -205,12 +227,19 @@ function attachRecipeEvents(root, gameState, dispatch) {
       dispatch({ type: "UPDATE_GAME", payload: updated });
     });
   }
+
+  root.querySelectorAll("[data-sell-order]").forEach((sellButton) => {
+    sellButton.addEventListener("click", () => {
+      const updated = sellCurrentOrder(gameState);
+      dispatch({ type: "UPDATE_GAME", payload: updated });
+    });
+  });
 }
 
 function attachShopEvents(root, gameState, dispatch) {
   root.querySelectorAll("[data-buy]").forEach((button) => {
     button.addEventListener("click", () => {
-      const updated = buyIngredient(gameState, button.dataset.buy);
+      const updated = buyIngredient(gameState, button.dataset.buy, button.dataset.buyAmount);
       dispatch({ type: "UPDATE_GAME", payload: updated });
     });
   });

@@ -2,12 +2,14 @@ import { createInitialSession, STAGES } from "./data.js";
 import {
   canAffordIngredients,
   clamp,
+  getMissingPantry,
   getOrderRevenue,
   getPantryNeed,
   getRecipeById,
   getShopCost,
 } from "./helpers.js";
 import { generateQuestion } from "./questions/generator.js";
+import { applySRResult } from "./sr.js";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -48,12 +50,13 @@ export function setBatchCount(gameState, batchCount) {
   };
 }
 
-export function buyIngredient(gameState, ingredient) {
+export function buyIngredient(gameState, ingredient, amount = 1) {
   const player = gameState.player;
-  const cost = getShopCost(ingredient);
+  const units = clamp(Number(amount) || 1, 1, 12);
+  const cost = getShopCost(ingredient, units);
 
   if (player.bank < cost) {
-    return setFlash(gameState, "error", `You need ${cost} coins to buy ${ingredient}.`);
+    return setFlash(gameState, "error", `You need ${cost} coins to buy ${units} ${ingredient}.`);
   }
 
   return {
@@ -63,12 +66,12 @@ export function buyIngredient(gameState, ingredient) {
       bank: player.bank - cost,
       pantry: {
         ...player.pantry,
-        [ingredient]: player.pantry[ingredient] + 1,
+        [ingredient]: player.pantry[ingredient] + units,
       },
     },
     flash: {
       kind: "success",
-      text: `You bought 1 ${ingredient}. Great stocking.`,
+      text: `You bought ${units} ${ingredient}. Great stocking.`,
     },
   };
 }
@@ -81,35 +84,60 @@ export function startOrder(gameState) {
     return setFlash(gameState, "error", "Pick a recipe first.");
   }
 
+  if (session.saleReady) {
+    return setFlash(gameState, "error", "Serve and sell your finished bake before starting another one.");
+  }
+
   if (player.SR >= 300) {
     const need = getPantryNeed(recipe, session.batchCount);
 
     if (!canAffordIngredients(player, need)) {
+      const missing = getMissingPantry(player, need);
+      const missingLabel = Object.entries(missing)
+        .map(([ingredient, amount]) => `${amount} ${ingredient}`)
+        .join(", ");
       return setFlash(
         gameState,
         "error",
-        "Your pantry needs more ingredients before this bake can start.",
+        `Your pantry needs more ingredients before this bake can start: ${missingLabel}.`,
       );
     }
   }
 
+  const pantryNeed = getPantryNeed(recipe, session.batchCount);
+  const estimatedRevenue = getOrderRevenue(recipe, session.batchCount, player.SR);
+  const sprinkleReward = recipe.sprinkleReward * session.batchCount;
   const order = {
     recipeId: recipe.id,
     batchCount: session.batchCount,
     stageIndex: 0,
     completedStages: [],
+    pantryNeed,
+    estimatedRevenue,
+    sprinkleReward,
+    status: "baking",
+    startedAt: Date.now(),
   };
+  const nextQuestion = generateQuestion({
+    SR: player.SR,
+    stage: STAGES[0],
+    context: {
+      recipeId: recipe.id,
+      recipeName: recipe.name,
+      batchCount: session.batchCount,
+    },
+    recentTemplates: session.recentTemplates,
+  });
 
   return {
     ...gameState,
     session: {
       ...session,
       order,
+      saleReady: null,
       questionResult: null,
-      currentQuestion: generateQuestion({
-        SR: player.SR,
-        stage: STAGES[0],
-      }),
+      currentQuestion: nextQuestion,
+      recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
     },
     flash: {
       kind: "success",
@@ -130,26 +158,34 @@ export function submitAnswer(gameState, selectedAnswer) {
   }
 
   const correct = Number(selectedAnswer) === Number(question.answer);
-  const srDelta = correct ? 12 : -7;
-  const nextSR = clamp(player.SR + srDelta, 0, 1000);
+  const attemptNumber = (question.attemptCount ?? 0) + 1;
+  const srResult = applySRResult({
+    player,
+    question,
+    correct,
+    attemptNumber,
+  });
 
   if (!correct) {
     return {
       ...gameState,
-      player: {
-        ...player,
-        SR: nextSR,
-      },
+      player: srResult.player,
       session: {
         ...session,
+        currentQuestion: {
+          ...question,
+          attemptCount: attemptNumber,
+        },
         questionResult: {
           correct: false,
           selectedAnswer: Number(selectedAnswer),
+          attemptNumber,
+          srDelta: srResult.delta,
         },
       },
       flash: {
         kind: "error",
-        text: `Not quite. ${question.hint}`,
+        text: `Not quite. ${question.hint} SR ${srResult.delta}.`,
       },
     };
   }
@@ -158,15 +194,26 @@ export function submitAnswer(gameState, selectedAnswer) {
   const completedStages = [...session.order.completedStages, question.stage];
 
   if (nextStageIndex >= STAGES.length) {
-    return finishOrder(gameState, nextSR, completedStages);
+    return finishOrder(gameState, srResult.player, completedStages);
   }
+
+  const recipe = getRecipeById(session.order.recipeId);
+  const nextQuestion = generateQuestion({
+    SR: srResult.nextSR,
+    stage: STAGES[nextStageIndex],
+    context: {
+      recipeId: session.order.recipeId,
+      recipeName: recipe?.name,
+      batchCount: session.order.batchCount,
+    },
+    recentTemplates: session.recentTemplates,
+  });
 
   return {
     ...gameState,
     player: {
-      ...player,
-      SR: nextSR,
-      sprinkles: player.sprinkles + 2,
+      ...srResult.player,
+      sprinkles: srResult.player.sprinkles + 2,
     },
     session: {
       ...session,
@@ -178,27 +225,27 @@ export function submitAnswer(gameState, selectedAnswer) {
       questionResult: {
         correct: true,
         selectedAnswer: Number(selectedAnswer),
+        attemptNumber,
+        srDelta: srResult.delta,
       },
-      currentQuestion: generateQuestion({
-        SR: nextSR,
-        stage: STAGES[nextStageIndex],
-      }),
+      currentQuestion: nextQuestion,
+      recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
     },
     flash: {
       kind: "success",
-      text: `${question.stage} is complete. On to ${STAGES[nextStageIndex]}.`,
+      text: `${question.stage} is complete. On to ${STAGES[nextStageIndex]}. SR +${srResult.delta}.`,
     },
   };
 }
 
-function finishOrder(gameState, nextSR, completedStages) {
-  const { player, session } = gameState;
+function finishOrder(gameState, updatedPlayer, completedStages) {
+  const { session } = gameState;
   const recipe = getRecipeById(session.order.recipeId);
-  const revenue = getOrderRevenue(recipe, session.order.batchCount, nextSR);
+  const revenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
   const sprinklesEarned = recipe.sprinkleReward * session.order.batchCount;
-  const pantry = { ...player.pantry };
+  const pantry = { ...updatedPlayer.pantry };
 
-  if (nextSR >= 300) {
+  if (updatedPlayer.SR >= 300) {
     const need = getPantryNeed(recipe, session.order.batchCount);
 
     Object.entries(need).forEach(([ingredient, amount]) => {
@@ -209,25 +256,61 @@ function finishOrder(gameState, nextSR, completedStages) {
   return {
     ...gameState,
     player: {
-      ...player,
-      SR: nextSR,
-      bank: player.bank + revenue,
-      sprinkles: player.sprinkles + sprinklesEarned + 2,
+      ...updatedPlayer,
       pantry,
     },
-    session: createInitialSession({
-      selectedRecipeId: session.selectedRecipeId,
-      batchCount: session.batchCount,
-    }),
+    session: {
+      ...createInitialSession({
+        selectedRecipeId: session.selectedRecipeId,
+        batchCount: session.batchCount,
+        recentTemplates: session.recentTemplates,
+        recentSale: session.recentSale,
+      }),
+      saleReady: {
+        recipeId: recipe.id,
+        recipeName: recipe.name,
+        recipeIcon: recipe.icon,
+        batchCount: session.order.batchCount,
+        completedStages,
+        revenue,
+        sprinklesEarned: sprinklesEarned + 2,
+        pantryUsed: session.order.pantryNeed,
+        bakedAt: Date.now(),
+      },
+    },
     flash: {
       kind: "success",
-      text: `Order complete. You earned ${revenue} coins and ${sprinklesEarned + 2} sprinkles.`,
+      text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${revenue} coins.`,
     },
-    lastOrder: {
-      recipeId: recipe.id,
-      completedStages,
-      revenue,
-      sprinklesEarned,
+  };
+}
+
+export function sellCurrentOrder(gameState) {
+  const { player, session } = gameState;
+  const saleReady = session.saleReady;
+
+  if (!saleReady) {
+    return setFlash(gameState, "error", "Finish baking a batch before trying to sell it.");
+  }
+
+  return {
+    ...gameState,
+    player: {
+      ...player,
+      bank: player.bank + saleReady.revenue,
+      sprinkles: player.sprinkles + saleReady.sprinklesEarned,
+    },
+    session: {
+      ...session,
+      saleReady: null,
+      recentSale: {
+        ...saleReady,
+        soldAt: Date.now(),
+      },
+    },
+    flash: {
+      kind: "success",
+      text: `Sold ${saleReady.batchCount} batch${saleReady.batchCount > 1 ? "es" : ""} of ${saleReady.recipeName.toLowerCase()} for ${saleReady.revenue} coins.`,
     },
   };
 }

@@ -1,4 +1,4 @@
-import { randomInt, shuffle } from "../helpers.js";
+import { clamp, randomInt, shuffle } from "../helpers.js";
 
 function makeChoices(answer, spread = 3, minimum = 0) {
   const choices = new Set([answer]);
@@ -15,13 +15,22 @@ function makeChoices(answer, spread = 3, minimum = 0) {
   return shuffle([...choices]);
 }
 
-function visualArithmetic({ SR }) {
-  const addA = randomInt(1, SR < 50 ? 4 : 6);
-  const addB = randomInt(1, SR < 50 ? 4 : 6);
+function getRecipeLabel(context) {
+  return context.recipeName ?? "bakery treat";
+}
+
+function getScale(targetDifficulty, low, high) {
+  const normalized = clamp((targetDifficulty - 100) / 800, 0, 1);
+  return Math.round(low + (high - low) * normalized);
+}
+
+export function visualCountAll({ targetDifficulty }) {
+  const maxToken = targetDifficulty < 60 ? 4 : 7;
+  const addA = randomInt(1, maxToken);
+  const addB = randomInt(1, maxToken);
   const answer = addA + addB;
 
   return {
-    type: "arithmetic_visual",
     prompt: "How many treats are there all together?",
     promptSecondary: `${addA} + ${addB}`,
     answer,
@@ -34,86 +43,135 @@ function visualArithmetic({ SR }) {
   };
 }
 
-function arithmetic({ SR, stage }) {
-  const base = SR < 250 ? 10 : SR < 500 ? 25 : 60;
-  const a = randomInt(2, base);
-  const b = randomInt(2, base);
-  const useMultiply = SR >= 500 && Math.random() > 0.55;
+export function visualCountDifference({ targetDifficulty }) {
+  const left = randomInt(4, targetDifficulty < 80 ? 7 : 9);
+  const right = randomInt(1, left - 1);
+  const answer = left - right;
 
-  if (useMultiply) {
-    const smallA = randomInt(2, Math.min(12, Math.floor(base / 4)));
-    const smallB = randomInt(2, 12);
-    const answer = smallA * smallB;
-
-    return {
-      type: "arithmetic",
-      prompt: `You need ${smallA} trays with ${smallB} cookies each during ${stage}. How many cookies is that?`,
-      answer,
-      choices: makeChoices(answer, 10),
-      hint: "Equal groups can be solved with multiplication.",
-    };
-  }
-
-  const answer = a + b;
   return {
-    type: "arithmetic",
-    prompt: `A helper brings ${a} sprinkles and then ${b} more during ${stage}. How many sprinkles now?`,
+    prompt: "How many more cupcakes are on the top tray?",
+    answer,
+    choices: makeChoices(answer, 4),
+    visuals: {
+      left: Array.from({ length: left }, () => "🧁"),
+      right: Array.from({ length: right }, () => "🧁"),
+    },
+    hint: "Match the cupcakes in pairs, then count what is left over.",
+  };
+}
+
+export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
+  const maxValue = getScale(targetDifficulty, 10, 80);
+  const a = randomInt(3, maxValue);
+  const b = randomInt(3, maxValue);
+  const answer = a + b;
+
+  return {
+    prompt: `During ${stage}, you gather ${a} sprinkles for your ${getRecipeLabel(context)} and then ${b} more. How many sprinkles do you have now?`,
     answer,
     choices: makeChoices(answer, 10),
     hint: "Add the first amount and the extra amount together.",
   };
 }
 
-function cost({ SR, stage }) {
-  const trays = randomInt(2, SR < 300 ? 5 : 8);
-  const coins = randomInt(2, SR < 300 ? 6 : 9);
+export function arithmeticSubtractionStory({ targetDifficulty, stage, context }) {
+  const total = randomInt(12, getScale(targetDifficulty, 18, 95));
+  const used = randomInt(3, Math.max(5, Math.floor(total * 0.65)));
+  const answer = total - used;
+
+  return {
+    prompt: `Your ${getRecipeLabel(context)} starts ${stage} with ${total} sprinkles. You use ${used}. How many are left?`,
+    answer,
+    choices: makeChoices(answer, 10),
+    hint: "Start with the total, then take away the part you used.",
+  };
+}
+
+export function arithmeticMultiplicationGroups({ targetDifficulty, stage, context }) {
+  const trays = randomInt(3, Math.max(4, getScale(targetDifficulty, 5, 12)));
+  const each = randomInt(3, Math.max(6, getScale(targetDifficulty, 6, 12)));
+  const answer = trays * each;
+
+  return {
+    prompt: `In ${stage}, you line up ${trays} trays of ${getRecipeLabel(context)} with ${each} pieces on each tray. How many pieces are there total?`,
+    answer,
+    choices: makeChoices(answer, 14),
+    hint: "Equal groups can be solved with multiplication.",
+  };
+}
+
+export function costRevenue({ targetDifficulty, stage, context }) {
+  const batchCount = context.batchCount ?? 1;
+  const trays = randomInt(Math.max(2, batchCount), getScale(targetDifficulty, 4, 10));
+  const coins = randomInt(3, getScale(targetDifficulty, 6, 12));
   const answer = trays * coins;
 
   return {
-    type: "cost",
-    prompt: `Each tray costs ${coins} coins in ${stage}. If you sell ${trays} trays, how many coins do you earn?`,
+    prompt: `Each tray of ${getRecipeLabel(context)} earns ${coins} coins in ${stage}. If you sell ${trays} trays, how many coins do you earn?`,
     answer,
     choices: makeChoices(answer, 12),
-    hint: "Same price each time means multiply price by trays.",
+    hint: "Same price each time means multiply the price by the number of trays.",
   };
 }
 
-function business({ SR, stage }) {
-  const spend = randomInt(8, 20);
-  const earn = spend + randomInt(4, Math.max(8, Math.floor(SR / 60)));
-  const answer = earn - spend;
+export function costBatches({ targetDifficulty, context }) {
+  const bags = randomInt(2, getScale(targetDifficulty, 4, 9));
+  const costEach = randomInt(2, getScale(targetDifficulty, 5, 11));
+  const answer = bags * costEach;
 
   return {
-    type: "business",
-    prompt: `You spent ${spend} coins on ingredients and earned ${earn} coins after ${stage}. What is your profit?`,
+    prompt: `You need ${bags} ingredient bags for your ${getRecipeLabel(context)} order. Each bag costs ${costEach} coins. What is the total cost?`,
     answer,
-    choices: makeChoices(answer, 8),
-    hint: "Profit means money earned minus money spent.",
+    choices: makeChoices(answer, 12),
+    hint: "Multiply the number of bags by the cost of each bag.",
   };
 }
 
-function fraction() {
-  const total = randomInt(4, 8) * 2;
-  const numerator = total / 2;
-  const answer = numerator;
+export function businessProfit({ targetDifficulty, stage, context }) {
+  const spend = randomInt(10, getScale(targetDifficulty, 16, 34));
+  const profit = randomInt(5, getScale(targetDifficulty, 10, 26));
+  const earn = spend + profit;
 
   return {
-    type: "fraction",
-    prompt: `A pan has ${total} brownie squares. You frost 1/2 of them. How many squares get frosting?`,
+    prompt: `After ${stage}, your ${getRecipeLabel(context)} sale brought in ${earn} coins and ingredients cost ${spend} coins. What is the profit?`,
+    answer: profit,
+    choices: makeChoices(profit, 8),
+    hint: "Profit means the money earned minus the money spent.",
+  };
+}
+
+export function fractionHalf({ targetDifficulty }) {
+  const total = randomInt(3, getScale(targetDifficulty, 4, 8)) * 2;
+  const answer = total / 2;
+
+  return {
+    prompt: `A brownie pan has ${total} squares. You frost 1/2 of them. How many squares get frosting?`,
     answer,
     choices: makeChoices(answer, 6),
     hint: "Half means split the total into 2 equal groups.",
   };
 }
 
-function ratio() {
-  const flourParts = randomInt(2, 5);
-  const sugarParts = flourParts + randomInt(1, 3);
-  const flour = flourParts * 3;
-  const answer = sugarParts * 3;
+export function fractionQuarter({ targetDifficulty }) {
+  const total = randomInt(2, getScale(targetDifficulty, 3, 6)) * 4;
+  const answer = total / 4;
 
   return {
-    type: "ratio",
+    prompt: `A cookie rack holds ${total} cookies. One fourth of them get rainbow sugar. How many cookies is 1/4?`,
+    answer,
+    choices: makeChoices(answer, 8),
+    hint: "One fourth means split the total into 4 equal groups.",
+  };
+}
+
+export function ratioScale({ targetDifficulty }) {
+  const flourParts = randomInt(2, 5);
+  const sugarParts = flourParts + randomInt(1, 3);
+  const multiplier = randomInt(2, Math.max(3, getScale(targetDifficulty, 3, 5)));
+  const flour = flourParts * multiplier;
+  const answer = sugarParts * multiplier;
+
+  return {
     prompt: `A batter uses flour to sugar in a ${flourParts}:${sugarParts} ratio. If you use ${flour} cups of flour, how many cups of sugar do you need?`,
     answer,
     choices: makeChoices(answer, 6),
@@ -121,42 +179,32 @@ function ratio() {
   };
 }
 
-function algebraic() {
-  const x = randomInt(3, 12);
-  const extra = randomInt(4, 12);
-  const total = x * 2 + extra;
+export function algebraicBalance({ targetDifficulty }) {
+  const x = randomInt(4, getScale(targetDifficulty, 8, 18));
+  const multiplier = randomInt(2, 3);
+  const extra = randomInt(6, 18);
+  const total = x * multiplier + extra;
 
   return {
-    type: "algebraic",
-    prompt: `Two equal sprinkle jars plus ${extra} bonus sprinkles make ${total}. How many sprinkles are in one jar?`,
+    prompt: `${multiplier} equal sprinkle jars plus ${extra} bonus sprinkles make ${total}. How many sprinkles are in one jar?`,
     answer: x,
-    choices: makeChoices(x, 6),
-    hint: "Subtract the bonus first, then split the rest into 2 equal parts.",
+    choices: makeChoices(x, 8),
+    hint: "Subtract the bonus first, then split the rest into equal groups.",
   };
 }
 
-function optimization() {
-  const boxA = { size: 6, price: 8 };
-  const boxB = { size: 10, price: 12 };
-  const answer = boxB.price / boxB.size < boxA.price / boxA.size ? 10 : 6;
+export function optimizationBestDeal() {
+  const options = [
+    { label: "6-cookie box", size: 6, price: 8, answer: 6 },
+    { label: "10-cookie box", size: 10, price: 12, answer: 10 },
+  ];
+  const best = options[1].price / options[1].size < options[0].price / options[0].size ? options[1] : options[0];
 
   return {
-    type: "optimization",
-    prompt: `Which box is the better deal: 6 cookies for 8 coins or 10 cookies for 12 coins?`,
-    answer,
+    prompt: "Which box is the better deal: 6 cookies for 8 coins or 10 cookies for 12 coins?",
+    answer: best.answer,
+    answerLabel: best.label,
     choices: shuffle([6, 10, 8, 12]),
-    answerLabel: answer === 10 ? "10-cookie box" : "6-cookie box",
-    hint: "Compare cost per cookie for each box.",
+    hint: "Compare the cost per cookie for each box.",
   };
 }
-
-export const QUESTION_TEMPLATES = {
-  arithmetic_visual: visualArithmetic,
-  arithmetic,
-  cost,
-  business,
-  fraction,
-  ratio,
-  algebraic,
-  optimization,
-};

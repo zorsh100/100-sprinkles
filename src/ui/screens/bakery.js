@@ -1,5 +1,7 @@
 import { RECIPES, STAGES, STAGE_META } from "../../game/data.js";
-import { getPantryNeed, getRecipeById, getUnlockedRecipes, srToBand } from "../../game/helpers.js";
+import { getMissingPantry, getPantryNeed, getRecipeById, getTotalShopCost, getUnlockedRecipes, srToBand } from "../../game/helpers.js";
+import { getSRMode, getSRWindow } from "../../game/sr.js";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js";
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
@@ -7,6 +9,44 @@ export function renderBakeryScreen(gameState) {
   const selectedRecipe = getRecipeById(session.selectedRecipeId) ?? recipes[0] ?? RECIPES[0];
   const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, session.batchCount) : null;
   const currentStage = session.order ? STAGES[session.order.stageIndex] : "prep";
+  const srWindow = getSRWindow(player.SR);
+
+  if (player.SR < 100) {
+    return `
+      <section class="dashboard kindergarten-dashboard">
+        <div class="layout-stack">
+          <section class="panel">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Bakery dashboard</p>
+                <h2>Play Tray</h2>
+                <p class="muted">${srToBand(player.SR)} skill band • visual counting only</p>
+              </div>
+              <div class="badge">1 recipe at a time</div>
+            </div>
+            <div class="stats-grid kindergarten-stats-grid">
+              <div class="stat-card">
+                <span class="muted tiny">Skill Rating</span>
+                <strong>${player.SR}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="muted tiny">Sprinkles</span>
+                <strong>${player.sprinkles}</strong>
+              </div>
+              <div class="stat-card">
+                <span class="muted tiny">Mode</span>
+                <strong>Picture Math</strong>
+              </div>
+            </div>
+          </section>
+          ${renderKindergartenOrderBuilder(gameState, selectedRecipe)}
+        </div>
+        <div class="layout-stack">
+          ${renderKindergartenBakery({ player, session, currentStage, selectedRecipe })}
+        </div>
+      </section>
+    `;
+  }
 
   return `
     <section class="dashboard">
@@ -35,8 +75,13 @@ export function renderBakeryScreen(gameState) {
             </div>
             <div class="stat-card">
               <span class="muted tiny">Mode</span>
-              <strong>${player.SR < 100 ? "Visual" : player.SR < 300 ? "Story Math" : "Simulator"}</strong>
+              <strong>${getSRMode(player.SR)}</strong>
             </div>
+          </div>
+          <div class="pill-row" style="margin-top: 12px;">
+            <span class="pill">Target window ${srWindow.min}-${srWindow.max}</span>
+            <span class="pill">Streak ${player.skill.currentStreak}</span>
+            <span class="pill">Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
           </div>
         </section>
         ${renderOrderBuilder(gameState, recipes, selectedRecipe, pantryNeed)}
@@ -49,9 +94,41 @@ export function renderBakeryScreen(gameState) {
   `;
 }
 
+function renderKindergartenOrderBuilder(gameState, selectedRecipe) {
+  const { session } = gameState;
+  const hasActiveOrder = Boolean(session.order);
+
+  return `
+    <section class="panel kinder-order-panel">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Choose an order</p>
+          <h2>${selectedRecipe.icon} ${selectedRecipe.name}</h2>
+          <p class="muted">Big pictures, simple counting, and one batch at a time.</p>
+        </div>
+        <div class="badge">Count and tap</div>
+      </div>
+      <div class="kinder-order-art">
+        <span>🧁</span>
+        <span>🍓</span>
+        <span>🍩</span>
+      </div>
+      <div>
+        <button class="primary-button kinder-start-button" id="start-order" type="button" ${hasActiveOrder ? "disabled" : ""}>
+          ${hasActiveOrder ? "Counting..." : "Start Order"}
+        </button>
+      </div>
+    </section>
+  `;
+}
+
 function renderOrderBuilder(gameState, recipes, selectedRecipe, pantryNeed) {
   const { player, session } = gameState;
   const hasActiveOrder = Boolean(session.order);
+  const hasSaleReady = Boolean(session.saleReady);
+  const missingPantry = player.SR >= 300 && pantryNeed ? getMissingPantry(player, pantryNeed) : {};
+  const isReadyToBake = Object.keys(missingPantry).length === 0;
+  const missingCost = getTotalShopCost(missingPantry);
 
   return `
     <section class="panel">
@@ -62,6 +139,12 @@ function renderOrderBuilder(gameState, recipes, selectedRecipe, pantryNeed) {
           <p class="muted">Every recipe uses the same adaptive question engine, with difficulty tied to SR.</p>
         </div>
         <div class="badge">${session.batchCount} batch${session.batchCount > 1 ? "es" : ""}</div>
+      </div>
+      <div class="loop-strip">
+        <div class="loop-step active">1. Pick recipe</div>
+        <div class="loop-step ${player.SR >= 300 ? (isReadyToBake ? "active" : "warning") : "active"}">2. Check pantry</div>
+        <div class="loop-step ${hasActiveOrder ? "active" : ""}">3. Bake</div>
+        <div class="loop-step ${hasSaleReady ? "active" : ""}">4. Sell</div>
       </div>
       <div class="recipe-grid">
         ${recipes
@@ -105,19 +188,50 @@ function renderOrderBuilder(gameState, recipes, selectedRecipe, pantryNeed) {
         ${
           player.SR >= 300 && pantryNeed
             ? `
-            <div class="pill-row">
-              <span class="pill">Need flour ${pantryNeed.flour}</span>
-              <span class="pill">Need sugar ${pantryNeed.sugar}</span>
-              <span class="pill">Need eggs ${pantryNeed.eggs}</span>
+            <div class="inventory-grid">
+              ${Object.entries(pantryNeed)
+                .map(([ingredient, amount]) => {
+                  const owned = player.pantry[ingredient];
+                  const missing = Math.max(0, amount - owned);
+                  return `
+                    <div class="inventory-card ${missing ? "missing" : "ready"}">
+                      <strong>${ingredient}</strong>
+                      <span>Need ${amount}</span>
+                      <span>Have ${owned}</span>
+                      ${missing ? `<button class="secondary-button quick-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${missing}">Buy ${missing}</button>` : `<span class="inventory-status">Ready</span>`}
+                    </div>
+                  `;
+                })
+                .join("")}
             </div>
+            <p class="muted tiny">
+              ${
+                isReadyToBake
+                  ? "Your pantry is stocked for this order."
+                  : `You are missing ingredients. Quick restock cost: ${missingCost} coins.`
+              }
+            </p>
           `
             : `
             <p class="muted tiny">Pantry math unlocks at SR 300. Until then, ingredients are magically stocked.</p>
           `
         }
+        ${
+          session.saleReady
+            ? `
+              <div class="sale-ready-card">
+                <div>
+                  <strong>${session.saleReady.recipeIcon} Fresh ${session.saleReady.recipeName}</strong>
+                  <p class="muted tiny">Baked and ready to serve for ${session.saleReady.revenue} coins.</p>
+                </div>
+                <button class="primary-button" data-sell-order type="button">Serve & Sell</button>
+              </div>
+            `
+            : ""
+        }
         <div style="margin-top: 16px;">
-          <button class="primary-button" id="start-order" type="button" ${hasActiveOrder ? "disabled" : ""}>
-            ${hasActiveOrder ? "Order In Progress" : "Start Order"}
+          <button class="primary-button" id="start-order" type="button" ${hasActiveOrder || hasSaleReady ? "disabled" : ""}>
+            ${hasActiveOrder ? "Order In Progress" : hasSaleReady ? "Sell Current Batch First" : "Start Order"}
           </button>
         </div>
       </div>
@@ -128,6 +242,26 @@ function renderOrderBuilder(gameState, recipes, selectedRecipe, pantryNeed) {
 function renderQuestionPanel(gameState, currentStage) {
   const { player, session } = gameState;
   const question = session.currentQuestion;
+
+  if (session.saleReady) {
+    return `
+      <section class="panel question-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Bake complete</p>
+            <h2>${session.saleReady.recipeIcon} Fresh ${session.saleReady.recipeName}</h2>
+            <p class="muted">The baking is done. Now serve the order and collect your coins.</p>
+          </div>
+          <div class="badge">${session.saleReady.batchCount} batch${session.saleReady.batchCount > 1 ? "es" : ""}</div>
+        </div>
+        <div class="receipt-card">
+          <span>Sale value: ${session.saleReady.revenue} coins</span>
+          <span>Sprinkles earned: ${session.saleReady.sprinklesEarned}</span>
+        </div>
+        <button class="primary-button" data-sell-order type="button">Serve & Sell</button>
+      </section>
+    `;
+  }
 
   if (!question) {
     return `
@@ -193,7 +327,7 @@ function renderQuestionPanel(gameState, currentStage) {
 
 function renderStagePanel(gameState, currentStage) {
   const { player, session } = gameState;
-  const progress = session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
+  const progress = session.saleReady ? 100 : session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
 
   return `
     <section class="panel">
@@ -229,6 +363,18 @@ function renderStagePanel(gameState, currentStage) {
           <span class="pill">Eggs ${player.pantry.eggs}</span>
         </div>
       </div>
+      ${
+        session.recentSale
+          ? `
+            <div class="receipt-card" style="margin-top: 18px;">
+              <strong>Last sale</strong>
+              <span>${session.recentSale.recipeIcon} ${session.recentSale.recipeName}</span>
+              <span>${session.recentSale.revenue} coins</span>
+              <span>${session.recentSale.sprinklesEarned} sprinkles</span>
+            </div>
+          `
+          : ""
+      }
     </section>
   `;
 }

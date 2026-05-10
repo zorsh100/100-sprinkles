@@ -1,4 +1,5 @@
 import { INGREDIENT_COSTS, RECIPES } from "./data.js";
+import { getAllowedQuestionTypes } from "./sr.js";
 
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
@@ -37,16 +38,27 @@ export function srToBand(sr) {
 }
 
 export function allowedTypes(sr) {
-  if (sr < 100) return ["arithmetic_visual"];
+  return getAllowedQuestionTypes(sr);
+}
 
-  const types = ["arithmetic", "cost"];
+export function weightedPick(items, getWeight) {
+  const totalWeight = items.reduce((sum, item) => sum + Math.max(0, getWeight(item)), 0);
 
-  if (sr >= 300) types.push("business", "fraction");
-  if (sr >= 700) types.push("ratio");
-  if (sr >= 800) types.push("algebraic");
-  if (sr >= 900) types.push("optimization");
+  if (totalWeight <= 0) {
+    return items[0];
+  }
 
-  return types;
+  let roll = Math.random() * totalWeight;
+
+  for (const item of items) {
+    roll -= Math.max(0, getWeight(item));
+
+    if (roll <= 0) {
+      return item;
+    }
+  }
+
+  return items[items.length - 1];
 }
 
 export function getRecipeById(recipeId) {
@@ -73,10 +85,22 @@ export function canAffordIngredients(player, need) {
   return Object.entries(need).every(([ingredient, amount]) => player.pantry[ingredient] >= amount);
 }
 
+export function getMissingPantry(player, need) {
+  return Object.fromEntries(
+    Object.entries(need)
+      .map(([ingredient, amount]) => [ingredient, Math.max(0, amount - player.pantry[ingredient])])
+      .filter(([, missing]) => missing > 0),
+  );
+}
+
 export function getOrderRevenue(recipe, batchCount, sr) {
   return recipe.baseReward * batchCount + Math.floor(sr / 80) + recipe.difficultyBonus;
 }
 
 export function getShopCost(ingredient, amount = 1) {
   return INGREDIENT_COSTS[ingredient] * amount;
+}
+
+export function getTotalShopCost(need) {
+  return Object.entries(need).reduce((total, [ingredient, amount]) => total + getShopCost(ingredient, amount), 0);
 }

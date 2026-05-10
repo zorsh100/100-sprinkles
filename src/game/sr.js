@@ -1,0 +1,82 @@
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+export function getSRWindow(sr) {
+  return {
+    min: clamp(sr - 20, 0, 1000),
+    max: clamp(sr + 20, 0, 1000),
+  };
+}
+
+export function getSRMode(sr) {
+  if (sr < 100) return "Visual Arithmetic";
+  if (sr < 300) return "Story Math";
+  if (sr < 500) return "Pantry Math";
+  if (sr < 700) return "Full Simulator";
+  return "Strategy Mode";
+}
+
+export function getAllowedQuestionTypes(sr) {
+  if (sr < 100) return ["arithmetic_visual"];
+
+  const types = ["arithmetic", "cost"];
+
+  if (sr >= 300) types.push("business", "fraction");
+  if (sr >= 700) types.push("ratio");
+  if (sr >= 800) types.push("algebraic");
+  if (sr >= 900) types.push("optimization");
+
+  return types;
+}
+
+export function getAccuracy(player) {
+  if (!player.skill.totalAnswered) {
+    return 0;
+  }
+
+  return Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100);
+}
+
+export function applySRResult({ player, question, correct, attemptNumber }) {
+  const skill = player.skill;
+  const challengeOffset = (question.difficulty ?? player.SR) - player.SR;
+  let delta = 0;
+
+  if (correct) {
+    delta += 8;
+    delta += Math.round(clamp(challengeOffset / 35, -1, 5));
+    delta += Math.min(skill.currentStreak, 4);
+    delta += attemptNumber === 1 ? 2 : 0;
+    delta -= attemptNumber > 1 ? Math.min(attemptNumber - 1, 3) : 0;
+    delta = clamp(delta, 5, 18);
+  } else {
+    let penalty = 5;
+    penalty += Math.round(clamp((player.SR - (question.difficulty ?? player.SR)) / 40, -1, 4));
+    penalty += Math.min(Math.max(0, attemptNumber - 1), 2);
+    delta = -clamp(penalty, 3, 11);
+  }
+
+  const nextSR = clamp(player.SR + delta, 0, 1000);
+  const nextStreak = correct ? skill.currentStreak + 1 : 0;
+  const recentResults = [...skill.recentResults, correct ? 1 : 0].slice(-8);
+
+  return {
+    delta,
+    nextSR,
+    player: {
+      ...player,
+      SR: nextSR,
+      skill: {
+        ...skill,
+        totalAnswered: skill.totalAnswered + 1,
+        correctAnswered: skill.correctAnswered + (correct ? 1 : 0),
+        currentStreak: nextStreak,
+        bestStreak: Math.max(skill.bestStreak, nextStreak),
+        lastDelta: delta,
+        lastQuestionType: question.type,
+        recentResults,
+      },
+    },
+  };
+}

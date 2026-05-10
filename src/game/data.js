@@ -75,6 +75,15 @@ export const DEFAULT_PLAYER = {
   SR: 50,
   bank: 0,
   sprinkles: 0,
+  skill: {
+    totalAnswered: 0,
+    correctAnswered: 0,
+    currentStreak: 0,
+    bestStreak: 0,
+    lastDelta: 0,
+    lastQuestionType: "arithmetic_visual",
+    recentResults: [],
+  },
   pantry: {
     flour: 0,
     sugar: 0,
@@ -92,6 +101,13 @@ export function normalizePlayer(player) {
       ...DEFAULT_PLAYER.pantry,
       ...(player.pantry ?? {}),
     },
+    skill: {
+      ...DEFAULT_PLAYER.skill,
+      ...(player.skill ?? {}),
+      recentResults: Array.isArray(player.skill?.recentResults)
+        ? player.skill.recentResults.slice(-8)
+        : [],
+    },
     unlockedRecipes: Array.isArray(player.unlockedRecipes)
       ? player.unlockedRecipes
       : DEFAULT_PLAYER.unlockedRecipes,
@@ -103,8 +119,11 @@ export function createInitialSession(overrides = {}) {
     selectedRecipeId: "cupcakes",
     batchCount: 1,
     order: null,
+    saleReady: null,
+    recentSale: null,
     currentQuestion: null,
     questionResult: null,
+    recentTemplates: [],
     ...overrides,
   };
 }

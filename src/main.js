@@ -7,7 +7,7 @@ const resetButton = document.querySelector("#reset-save");
 
 let gameState = loadGame();
 let uiState = {
-  route: syncRouteFromState(loadGame()),
+  route: syncRouteFromState(gameState),
 };
 
 function syncAndRender() {

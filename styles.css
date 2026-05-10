@@ -178,6 +178,10 @@ h1 {
   gap: 18px;
 }
 
+.kindergarten-dashboard {
+  grid-template-columns: 0.8fr 1.2fr;
+}
+
 .stats-grid,
 .recipe-grid,
 .shop-grid,
@@ -196,12 +200,188 @@ h1 {
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
+.grade-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
 .shop-grid {
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
 }
 
 .stage-grid {
   grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.kinder-layout {
+  display: grid;
+  gap: 18px;
+}
+
+.kinder-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.kinder-summary-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 16px;
+}
+
+.kinder-summary-card strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 1.6rem;
+  font-family: "Baloo 2", cursive;
+}
+
+.kinder-stage-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  font-weight: 800;
+}
+
+.kinder-head {
+  align-items: flex-start;
+}
+
+.kinder-tray-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 18px 0;
+}
+
+.kinder-tray {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  gap: 10px;
+  padding: 16px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.7);
+  min-height: 168px;
+}
+
+.kinder-tray.tray-soft {
+  background: rgba(255, 242, 229, 0.92);
+}
+
+.kinder-token {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  background: rgba(255, 182, 193, 0.22);
+  font-size: 2.4rem;
+}
+
+.kinder-answer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.kinder-choice-button {
+  min-height: 112px;
+  background: linear-gradient(135deg, rgba(90, 111, 240, 0.12), rgba(94, 194, 183, 0.14));
+}
+
+.kinder-choice-number {
+  font-family: "Baloo 2", cursive;
+  font-size: 2.7rem;
+  line-height: 1;
+}
+
+.kinder-equation-row {
+  display: flex;
+  justify-content: center;
+}
+
+.kinder-equation-bubble {
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  font-family: "Baloo 2", cursive;
+  font-size: 1.8rem;
+}
+
+.kinder-progress-panel,
+.kinder-question-panel,
+.kinder-hero-panel,
+.kinder-order-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.84), rgba(255, 250, 243, 0.92));
+}
+
+.kinder-order-art {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  font-size: 3rem;
+  padding: 16px 0 24px;
+}
+
+.kinder-start-button {
+  width: 100%;
+  min-height: 68px;
+  font-size: 1.25rem;
+}
+
+.kinder-stage-track {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.kinder-stage-stop {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  padding: 14px 8px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.kinder-stage-stop.active {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  color: #fff;
+}
+
+.kinder-stage-stop.done {
+  background: rgba(60, 167, 112, 0.16);
+  color: var(--success);
+}
+
+.kinder-stage-icon {
+  font-size: 1.5rem;
+}
+
+.kinder-stage-label {
+  text-transform: capitalize;
+  font-size: 0.86rem;
+}
+
+.kinder-empty {
+  padding: 36px 18px;
+}
+
+.kinder-empty-art {
+  font-size: 2.7rem;
+  margin-bottom: 8px;
+}
+
+.kindergarten-stats-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .stat-card,
@@ -267,6 +447,36 @@ h1 {
   gap: 10px;
 }
 
+.loop-strip,
+.inventory-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.loop-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 18px;
+}
+
+.loop-step {
+  padding: 12px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--muted);
+  text-align: center;
+  font-weight: 800;
+}
+
+.loop-step.active {
+  background: rgba(94, 194, 183, 0.18);
+  color: var(--ink);
+}
+
+.loop-step.warning {
+  background: rgba(255, 179, 71, 0.2);
+  color: #9a5d00;
+}
+
 .pill {
   padding: 9px 12px;
   border-radius: 999px;
@@ -295,12 +505,87 @@ h1 {
   color: var(--muted);
 }
 
+.inventory-grid {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 8px;
+}
+
+.inventory-card,
+.sale-ready-card,
+.receipt-card {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.inventory-card {
+  display: grid;
+  gap: 8px;
+}
+
+.inventory-card.ready {
+  border: 2px solid rgba(60, 167, 112, 0.18);
+}
+
+.inventory-card.missing {
+  border: 2px solid rgba(255, 179, 71, 0.26);
+}
+
+.inventory-card strong,
+.receipt-card strong {
+  font-family: "Baloo 2", cursive;
+  font-size: 1.2rem;
+}
+
+.inventory-status {
+  color: var(--success);
+  font-weight: 800;
+}
+
+.quick-buy-button {
+  width: 100%;
+}
+
+.sale-ready-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.receipt-card {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
 .choice-button {
   width: 100%;
   background: rgba(90, 111, 240, 0.12);
   padding: 14px 16px;
   color: var(--accent-4);
   font-weight: 800;
+}
+
+.grade-card {
+  display: grid;
+  gap: 6px;
+  text-align: left;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  box-shadow: 0 10px 24px rgba(117, 74, 41, 0.12);
+}
+
+.grade-card strong {
+  font-size: 1.1rem;
+}
+
+.grade-card.active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent-3), var(--accent-4));
 }
 
 .choice-button.correct {
@@ -461,6 +746,21 @@ h1 {
   color: var(--danger);
 }
 
+.save-banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.save-banner span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
 .tabs {
   display: flex;
   flex-wrap: wrap;
@@ -490,8 +790,20 @@ h1 {
     grid-template-columns: 1fr;
   }
 
+  .kindergarten-dashboard {
+    grid-template-columns: 1fr;
+  }
+
   .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .kinder-summary,
+  .kindergarten-stats-grid,
+  .kinder-stage-track,
+  .kinder-tray-grid,
+  .loop-strip {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -513,5 +825,17 @@ h1 {
   .form-grid,
   .stage-grid {
     grid-template-columns: 1fr;
+  }
+
+  .kinder-answer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sale-ready-card {
+    grid-template-columns: 1fr;
+  }
+
+  .kinder-choice-button {
+    min-height: 92px;
   }
 }

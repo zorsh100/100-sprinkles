@@ -4,7 +4,7 @@ const NAV_ITEMS = [
   { route: "learn", label: "Math Lab" },
 ];
 
-export function renderShell({ player, route, screenMarkup, flash }) {
+export function renderShell({ player, route, screenMarkup, flash, saveSummary }) {
   const navMarkup = player
     ? `
       <div class="tabs">
@@ -37,6 +37,18 @@ export function renderShell({ player, route, screenMarkup, flash }) {
           ${navMarkup}
         </div>
         ${flash ? `<div class="message ${flash.kind}">${escapeHtml(flash.text)}</div>` : ""}
+        ${
+          saveSummary
+            ? `
+              <div class="save-banner">
+                <span><strong>Save loaded:</strong> ${escapeHtml(saveSummary.username)}</span>
+                <span>Grade ${escapeHtml(saveSummary.grade)}</span>
+                <span>SR ${saveSummary.SR}</span>
+                <span>${formatSaveTime(saveSummary.savedAt)}</span>
+              </div>
+            `
+            : ""
+        }
       </section>
       ${screenMarkup}
       <p class="footer-note">Progress saves on this device with local storage.</p>
@@ -51,4 +63,13 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
+}
+
+function formatSaveTime(timestamp) {
+  return `Saved ${new Date(timestamp).toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  })}`;
 }
