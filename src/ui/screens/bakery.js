@@ -6,7 +6,6 @@ import {
   getPantryNeed,
   getRecipeById,
   getTotalShopCost,
-  getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
 } from "../../game/helpers.js?v=20260509-205459";
@@ -15,8 +14,13 @@ import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=2026050
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
-  const recipes = getUnlockedRecipes(player);
-  const selectedRecipe = getRecipeById(session.selectedRecipeId) ?? recipes[0] ?? RECIPES[0];
+  const knownRecipes = RECIPES.filter((recipe) => player.knownRecipes.includes(recipe.id));
+  const unlockedRecipes = knownRecipes.filter((recipe) => player.SR >= recipe.unlockSR);
+  const selectedRecipe =
+    knownRecipes.find((recipe) => recipe.id === session.selectedRecipeId && player.SR >= recipe.unlockSR) ??
+    unlockedRecipes[0] ??
+    knownRecipes[0] ??
+    RECIPES[0];
   const orderCount = getOrderCount(player.SR, session.batchCount);
   const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, orderCount) : null;
   const currentStage = session.order ? STAGES[session.order.stageIndex] : "prep";
@@ -30,10 +34,10 @@ export function renderBakeryScreen(gameState) {
     return renderBakeScreen(gameState, currentStage, srWindow);
   }
 
-  return renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed);
+  return renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRecipe, pantryNeed);
 }
 
-function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
+function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRecipe, pantryNeed) {
   const { player, session } = gameState;
   const orderCount = getOrderCount(player.SR, session.batchCount);
   const countLabel = formatOrderCount(player.SR, orderCount);
@@ -50,7 +54,7 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
             <h2>Bake Menu</h2>
             <p class="muted bakery-subcopy">${srToBand(player.SR)} bakers get a bright, game-like menu so the next order feels exciting right away.</p>
           </div>
-          <div class="badge bakery-unlock-badge">🍰 ${recipes.length} recipes ready</div>
+          <div class="badge bakery-unlock-badge">${formatRecipeCountBadge(unlockedRecipes.length)}</div>
         </div>
         <div class="hud-strip" aria-label="Bakery stats">
           <div class="hud-pill sr-pill">
@@ -83,25 +87,26 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
         </div>
 
         <div class="recipe-grid bakery-recipe-grid">
-          ${recipes
+          ${knownRecipes
             .map((recipe) => {
-              const isSelected = session.selectedRecipeId === recipe.id;
+              const isUnlocked = player.SR >= recipe.unlockSR;
+              const isSelected = selectedRecipe && selectedRecipe.id === recipe.id;
               return `
-                <article class="recipe-card bakery-recipe-card ${isSelected ? "selected" : ""}">
+                <article class="recipe-card bakery-recipe-card ${isSelected ? "selected" : ""} ${isUnlocked ? "" : "locked"}">
                   <div class="recipe-card-head">
                     <div>
                       <h3>${recipe.icon} ${recipe.name}</h3>
-                      <p class="recipe-label">${isSelected ? "Today's star bake" : "Ready for a fresh batch"}</p>
+                      <p class="recipe-label">${isSelected ? "Today's star bake" : isUnlocked ? "Ready for a fresh batch" : "Keep leveling up to unlock this treat"}</p>
                     </div>
-                    ${renderRecipeStatusBadge(recipe, isSelected)}
+                    ${renderRecipeStatusBadge(recipe, isSelected, isUnlocked)}
                   </div>
                   <div class="recipe-details-grid">
                     <div class="recipe-info-chip">
                       <span class="recipe-info-title">Ingredients</span>
                       <div class="recipe-icon-row">
-                        <span>🌾 ×${recipe.ingredients.flour}</span>
-                        <span>🍚 ×${recipe.ingredients.sugar}</span>
-                        <span>🥚 ×${recipe.ingredients.eggs}</span>
+                        <span>🌾 x${recipe.ingredients.flour}</span>
+                        <span>🍬 x${recipe.ingredients.sugar}</span>
+                        <span>🥚 x${recipe.ingredients.eggs}</span>
                       </div>
                     </div>
                     <div class="recipe-info-chip">
@@ -112,11 +117,7 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
                       </div>
                     </div>
                   </div>
-                  <div class="recipe-card-footer">
-                    <button class="recipe-button ${isSelected ? "recipe-button-selected" : "recipe-button-choose"}" type="button" data-recipe="${recipe.id}">
-                      ${isSelected ? "✓ Selected" : "Choose Recipe"}
-                    </button>
-                  </div>
+                  ${renderRecipeAction(recipe, isSelected, isUnlocked)}
                 </article>
               `;
             })
@@ -128,14 +129,11 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
             <div>
               <p class="eyebrow eyebrow-pill">Start Bake</p>
               <h3>Ready to Bake ${selectedRecipe ? `${selectedRecipe.icon} ${selectedRecipe.name}` : "something sweet"}?</h3>
-              <p class="muted bakery-subcopy">Tap the big button below to launch the next math-powered order.</p>
             </div>
-            <div class="badge visual-mode-badge" title="Visual mode uses picture-first math prompts for younger players.">${isVisualMode(player.SR) ? "🖼 Visual Mode" : "👁 Picture Math Off"}</div>
+            <div class="badge visual-mode-badge" title="Visual mode uses picture-first math prompts for younger players.">${isVisualMode(player.SR) ? "🖼 Visual Mode" : "🎯 Story Mode"}</div>
           </div>
 
-          <p class="visual-mode-note muted tiny">
-            ${isVisualMode(player.SR) ? "Picture-first math is on, so early bakers can solve by looking and counting." : "Visual Mode turns on automatically for the youngest bakers when picture math is the best fit."}
-          </p>
+          <p class="visual-mode-note muted tiny">${renderStartBakeNote(player, isReadyToBake, missingCost)}</p>
 
           ${
             supportsRecipeSets(player.SR)
@@ -145,13 +143,13 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
                   <input id="batch-count" type="number" min="1" max="6" value="${orderCount}" />
                 </label>
               `
-              : `<p class="muted tiny">Bigger bakery orders unlock in 4th grade. For now, each bake is one recipe at a time.</p>`
+              : ""
           }
 
           ${
             player.SR >= 300 && pantryNeed
               ? `
-                <div class="inventory-grid">
+                <div class="inventory-grid compact-pantry-grid">
                   ${Object.entries(pantryNeed)
                     .map(([ingredient, amount]) => {
                       const owned = player.pantry[ingredient];
@@ -171,21 +169,12 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
                     })
                     .join("")}
                 </div>
-                <p class="muted tiny">
-                  ${
-                    isReadyToBake
-                      ? "Your pantry is stocked for this order."
-                      : `You are missing ingredients. Quick restock cost: ${missingCost} coins.`
-                  }
-                </p>
               `
-              : `
-                <p class="muted tiny">Pantry math unlocks at SR 300. Until then, ingredients are magically stocked.</p>
-              `
+              : ""
           }
 
           <div class="flow-actions start-bake-actions">
-            <button class="primary-button hero-bake-button" id="start-order" type="button">Start Bake</button>
+            <button class="primary-button hero-bake-button" id="start-order" type="button">Start Bake →</button>
           </div>
         </div>
       </section>
@@ -193,16 +182,64 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
   `;
 }
 
-function renderRecipeStatusBadge(recipe, isSelected) {
+function renderRecipeStatusBadge(recipe, isSelected, isUnlocked) {
   if (isSelected) {
     return '<span class="recipe-status-badge recipe-status-selected">✓ Selected</span>';
   }
 
-  if (recipe.unlockSR <= 0) {
+  if (isUnlocked) {
     return '<span class="recipe-status-badge recipe-status-unlocked">✓ Unlocked</span>';
   }
 
-  return '<span class="recipe-status-badge recipe-status-unlocked">✓ Unlocked</span>';
+  return `<span class="recipe-status-badge recipe-status-locked">🔒 SR ${recipe.unlockSR}</span>`;
+}
+
+function renderRecipeAction(recipe, isSelected, isUnlocked) {
+  if (isSelected) {
+    return "";
+  }
+
+  if (!isUnlocked) {
+    return `
+      <div class="recipe-card-footer">
+        <button class="recipe-button recipe-button-locked" type="button" disabled>
+          Locked
+        </button>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="recipe-card-footer">
+      <button class="recipe-button recipe-button-choose" type="button" data-recipe="${recipe.id}">
+        Choose Recipe
+      </button>
+    </div>
+  `;
+}
+
+function renderStartBakeNote(player, isReadyToBake, missingCost) {
+  if (player.SR >= 300 && !isReadyToBake) {
+    return `Need ${missingCost} coins to restock before baking.`;
+  }
+
+  if (isVisualMode(player.SR)) {
+    return "Picture-first math is on for this bake.";
+  }
+
+  if (!supportsRecipeSets(player.SR)) {
+    return "Single-recipe bakes for now.";
+  }
+
+  if (player.SR < 300) {
+    return "Ingredients are auto-stocked right now.";
+  }
+
+  return "Pantry is stocked and ready.";
+}
+
+function formatRecipeCountBadge(count) {
+  return `🍰 ${count} recipe${count === 1 ? "" : "s"} ready`;
 }
 
 function renderBakeScreen(gameState, currentStage, srWindow) {
