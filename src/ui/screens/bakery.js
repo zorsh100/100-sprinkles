@@ -334,7 +334,7 @@ function getChoiceClass(result, choice, answer) {
     return "";
   }
 
-  if (Number(choice) === Number(answer)) {
+  if (result.correct && Number(choice) === Number(result.selectedAnswer)) {
     return "correct";
   }
 

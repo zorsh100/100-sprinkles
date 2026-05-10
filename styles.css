@@ -261,12 +261,14 @@ h1 {
 
 .kinder-tray {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+  grid-template-columns: repeat(auto-fit, 84px);
+  justify-content: center;
+  align-content: center;
   gap: 10px;
   padding: 16px;
   border-radius: 28px;
   background: rgba(255, 255, 255, 0.7);
-  min-height: 168px;
+  min-height: 124px;
 }
 
 .kinder-tray.tray-soft {
@@ -276,10 +278,11 @@ h1 {
 .kinder-token {
   display: grid;
   place-items: center;
-  aspect-ratio: 1;
+  width: 84px;
+  height: 84px;
   border-radius: 22px;
   background: rgba(255, 182, 193, 0.22);
-  font-size: 2.4rem;
+  font-size: 1.85rem;
 }
 
 .kinder-answer-grid {
@@ -413,6 +416,26 @@ h1 {
 .layout-stack {
   display: grid;
   gap: 18px;
+}
+
+.shell-topbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 12px;
+}
+
+.shell-settings-button {
+  min-width: 124px;
+  background: #ffffff;
+}
+
+.shell-settings-button.active,
+.shell-settings-button:disabled {
+  background: #f4f4f4;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: default;
+  transform: none;
 }
 
 .section-head {
@@ -607,8 +630,8 @@ h1 {
 }
 
 .choice-button.correct {
-  background: rgba(60, 167, 112, 0.18);
-  color: var(--success);
+  background: rgba(255, 182, 193, 0.28);
+  color: var(--ink);
 }
 
 .choice-button.wrong {

@@ -21,8 +21,17 @@ export function renderSettingsScreen(saveSummary) {
       }
 
       <div class="flow-actions settings-actions">
-        <button class="secondary-button" type="button" data-go-recipe>
-          Back to Recipes
+        ${
+          saveSummary
+            ? `
+              <button class="secondary-button" type="button" data-go-route="recipe">
+                Back to Recipes
+              </button>
+            `
+            : ""
+        }
+        <button class="secondary-button" type="button" data-go-route="title">
+          Back to Title
         </button>
         <button class="ghost-button danger-button" type="button" data-reset-save>
           Reset Save

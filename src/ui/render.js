@@ -22,21 +22,26 @@ export function renderApp(root, gameState, uiState, dispatch) {
 
   if (uiState.route === "title") {
     root.innerHTML = renderShell({
+      route: uiState.route,
       screenMarkup: renderTitleScreen(saveSummary),
     });
     attachTitleEvents(root, dispatch);
+    attachPageEvents(root, dispatch);
     return;
   }
 
-  if (uiState.route === "profile" || !gameState.player) {
+  if (uiState.route === "profile" || (!gameState.player && uiState.route !== "settings")) {
     root.innerHTML = renderShell({
+      route: uiState.route,
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
+    attachPageEvents(root, dispatch);
     return;
   }
 
   root.innerHTML = renderShell({
+    route: uiState.route,
     screenMarkup: getScreenMarkup(gameState, uiState.route, saveSummary),
   });
 
@@ -173,6 +178,13 @@ function attachQuestionEvents(root, gameState, dispatch) {
 }
 
 function attachPageEvents(root, dispatch) {
+  root.querySelectorAll("[data-go-route]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      dispatch({ type: "NAVIGATE", payload: navigate(button.dataset.goRoute) });
+    });
+  });
+
   root.querySelectorAll("[data-go-recipe]").forEach((button) => {
     button.addEventListener("click", () => {
       if (button.disabled) return;
@@ -182,6 +194,7 @@ function attachPageEvents(root, dispatch) {
 
   root.querySelectorAll("[data-go-settings]").forEach((button) => {
     button.addEventListener("click", () => {
+      if (button.disabled) return;
       dispatch({ type: "NAVIGATE", payload: navigate("settings") });
     });
   });

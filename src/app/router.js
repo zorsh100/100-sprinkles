@@ -51,16 +51,16 @@ function getAllowedRoute(gameState, requestedRoute) {
     return "title";
   }
 
+  if (requestedRoute === "settings") {
+    return "settings";
+  }
+
   if (!gameState.player) {
     return requestedRoute === "profile" ? "profile" : "title";
   }
 
   if (gameState.session.order || gameState.session.saleReady) {
     return "bake";
-  }
-
-  if (requestedRoute === "settings") {
-    return "settings";
   }
 
   if (gameState.session.recentSale) {
