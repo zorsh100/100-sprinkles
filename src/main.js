@@ -3,7 +3,6 @@ import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js";
 import { renderApp } from "./ui/render.js";
 
 const appRoot = document.querySelector("#app");
-const resetButton = document.querySelector("#reset-save");
 
 let gameState = loadGame();
 let uiState = {
@@ -52,10 +51,6 @@ function handleAction(action) {
 
   syncAndRender();
 }
-
-resetButton.addEventListener("click", () => {
-  handleAction({ type: "RESET_SAVE" });
-});
 
 subscribeToRouteChanges((route) => {
   uiState = { ...uiState, route };

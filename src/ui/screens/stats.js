@@ -50,8 +50,9 @@ export function renderStatsScreen(gameState) {
         <span class="pill">Last SR ${player.skill.lastDelta >= 0 ? "+" : ""}${player.skill.lastDelta}</span>
       </div>
 
-      <div class="flow-actions">
+      <div class="flow-actions settings-actions">
         <button class="primary-button" type="button" data-go-recipe>Pick New Recipe</button>
+        <button class="secondary-button" type="button" data-go-settings>Settings</button>
       </div>
     </section>
   `;

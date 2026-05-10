@@ -12,18 +12,17 @@ import { getSaveSummary } from "../state.js";
 import { renderShell } from "./shell.js";
 import { renderBakeryScreen } from "./screens/bakery.js";
 import { renderOnboardingScreen } from "./screens/onboarding.js";
+import { renderSettingsScreen } from "./screens/settings.js";
 import { renderStatsScreen } from "./screens/stats.js";
 import { renderTitleScreen } from "./screens/title.js";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
+  document.body.classList.toggle("title-route", uiState.route === "title");
 
   if (uiState.route === "title") {
     root.innerHTML = renderShell({
-      player: gameState.player,
-      route: "title",
       flash: gameState.flash,
-      saveSummary,
       screenMarkup: renderTitleScreen(saveSummary),
     });
     attachTitleEvents(root, dispatch);
@@ -32,10 +31,7 @@ export function renderApp(root, gameState, uiState, dispatch) {
 
   if (uiState.route === "profile" || !gameState.player) {
     root.innerHTML = renderShell({
-      player: null,
-      route: "profile",
       flash: gameState.flash,
-      saveSummary,
       screenMarkup: renderOnboardingScreen(),
     });
     attachOnboardingEvents(root, dispatch);
@@ -43,22 +39,24 @@ export function renderApp(root, gameState, uiState, dispatch) {
   }
 
   root.innerHTML = renderShell({
-    player: gameState.player,
-    route: uiState.route,
     flash: gameState.flash,
-    saveSummary,
-    screenMarkup: getScreenMarkup(gameState, uiState.route),
+    screenMarkup: getScreenMarkup(gameState, uiState.route, saveSummary),
   });
 
   attachTitleEvents(root, dispatch);
   attachRecipeEvents(root, gameState, dispatch);
   attachShopEvents(root, gameState, dispatch);
   attachQuestionEvents(root, gameState, dispatch);
+  attachPageEvents(root, dispatch);
 }
 
-function getScreenMarkup(gameState, route) {
+function getScreenMarkup(gameState, route, saveSummary) {
   if (route === "stats") {
     return renderStatsScreen(gameState);
+  }
+
+  if (route === "settings") {
+    return renderSettingsScreen(saveSummary);
   }
 
   return renderBakeryScreen(gameState);
@@ -173,6 +171,27 @@ function attachQuestionEvents(root, gameState, dispatch) {
 
       updated = submitAnswer(updated, button.dataset.answer);
       dispatch({ type: "UPDATE_GAME", payload: updated });
+    });
+  });
+}
+
+function attachPageEvents(root, dispatch) {
+  root.querySelectorAll("[data-go-recipe]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      dispatch({ type: "NAVIGATE", payload: navigate("recipe") });
+    });
+  });
+
+  root.querySelectorAll("[data-go-settings]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatch({ type: "NAVIGATE", payload: navigate("settings") });
+    });
+  });
+
+  root.querySelectorAll("[data-reset-save]").forEach((button) => {
+    button.addEventListener("click", () => {
+      dispatch({ type: "RESET_SAVE" });
     });
   });
 }

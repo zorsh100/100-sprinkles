@@ -4,6 +4,7 @@ const ROUTES = {
   recipe: "#/recipe",
   bake: "#/bake",
   stats: "#/stats",
+  settings: "#/settings",
 };
 
 function routeFromHash(hashValue) {
@@ -13,6 +14,7 @@ function routeFromHash(hashValue) {
   if (hash === ROUTES.recipe) return "recipe";
   if (hash === ROUTES.bake) return "bake";
   if (hash === ROUTES.stats) return "stats";
+  if (hash === ROUTES.settings) return "settings";
   return "title";
 }
 
@@ -55,6 +57,10 @@ function getAllowedRoute(gameState, requestedRoute) {
 
   if (gameState.session.order || gameState.session.saleReady) {
     return "bake";
+  }
+
+  if (requestedRoute === "settings") {
+    return "settings";
   }
 
   if (gameState.session.recentSale) {

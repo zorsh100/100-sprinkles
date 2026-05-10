@@ -26,37 +26,12 @@ body {
   min-height: 100vh;
   font-family: "Nunito", sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(circle at top left, rgba(255, 255, 255, 0.85), transparent 35%),
-    radial-gradient(circle at top right, rgba(255, 255, 255, 0.7), transparent 28%),
-    linear-gradient(180deg, var(--bg-top), var(--bg-bottom));
+  background: #ffffff;
 }
 
 body::before,
 body::after {
-  content: "";
-  position: fixed;
-  inset: auto;
-  z-index: -1;
-  border-radius: 999px;
-  filter: blur(12px);
-  opacity: 0.75;
-}
-
-body::before {
-  width: 220px;
-  height: 220px;
-  right: 4%;
-  top: 12%;
-  background: rgba(255, 182, 193, 0.55);
-}
-
-body::after {
-  width: 280px;
-  height: 280px;
-  left: 2%;
-  bottom: 8%;
-  background: rgba(94, 194, 183, 0.28);
+  display: none;
 }
 
 button,
@@ -489,6 +464,26 @@ h1 {
 .shop-card {
   display: grid;
   gap: 12px;
+}
+
+.recipe-card {
+  padding: 18px;
+  border-radius: 22px;
+  background: #ffffff;
+  border: 2px solid rgba(90, 111, 240, 0.12);
+  box-shadow: 0 10px 24px rgba(117, 74, 41, 0.08);
+}
+
+.recipe-card.selected {
+  border-color: rgba(90, 111, 240, 0.58);
+  box-shadow: 0 16px 30px rgba(90, 111, 240, 0.14);
+}
+
+.recipe-label {
+  margin: 0;
+  color: var(--accent-4);
+  font-size: 0.92rem;
+  font-weight: 800;
 }
 
 .recipe-card h3,
@@ -985,4 +980,49 @@ h1 {
   display: flex;
   justify-content: flex-end;
   padding: 8px 4px 16px;
+}
+
+
+body.title-route {
+  background: #ffffff;
+}
+
+body.title-route::before,
+body.title-route::after {
+  display: none;
+}
+
+body.title-route .utility-bar {
+  display: none;
+}
+
+.title-screen-minimal {
+  min-height: calc(100vh - 80px);
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 28px;
+  background: #ffffff;
+  box-shadow: none;
+  border: 0;
+  padding: 24px;
+}
+
+.title-screen-minimal .title-logo {
+  width: min(360px, 82vw);
+}
+
+body.title-route .app-shell {
+  width: min(100%, 1200px);
+  padding-top: 0;
+}
+
+.settings-actions {
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.danger-button {
+  background: rgba(216, 87, 87, 0.14);
+  color: #b34141;
 }

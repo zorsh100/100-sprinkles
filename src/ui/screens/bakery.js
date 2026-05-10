@@ -109,13 +109,14 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
             .map((recipe) => {
               const isSelected = session.selectedRecipeId === recipe.id;
               return `
-                <article class="recipe-card">
+                <article class="recipe-card ${isSelected ? "selected" : ""}">
                   <div class="split">
                     <h3>${recipe.icon} ${recipe.name}</h3>
                     <button class="recipe-button" type="button" data-recipe="${recipe.id}">
-                      ${isSelected ? "Selected" : "Pick"}
+                      ${isSelected ? "Selected" : "Choose"}
                     </button>
                   </div>
+                  <p class="recipe-label">${isSelected ? "Current recipe" : "Tap to choose this recipe"}</p>
                   <div class="recipe-meta">
                     <span>${recipe.baseReward} base coins</span>
                     <span>${recipe.sprinkleReward} sprinkle reward</span>
