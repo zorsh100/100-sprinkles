@@ -1,5 +1,5 @@
-import { STAGE_META } from "../../game/data.js?v=20260510-011500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-011500";
+import { STAGE_META } from "../../game/data.js?v=20260510-013300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-013300";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `

@@ -1,5 +1,5 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260510-011500";
-import { renderMascot } from "../components/mascot.js?v=20260510-011500";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260510-013300";
+import { renderMascot } from "../components/mascot.js?v=20260510-013300";
 
 const QUESTION_LABELS = {
   arithmetic_visual: "Picture counting",

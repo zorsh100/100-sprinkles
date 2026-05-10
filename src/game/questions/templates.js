@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260510-011500";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260510-013300";
 
 function makeChoices(answer, spread = 3, minimum = 0) {
   const choices = new Set([answer]);
@@ -58,6 +58,14 @@ function getRecipeToken(context) {
   return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
+function toTitleCase(value) {
+  return String(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 function getStagePlace(stage) {
   const places = {
     prep: "prep table",
@@ -91,7 +99,6 @@ function getStageSupply(stage) {
   const supplies = {
     prep: {
       label: "measuring scoops",
-      singular: "measuring scoop",
       tokenText: "SC",
       variant: "sugar",
       frame: "Bowls",
@@ -99,7 +106,6 @@ function getStageSupply(stage) {
     },
     mixing: {
       label: "mixing scoops",
-      singular: "mixing scoop",
       tokenText: "MX",
       variant: "flour",
       frame: "Bowl",
@@ -107,7 +113,6 @@ function getStageSupply(stage) {
     },
     timing: {
       label: "oven trays",
-      singular: "oven tray",
       tokenText: "TR",
       variant: "treat",
       frame: "Rack",
@@ -115,7 +120,6 @@ function getStageSupply(stage) {
     },
     finishing: {
       label: "topping swirls",
-      singular: "topping swirl",
       tokenText: "TP",
       variant: "sugar",
       frame: "Tray",
@@ -123,7 +127,6 @@ function getStageSupply(stage) {
     },
     serving: {
       label: "boxed treats",
-      singular: "boxed treat",
       tokenText: "BX",
       variant: "treat",
       frame: "Box",
@@ -193,7 +196,7 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
         { tokenText: supply.tokenText, variant: supply.variant, count: b, frame: "Added" },
       ],
     },
-    hint: `Add the ${supply.label} you started with and the ${supply.label} you added.` ,
+    hint: `Add the ${supply.label} you started with and the ${supply.label} you added.`,
   };
 }
 
@@ -240,7 +243,7 @@ export function arithmeticMultiplicationGroups({ targetDifficulty, stage, contex
     choices: makeChoices(answer, 14),
     scene: {
       kind: "equal_groups",
-      label: `${getRecipeSingularLabel(context)} trays`,
+      label: `${toTitleCase(getRecipeSingularLabel(context))} Trays`,
       caption: "Each frame is one tray. Count the same-size groups.",
       operator: "×",
       groups: Array.from({ length: trays }, () => ({ tokenText, variant: "treat", count: each, frame: "Tray" })),
@@ -255,6 +258,7 @@ export function costRevenue({ targetDifficulty, stage, context }) {
   const coins = randomInt(3, getScale(targetDifficulty, 6, 12));
   const answer = trays * coins;
   const recipeLabel = getRecipeLabel(context);
+  const orderLabel = `${toTitleCase(getRecipeSingularLabel(context))} Order`;
   const simplePrompt = `A customer buys ${trays} trays of ${recipeLabel}. Each tray sells for ${coins} coins. How many coins does your bakery earn?`;
   const standardPrompt = `At the ${getStagePlace(stage)}, you sell ${trays} trays of ${recipeLabel} for ${coins} coins each. What is the total?`;
   const advancedPrompt = `Your bakery sells ${trays} trays of ${recipeLabel} at ${coins} coins per tray. What is the total revenue?`;
@@ -265,10 +269,10 @@ export function costRevenue({ targetDifficulty, stage, context }) {
     choices: makeChoices(answer, 12),
     scene: {
       kind: "equal_groups",
-      label: "Tray sales",
-      caption: "Each tray earns the same number of coins.",
+      label: orderLabel,
+      caption: "Each tray matches the same coin total, so count equal groups of gold coins.",
       operator: "×",
-      groups: Array.from({ length: trays }, () => ({ tokenText: "C", variant: "coin", count: coins, frame: "Tray" })),
+      groups: Array.from({ length: trays }, () => ({ tokenText: "$", variant: "coin", count: coins, frame: "Tray" })),
     },
     hint: "Multiply the number of trays by the coins for each tray.",
   };
@@ -287,10 +291,10 @@ export function costBatches({ targetDifficulty, stage, context }) {
     choices: makeChoices(answer, 12),
     scene: {
       kind: "equal_groups",
-      label: "Ingredient bags",
-      caption: "Every bag costs the same amount, so count equal groups of coins.",
+      label: "Ingredient Bags",
+      caption: "Every bag costs the same amount, so count equal groups of gold coins.",
       operator: "×",
-      groups: Array.from({ length: bags }, () => ({ tokenText: "C", variant: "coin", count: costEach, frame: "Bag" })),
+      groups: Array.from({ length: bags }, () => ({ tokenText: "$", variant: "coin", count: costEach, frame: "Bag" })),
     },
     hint: "Multiply the number of bags by the cost of each bag.",
   };
