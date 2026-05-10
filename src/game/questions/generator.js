@@ -1,6 +1,6 @@
-import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js";
-import { isVisualMode } from "../sr.js";
-import { QUESTION_BANK } from "./bank.js";
+import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260509-205459";
+import { isVisualMode } from "../sr.js?v=20260509-205459";
+import { QUESTION_BANK } from "./bank.js?v=20260509-205459";
 
 export function generateQuestion({ SR, stage, context = {}, recentTemplates = [] }) {
   const targetDifficulty = SR + randomInt(-20, 20);

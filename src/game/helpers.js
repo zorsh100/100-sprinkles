@@ -1,5 +1,5 @@
-import { INGREDIENT_COSTS, RECIPES } from "./data.js";
-import { getAllowedQuestionTypes } from "./sr.js";
+import { INGREDIENT_COSTS, RECIPES } from "./data.js?v=20260509-205459";
+import { getAllowedQuestionTypes } from "./sr.js?v=20260509-205459";
 
 export function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));

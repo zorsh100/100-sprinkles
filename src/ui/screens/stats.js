@@ -1,4 +1,4 @@
-import { getSRMode } from "../../game/sr.js";
+import { getSRMode } from "../../game/sr.js?v=20260509-205459";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;

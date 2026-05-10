@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js";
+import { navigate } from "../app/router.js?v=20260509-205459";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -7,14 +7,14 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js";
-import { getSaveSummary } from "../state.js";
-import { renderShell } from "./shell.js";
-import { renderBakeryScreen } from "./screens/bakery.js";
-import { renderOnboardingScreen } from "./screens/onboarding.js";
-import { renderSettingsScreen } from "./screens/settings.js";
-import { renderStatsScreen } from "./screens/stats.js";
-import { renderTitleScreen } from "./screens/title.js";
+} from "../game/engine.js?v=20260509-205459";
+import { getSaveSummary } from "../state.js?v=20260509-205459";
+import { renderShell } from "./shell.js?v=20260509-205459";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-205459";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-205459";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260509-205459";
+import { renderStatsScreen } from "./screens/stats.js?v=20260509-205459";
+import { renderTitleScreen } from "./screens/title.js?v=20260509-205459";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);

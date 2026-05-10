@@ -1,4 +1,4 @@
-import { STAGE_META } from "../../game/data.js";
+import { STAGE_META } from "../../game/data.js?v=20260509-205459";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `

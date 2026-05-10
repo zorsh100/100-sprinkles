@@ -1,4 +1,4 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-205459";
 import {
   getMissingPantry,
   getPantryNeed,
@@ -6,9 +6,9 @@ import {
   getTotalShopCost,
   getUnlockedRecipes,
   srToBand,
-} from "../../game/helpers.js";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js";
+} from "../../game/helpers.js?v=20260509-205459";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-205459";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-205459";
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;

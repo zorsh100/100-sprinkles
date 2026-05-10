@@ -1,6 +1,6 @@
-import { syncRouteFromState, subscribeToRouteChanges } from "./app/router.js";
-import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js";
-import { renderApp } from "./ui/render.js";
+import { syncRouteFromState, subscribeToRouteChanges } from "./app/router.js?v=20260509-205459";
+import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260509-205459";
+import { renderApp } from "./ui/render.js?v=20260509-205459";
 
 const appRoot = document.querySelector("#app");
 
