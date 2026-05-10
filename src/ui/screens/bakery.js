@@ -1,6 +1,6 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-013300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-013300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-013300";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-024900";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-024900";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-024900";
 import {
   formatOrderCount,
   getMissingPantry,
@@ -11,9 +11,9 @@ import {
   getTotalShopCost,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260510-013300";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-013300";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-013300";
+} from "../../game/helpers.js?v=20260510-024900";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-024900";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-024900";
 
 const INGREDIENT_META = {
   flour: {
@@ -366,7 +366,8 @@ function renderQuestionPanel(gameState, currentStage) {
         </div>
         ${renderMascot({ mood: "celebrate", compact: true, message: `You did it! These ${session.saleReady.recipeName.toLowerCase()} are ready to wow your customers.` })}
         <div class="receipt-card">
-          <span>Sale value: ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue}</span>
+          <span>Sale value: ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue} of ${session.saleReady.baseRevenue ?? session.saleReady.revenue}</span>
+          <span>Bake accuracy: ${session.saleReady.accuracyPercent ?? 100}%</span>
           <span>Sparkle bonus: ${session.saleReady.sprinklesEarned}</span>
         </div>
         <div class="flow-actions">

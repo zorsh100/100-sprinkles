@@ -1,6 +1,6 @@
-import { INGREDIENT_COSTS } from "../../game/data.js?v=20260510-013300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-013300";
-import { renderMascot } from "../components/mascot.js?v=20260510-013300";
+import { INGREDIENT_COSTS } from "../../game/data.js?v=20260510-024900";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-024900";
+import { renderMascot } from "../components/mascot.js?v=20260510-024900";
 
 const INGREDIENT_META = {
   flour: {

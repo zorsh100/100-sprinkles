@@ -1,4 +1,4 @@
-import { renderMascot } from "../components/mascot.js?v=20260510-013300";
+import { renderMascot } from "../components/mascot.js?v=20260510-024900";
 
 const GRADE_CARDS = [
   { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },
@@ -12,22 +12,24 @@ const GRADE_CARDS = [
   { value: "8", label: "8th Grade", sr: 850, note: "Advanced bakery math" },
 ];
 
-export function renderOnboardingScreen() {
+export function renderOnboardingScreen(slotSummary) {
+  const slotLabel = slotSummary?.slotLabel ?? "Player 1";
+
   return `
     <section class="panel onboarding-card flow-screen">
       <div class="section-head onboarding-head">
         <div>
-          <p class="eyebrow eyebrow-pill">User Info</p>
+          <p class="eyebrow eyebrow-pill">${slotLabel} Notebook</p>
           <h2>Open your bakery</h2>
           <p class="muted onboarding-subcopy">Pick a grade so the Skill Rating starts in the right sweet spot.</p>
         </div>
         <div class="badge onboarding-badge">✨ Gets harder as you grow</div>
       </div>
-      ${renderMascot({ mood: "happy", compact: true, message: "Choose your grade and I’ll pick just-right bakery math for you." })}
+      ${renderMascot({ mood: "happy", compact: true, message: `Choose a chef name and grade for ${slotLabel.toLowerCase()}, and I'll set up the bakery math just right.` })}
       <form id="onboarding-form" class="form-grid onboarding-form">
         <label class="field full">
           <span>Your chef name</span>
-          <input id="username" name="username" maxlength="24" placeholder="Chef Sunny 🧁" required />
+          <input id="username" name="username" maxlength="24" placeholder="Chef Sunny" required />
         </label>
         <input id="grade" name="grade" type="hidden" value="K" />
         <div class="info-card onboarding-info-card" id="grade-preview-card">
@@ -55,7 +57,7 @@ export function renderOnboardingScreen() {
           </div>
         </div>
         <div class="field full">
-          <button class="primary-button onboarding-submit-button" id="start-baking" type="submit" disabled aria-disabled="true">Start Baking</button>
+          <button class="primary-button onboarding-submit-button" id="start-baking" type="submit" disabled aria-disabled="true">Start Baking In ${slotLabel}</button>
         </div>
       </form>
     </section>

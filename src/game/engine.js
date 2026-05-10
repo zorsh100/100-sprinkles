@@ -1,7 +1,8 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260510-013300";
+import { createInitialSession, STAGES } from "./data.js?v=20260510-024900";
 import {
   canAffordIngredients,
   clamp,
+  getAccuracyAdjustedRevenue,
   getMissingPantry,
   getNewlyUnlockedRecipes,
   getOrderCount,
@@ -10,10 +11,10 @@ import {
   getRecipeById,
   getShopCost,
   supportsRecipeSets,
-} from "./helpers.js?v=20260510-013300";
-import { formatSignedValue } from "./math.js?v=20260510-013300";
-import { generateQuestion } from "./questions/generator.js?v=20260510-013300";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260510-013300";
+} from "./helpers.js?v=20260510-024900";
+import { formatSignedValue } from "./math.js?v=20260510-024900";
+import { generateQuestion } from "./questions/generator.js?v=20260510-024900";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260510-024900";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -121,6 +122,8 @@ export function startOrder(gameState) {
     pantryNeed,
     estimatedRevenue,
     sprinkleReward,
+    totalAttempts: 0,
+    correctAnswers: 0,
     status: "baking",
     startedAt: Date.now(),
   };
@@ -178,6 +181,10 @@ export function submitAnswer(gameState, selectedAnswer) {
       player: srResult.player,
       session: {
         ...session,
+        order: {
+          ...session.order,
+          totalAttempts: (session.order.totalAttempts ?? 0) + 1,
+        },
         currentQuestion: {
           ...question,
           attemptCount: attemptNumber,
@@ -200,8 +207,13 @@ export function submitAnswer(gameState, selectedAnswer) {
   const completedStages = [...session.order.completedStages, question.stage];
   const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.SR, srResult.nextSR, player.knownRecipes);
 
+  const nextOrderTotals = {
+    totalAttempts: (session.order.totalAttempts ?? 0) + 1,
+    correctAnswers: (session.order.correctAnswers ?? 0) + 1,
+  };
+
   if (nextStageIndex >= STAGES.length) {
-    return finishOrder(gameState, srResult.player, completedStages, newlyUnlockedRecipes);
+    return finishOrder(gameState, srResult.player, completedStages, newlyUnlockedRecipes, nextOrderTotals);
   }
 
   const recipe = getRecipeById(session.order.recipeId);
@@ -228,6 +240,7 @@ export function submitAnswer(gameState, selectedAnswer) {
         ...session.order,
         stageIndex: nextStageIndex,
         completedStages,
+        ...nextOrderTotals,
       },
       questionResult: {
         correct: true,
@@ -246,11 +259,18 @@ export function submitAnswer(gameState, selectedAnswer) {
   };
 }
 
-function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRecipes = []) {
+function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRecipes = [], orderTotals = {}) {
   const { session } = gameState;
   const recipe = getRecipeById(session.order.recipeId);
-  const revenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
+  const baseRevenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
   const sprinklesEarned = recipe.sprinkleReward * session.order.batchCount;
+  const totalAttempts = orderTotals.totalAttempts ?? session.order.totalAttempts ?? completedStages.length;
+  const correctAnswers = orderTotals.correctAnswers ?? session.order.correctAnswers ?? completedStages.length;
+  const { accuracyPercent, adjustedRevenue } = getAccuracyAdjustedRevenue(
+    baseRevenue,
+    correctAnswers,
+    totalAttempts,
+  );
   const pantry = { ...updatedPlayer.pantry };
 
   if (updatedPlayer.SR >= 300) {
@@ -273,6 +293,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRec
         batchCount: getOrderCount(updatedPlayer.SR, session.batchCount),
         recentTemplates: session.recentTemplates,
         recentSale: session.recentSale,
+        recentSales: session.recentSales,
         pendingRecipeUnlocks: queueRecipeUnlocks(session.pendingRecipeUnlocks, newlyUnlockedRecipes),
       }),
       saleReady: {
@@ -281,7 +302,11 @@ function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRec
         recipeIcon: recipe.icon,
         batchCount: session.order.batchCount,
         completedStages,
-        revenue,
+        revenue: adjustedRevenue,
+        baseRevenue,
+        accuracyPercent,
+        totalAttempts,
+        correctAnswers,
         sprinklesEarned: sprinklesEarned + 2,
         pantryUsed: session.order.pantryNeed,
         bakedAt: Date.now(),
@@ -289,7 +314,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, newlyUnlockedRec
     },
     flash: {
       kind: "success",
-      text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${revenue} coins.`,
+      text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${adjustedRevenue} coins at ${accuracyPercent}% bake accuracy.`,
     },
   };
 }
@@ -312,6 +337,13 @@ export function sellCurrentOrder(gameState) {
     return setFlash(gameState, "error", "Finish baking this order before trying to sell it.");
   }
 
+  const completedSale = {
+    ...saleReady,
+    soldAt: Date.now(),
+  };
+  const recentSales = [completedSale, ...(Array.isArray(session.recentSales) ? session.recentSales : session.recentSale ? [session.recentSale] : [])]
+    .slice(0, 5);
+
   return {
     ...gameState,
     player: {
@@ -322,10 +354,8 @@ export function sellCurrentOrder(gameState) {
     session: {
       ...session,
       saleReady: null,
-      recentSale: {
-        ...saleReady,
-        soldAt: Date.now(),
-      },
+      recentSale: completedSale,
+      recentSales,
     },
     flash: {
       kind: "success",

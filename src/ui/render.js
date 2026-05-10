@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260510-013300";
+import { navigate } from "../app/router.js?v=20260510-024900";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,26 +8,28 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260510-013300";
-import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-013300";
-import { renderShell } from "./shell.js?v=20260510-013300";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-013300";
-import { renderLearnScreen } from "./screens/learn.js?v=20260510-013300";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-013300";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260510-013300";
-import { renderShopScreen } from "./screens/shop.js?v=20260510-013300";
-import { renderStatsScreen } from "./screens/stats.js?v=20260510-013300";
-import { renderTitleScreen } from "./screens/title.js?v=20260510-013300";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-013300";
+} from "../game/engine.js?v=20260510-024900";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-024900";
+import { renderShell } from "./shell.js?v=20260510-024900";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-024900";
+import { renderLearnScreen } from "./screens/learn.js?v=20260510-024900";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-024900";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260510-024900";
+import { renderShopScreen } from "./screens/shop.js?v=20260510-024900";
+import { renderStatsScreen } from "./screens/stats.js?v=20260510-024900";
+import { renderTitleScreen } from "./screens/title.js?v=20260510-024900";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-024900";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
+  const saveSummaries = getSaveSummaries(gameState);
+  const pendingSaveSummary = saveSummaries.find((summary) => summary.slotId === uiState.pendingSaveSlotId) ?? saveSummaries[0] ?? null;
   document.body.classList.toggle("title-route", uiState.route === "title");
 
   if (uiState.route === "title") {
     root.innerHTML = renderShell({
       route: uiState.route,
-      screenMarkup: renderTitleScreen(saveSummary),
+      screenMarkup: renderTitleScreen(saveSummaries),
     });
     attachTitleEvents(root, dispatch);
     attachPageEvents(root, gameState, dispatch);
@@ -37,16 +39,16 @@ export function renderApp(root, gameState, uiState, dispatch) {
   if (uiState.route === "profile" || (!gameState.player && uiState.route !== "settings")) {
     root.innerHTML = renderShell({
       route: uiState.route,
-      screenMarkup: renderOnboardingScreen(),
+      screenMarkup: renderOnboardingScreen(pendingSaveSummary),
     });
-    attachOnboardingEvents(root, dispatch);
+    attachOnboardingEvents(root, gameState, uiState, dispatch);
     attachPageEvents(root, gameState, dispatch);
     return;
   }
 
   root.innerHTML = renderShell({
     route: uiState.route,
-    screenMarkup: getScreenMarkup(gameState, uiState.route, saveSummary),
+    screenMarkup: getScreenMarkup(gameState, uiState.route, saveSummary, saveSummaries),
   });
 
   attachTitleEvents(root, dispatch);
@@ -56,13 +58,13 @@ export function renderApp(root, gameState, uiState, dispatch) {
   attachPageEvents(root, gameState, dispatch);
 }
 
-function getScreenMarkup(gameState, route, saveSummary) {
+function getScreenMarkup(gameState, route, saveSummary, saveSummaries) {
   if (route === "stats") {
     return renderStatsScreen(gameState);
   }
 
   if (route === "settings") {
-    return renderSettingsScreen(saveSummary, gameState.player);
+    return renderSettingsScreen(saveSummaries, saveSummary, gameState.player);
   }
 
   if (route === "shop") {
@@ -94,7 +96,7 @@ function attachTitleEvents(root, dispatch) {
   });
 }
 
-function attachOnboardingEvents(root, dispatch) {
+function attachOnboardingEvents(root, gameState, uiState, dispatch) {
   const gradeInput = root.querySelector("#grade");
   const gradePreview = root.querySelector("#grade-preview");
   const gradePreviewCard = root.querySelector("#grade-preview-card");
@@ -154,7 +156,11 @@ function attachOnboardingEvents(root, dispatch) {
 
     dispatch({
       type: "START_GAME",
-      payload: { username, grade },
+      payload: {
+        username,
+        grade,
+        slotId: uiState.pendingSaveSlotId ?? gameState.activeSaveSlot,
+      },
     });
     dispatch({ type: "NAVIGATE", payload: navigate("recipe") });
   });
@@ -245,6 +251,22 @@ function attachPageEvents(root, gameState, dispatch) {
     });
   });
 
+  root.querySelectorAll("[data-open-save-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      dispatch({ type: "SWITCH_SAVE", payload: button.dataset.openSaveSlot });
+      dispatch({ type: "NAVIGATE", payload: navigate(button.dataset.goRoute || "recipe") });
+    });
+  });
+
+  root.querySelectorAll("[data-new-player-slot]").forEach((button) => {
+    button.addEventListener("click", () => {
+      if (button.disabled) return;
+      dispatch({ type: "SET_PENDING_SAVE_SLOT", payload: button.dataset.newPlayerSlot });
+      dispatch({ type: "NAVIGATE", payload: navigate("profile") });
+    });
+  });
+
   root.querySelectorAll("[data-dismiss-unlocks]").forEach((button) => {
     button.addEventListener("click", () => {
       const updated = dismissRecipeUnlocks(gameState);
@@ -255,7 +277,7 @@ function attachPageEvents(root, gameState, dispatch) {
 
   root.querySelectorAll("[data-reset-save]").forEach((button) => {
     button.addEventListener("click", () => {
-      dispatch({ type: "RESET_SAVE" });
+      dispatch({ type: "RESET_SAVE", payload: button.dataset.resetSave || undefined });
     });
   });
 }

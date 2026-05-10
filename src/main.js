@@ -1,12 +1,13 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260510-013300";
-import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260510-013300";
-import { renderApp } from "./ui/render.js?v=20260510-013300";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260510-024900";
+import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260510-024900";
+import { renderApp } from "./ui/render.js?v=20260510-024900";
 
 const appRoot = document.querySelector("#app");
 
 let gameState = loadGame();
 let uiState = {
   route: resolveRouteForGameState(gameState, getRouteFromHash()),
+  pendingSaveSlotId: gameState.activeSaveSlot,
 };
 
 function syncAndRender(requestedRoute = uiState.route) {
@@ -28,8 +29,12 @@ function syncAndRender(requestedRoute = uiState.route) {
 function handleAction(action) {
   switch (action.type) {
     case "START_GAME":
-      gameState = createNewPlayer(action.payload);
-      uiState = { ...uiState, route: "recipe" };
+      gameState = createNewPlayer(gameState, action.payload);
+      uiState = {
+        ...uiState,
+        route: "recipe",
+        pendingSaveSlotId: gameState.activeSaveSlot,
+      };
       break;
     case "UPDATE_GAME":
       gameState = action.payload;
@@ -40,10 +45,26 @@ function handleAction(action) {
         route: action.payload,
       };
       break;
+    case "SET_PENDING_SAVE_SLOT":
+      uiState = {
+        ...uiState,
+        pendingSaveSlotId: action.payload,
+      };
+      break;
+    case "SWITCH_SAVE":
+      gameState = activateSaveSlot(gameState, action.payload);
+      uiState = {
+        ...uiState,
+        pendingSaveSlotId: gameState.activeSaveSlot,
+      };
+      break;
     case "RESET_SAVE":
-      resetGame();
-      gameState = loadGame();
-      uiState = { ...uiState, route: "title" };
+      gameState = resetGame(gameState, action.payload ?? gameState.activeSaveSlot);
+      uiState = {
+        ...uiState,
+        route: resolveRouteForGameState(gameState, uiState.route),
+        pendingSaveSlotId: gameState.activeSaveSlot,
+      };
       break;
     default:
       break;

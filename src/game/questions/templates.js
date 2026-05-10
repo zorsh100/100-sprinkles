@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260510-013300";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260510-024900";
 
 function makeChoices(answer, spread = 3, minimum = 0) {
   const choices = new Set([answer]);

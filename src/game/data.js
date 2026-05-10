@@ -125,17 +125,26 @@ export function normalizePlayer(player = {}) {
 }
 
 export function createInitialSession(overrides = {}) {
+  const recentSales = Array.isArray(overrides.recentSales)
+    ? overrides.recentSales.slice(0, 5)
+    : overrides.recentSale
+      ? [overrides.recentSale]
+      : [];
+
   return {
     selectedRecipeId: "cupcakes",
     batchCount: 1,
     order: null,
     saleReady: null,
-    recentSale: null,
+    recentSale: recentSales[0] ?? null,
+    recentSales,
     pendingRecipeUnlocks: [],
     currentQuestion: null,
     questionResult: null,
     recentTemplates: [],
     ...overrides,
+    recentSale: overrides.recentSale ?? recentSales[0] ?? null,
+    recentSales,
     pendingRecipeUnlocks: Array.isArray(overrides.pendingRecipeUnlocks) ? overrides.pendingRecipeUnlocks : [],
   };
 }
