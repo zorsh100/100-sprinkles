@@ -1,3 +1,5 @@
+import { renderMascot } from "../components/mascot.js?v=20260509-233000";
+
 const GRADE_CARDS = [
   { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },
   { value: "1", label: "1st Grade", sr: 150, note: "Basic story math" },
@@ -21,6 +23,7 @@ export function renderOnboardingScreen() {
         </div>
         <div class="badge onboarding-badge">✨ Gets harder as you grow</div>
       </div>
+      ${renderMascot({ mood: "happy", compact: true, message: "Choose your grade and I’ll pick just-right bakery math for you." })}
       <form id="onboarding-form" class="form-grid onboarding-form">
         <label class="field full">
           <span>Your chef name</span>

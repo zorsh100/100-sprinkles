@@ -1,5 +1,6 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260509-205459";
-import { getSRMode } from "../../game/sr.js?v=20260509-205459";
+import { formatOrderCount } from "../../game/helpers.js?v=20260509-233000";
+import { getSRMode } from "../../game/sr.js?v=20260509-233000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-233000";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
@@ -16,12 +17,14 @@ export function renderStatsScreen(gameState) {
       ${
         sale
           ? `
-            <div class="receipt-card sale-report">
+            <div class="receipt-card sale-report celebration-panel">
+              ${renderCelebrationBurst({ icon: sale.recipeIcon, label: `${sale.recipeName} sold!` })}
               <strong>${sale.recipeIcon} ${sale.recipeName}</strong>
               <span>${formatOrderCount(player.SR, sale.batchCount) ? `${formatOrderCount(player.SR, sale.batchCount)} sold` : "Sold and served"}</span>
               <span>${sale.revenue} coins earned</span>
               <span>${sale.sprinklesEarned} sprinkles earned</span>
             </div>
+            ${renderMascot({ mood: "celebrate", compact: true, message: `Amazing job! Your ${sale.recipeName.toLowerCase()} brought in ${sale.revenue} coins.` })}
           `
           : ""
       }

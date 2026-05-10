@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260509-205459";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260509-233000";
 
 function makeChoices(answer, spread = 3, minimum = 0) {
   const choices = new Set([answer]);
@@ -16,7 +16,54 @@ function makeChoices(answer, spread = 3, minimum = 0) {
 }
 
 function getRecipeLabel(context) {
-  return context.recipeName ?? "bakery treat";
+  return (context.recipeName ?? "treats").toLowerCase();
+}
+
+function getRecipeSingularLabel(context) {
+  const label = getRecipeLabel(context);
+
+  if (label.endsWith("ies")) {
+    return `${label.slice(0, -3)}y`;
+  }
+
+  if (label.endsWith("s")) {
+    return label.slice(0, -1);
+  }
+
+  return label;
+}
+
+function getRecipeEmoji(context) {
+  const label = getRecipeLabel(context);
+
+  if (label.includes("cookie")) return "🍪";
+  if (label.includes("donut")) return "🍩";
+  if (label.includes("muffin")) return "🧁";
+  return "🧁";
+}
+
+function getStagePlace(stage) {
+  const places = {
+    prep: "prep table",
+    mixing: "mixing bowl",
+    timing: "oven rack",
+    finishing: "cooling rack",
+    serving: "bakery counter",
+  };
+
+  return places[stage] ?? "bakery counter";
+}
+
+function getStageTask(stage) {
+  const tasks = {
+    prep: "get ready for the oven",
+    mixing: "go into the batter",
+    timing: "go in the oven",
+    finishing: "go on the tray",
+    serving: "go to your customers",
+  };
+
+  return tasks[stage] ?? "go to your bakery";
 }
 
 function getScale(targetDifficulty, low, high) {
@@ -39,7 +86,7 @@ export function visualCountAll({ targetDifficulty }) {
       left: Array.from({ length: addA }, () => "🧁"),
       right: Array.from({ length: addB }, () => "🧁"),
     },
-    hint: "Count each treat, then count them all together.",
+    hint: "Count both groups, then add them together.",
   };
 }
 
@@ -56,7 +103,7 @@ export function visualCountDifference({ targetDifficulty }) {
       left: Array.from({ length: left }, () => "🧁"),
       right: Array.from({ length: right }, () => "🧁"),
     },
-    hint: "Match the cupcakes in pairs, then count what is left over.",
+    hint: "Match the cupcakes in pairs and count what is left.",
   };
 }
 
@@ -65,14 +112,23 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
   const a = randomInt(3, maxValue);
   const b = randomInt(3, maxValue);
   const answer = a + b;
-  const easyPrompt = `${a} sprinkles. Then ${b} more. How many now?`;
-  const standardPrompt = `You have ${a} sprinkles. You get ${b} more. How many sprinkles now?`;
+  const easyPrompt = `Your ${getStagePlace(stage)} had ${a} sprinkles. You added ${b} more. How many sprinkles are there now?`;
+  const standardPrompt = `Your ${getStagePlace(stage)} held ${a} sprinkles for the ${getRecipeLabel(context)}. You poured in ${b} more. How many sprinkles does your bakery have there now?`;
 
   return {
     prompt: targetDifficulty < 180 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, 10),
-    hint: "Add the first amount and the extra amount together.",
+    scene: {
+      kind: "groups",
+      label: "Sprinkles in the bowl",
+      operator: "+",
+      groups: [
+        { emoji: "✨", count: a },
+        { emoji: "✨", count: b },
+      ],
+    },
+    hint: "Add the sprinkles you started with and the sprinkles you added.",
   };
 }
 
@@ -80,14 +136,23 @@ export function arithmeticSubtractionStory({ targetDifficulty, stage, context })
   const total = randomInt(12, getScale(targetDifficulty, 18, 95));
   const used = randomInt(3, Math.max(5, Math.floor(total * 0.65)));
   const answer = total - used;
-  const easyPrompt = `${total} sprinkles. Use ${used}. How many left?`;
-  const standardPrompt = `You have ${total} sprinkles. You use ${used}. How many are left?`;
+  const easyPrompt = `Your ${getStagePlace(stage)} had ${total} ${getRecipeLabel(context)}. You used ${used}. How many are left?`;
+  const standardPrompt = `You set ${total} ${getRecipeLabel(context)} on the ${getStagePlace(stage)}. Then ${used} went to the next step. How many ${getRecipeLabel(context)} are still there?`;
 
   return {
     prompt: targetDifficulty < 220 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, 10),
-    hint: "Start with the total, then take away the part you used.",
+    scene: {
+      kind: "groups",
+      label: "Treats still on the tray",
+      operator: "−",
+      groups: [
+        { emoji: getRecipeEmoji(context), count: total },
+        { emoji: getRecipeEmoji(context), count: used },
+      ],
+    },
+    hint: "Start with all the treats, then take away the ones you used.",
   };
 }
 
@@ -95,12 +160,21 @@ export function arithmeticMultiplicationGroups({ targetDifficulty, stage, contex
   const trays = randomInt(3, Math.max(4, getScale(targetDifficulty, 5, 12)));
   const each = randomInt(3, Math.max(6, getScale(targetDifficulty, 6, 12)));
   const answer = trays * each;
+  const simplePrompt = `You loaded ${trays} trays with ${each} ${getRecipeLabel(context)} on each tray. How many ${getRecipeLabel(context)} ${getStageTask(stage)}?`;
+  const standardPrompt = `During ${stage}, you lined up ${trays} trays of ${getRecipeLabel(context)} with ${each} on each tray. How many ${getRecipeLabel(context)} go through this step?`;
+  const advancedPrompt = `Your ${stage} station has ${trays} trays of ${getRecipeLabel(context)}, ${each} per tray. How many ${getRecipeLabel(context)} does your bakery handle in this step?`;
 
   return {
-    prompt: `In ${stage}, you line up ${trays} trays of ${getRecipeLabel(context)} with ${each} pieces on each tray. How many pieces are there total?`,
+    prompt: targetDifficulty < 300 ? simplePrompt : targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer,
     choices: makeChoices(answer, 14),
-    hint: "Equal groups can be solved with multiplication.",
+    scene: {
+      kind: "equal_groups",
+      label: `${getRecipeSingularLabel(context)} trays`,
+      operator: "×",
+      groups: Array.from({ length: trays }, () => ({ emoji: getRecipeEmoji(context), count: each, frame: "🧺" })),
+    },
+    hint: `Multiply the number of trays by the ${getRecipeLabel(context)} on each tray.`,
   };
 }
 
@@ -109,26 +183,41 @@ export function costRevenue({ targetDifficulty, stage, context }) {
   const trays = randomInt(Math.max(2, batchCount), getScale(targetDifficulty, 4, 10));
   const coins = randomInt(3, getScale(targetDifficulty, 6, 12));
   const answer = trays * coins;
-  const easyPrompt = `${trays} trays. ${coins} coins each. How many coins?`;
-  const standardPrompt = `You sell ${trays} trays. Each tray is ${coins} coins. How many coins do you get?`;
+  const simplePrompt = `A customer buys ${trays} trays of ${getRecipeLabel(context)}. Each tray sells for ${coins} coins. How many coins does your bakery earn?`;
+  const standardPrompt = `At the ${getStagePlace(stage)}, you sell ${trays} trays of ${getRecipeLabel(context)} for ${coins} coins each. What is the total?`;
+  const advancedPrompt = `Your bakery sells ${trays} trays of ${getRecipeLabel(context)} at ${coins} coins per tray. What is the total revenue?`;
 
   return {
-    prompt: targetDifficulty < 230 ? easyPrompt : standardPrompt,
+    prompt: targetDifficulty < 300 ? simplePrompt : targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer,
     choices: makeChoices(answer, 12),
-    hint: "Same price each time means multiply the price by the number of trays.",
+    scene: {
+      kind: "equal_groups",
+      label: "Tray sales",
+      operator: "×",
+      groups: Array.from({ length: trays }, () => ({ emoji: "🪙", count: coins, frame: getRecipeEmoji(context) })),
+    },
+    hint: "Multiply the number of trays by the coins for each tray.",
   };
 }
 
-export function costBatches({ targetDifficulty, context }) {
+export function costBatches({ targetDifficulty, stage, context }) {
   const bags = randomInt(2, getScale(targetDifficulty, 4, 9));
   const costEach = randomInt(2, getScale(targetDifficulty, 5, 11));
   const answer = bags * costEach;
+  const standardPrompt = `You need ${bags} ingredient bags for today's ${getRecipeLabel(context)}. Each bag costs ${costEach} coins. What is the total cost?`;
+  const advancedPrompt = `For ${stage}, your ${getRecipeLabel(context)} order needs ${bags} ingredient bags at ${costEach} coins each. What is the total cost?`;
 
   return {
-    prompt: `You need ${bags} ingredient bags for your ${getRecipeLabel(context)} order. Each bag costs ${costEach} coins. What is the total cost?`,
+    prompt: targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer,
     choices: makeChoices(answer, 12),
+    scene: {
+      kind: "equal_groups",
+      label: "Ingredient bags",
+      operator: "×",
+      groups: Array.from({ length: bags }, () => ({ emoji: "🪙", count: costEach, frame: "🧺" })),
+    },
     hint: "Multiply the number of bags by the cost of each bag.",
   };
 }
@@ -137,40 +226,46 @@ export function businessProfit({ targetDifficulty, stage, context }) {
   const spend = randomInt(10, getScale(targetDifficulty, 16, 34));
   const profit = randomInt(5, getScale(targetDifficulty, 10, 26));
   const earn = spend + profit;
+  const standardPrompt = `Your ${getRecipeLabel(context)} sale earned ${earn} coins. Ingredients cost ${spend} coins. What is the profit?`;
+  const advancedPrompt = `After ${stage}, your ${getRecipeLabel(context)} sale brought in ${earn} coins and your ingredient cost was ${spend} coins. What profit did your bakery make?`;
 
   return {
-    prompt: `After ${stage}, your ${getRecipeLabel(context)} sale brought in ${earn} coins and ingredients cost ${spend} coins. What is the profit?`,
+    prompt: targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer: profit,
     choices: makeChoices(profit, 8),
-    hint: "Profit means the money earned minus the money spent.",
+    hint: "Subtract the ingredient cost from the money earned.",
   };
 }
 
-export function fractionHalf({ targetDifficulty }) {
+export function fractionHalf({ targetDifficulty, stage, context }) {
   const total = randomInt(3, getScale(targetDifficulty, 4, 8)) * 2;
   const answer = total / 2;
+  const standardPrompt = `You set out ${total} ${getRecipeLabel(context)} on the ${getStagePlace(stage)}. Half get sprinkles. How many get sprinkles?`;
+  const advancedPrompt = `Your ${getRecipeLabel(context)} tray holds ${total} pieces. One half get the finishing topping. How many pieces is that?`;
 
   return {
-    prompt: `A brownie pan has ${total} squares. You frost 1/2 of them. How many squares get frosting?`,
+    prompt: targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer,
     choices: makeChoices(answer, 6),
-    hint: "Half means split the total into 2 equal groups.",
+    hint: "Split the total into 2 equal groups to find one half.",
   };
 }
 
-export function fractionQuarter({ targetDifficulty }) {
+export function fractionQuarter({ targetDifficulty, stage, context }) {
   const total = randomInt(2, getScale(targetDifficulty, 3, 6)) * 4;
   const answer = total / 4;
+  const standardPrompt = `You lined up ${total} ${getRecipeLabel(context)} on the ${getStagePlace(stage)}. One fourth get rainbow sugar. How many is that?`;
+  const advancedPrompt = `Your bakery made ${total} ${getRecipeLabel(context)} for ${stage}. One fourth get the special topping. How many ${getRecipeLabel(context)} is one fourth?`;
 
   return {
-    prompt: `A cookie rack holds ${total} cookies. One fourth of them get rainbow sugar. How many cookies is 1/4?`,
+    prompt: targetDifficulty < 500 ? standardPrompt : advancedPrompt,
     answer,
     choices: makeChoices(answer, 8),
-    hint: "One fourth means split the total into 4 equal groups.",
+    hint: "Split the total into 4 equal groups to find one fourth.",
   };
 }
 
-export function ratioScale({ targetDifficulty }) {
+export function ratioScale({ targetDifficulty, stage, context }) {
   const flourParts = randomInt(2, 5);
   const sugarParts = flourParts + randomInt(1, 3);
   const multiplier = randomInt(2, Math.max(3, getScale(targetDifficulty, 3, 5)));
@@ -178,39 +273,40 @@ export function ratioScale({ targetDifficulty }) {
   const answer = sugarParts * multiplier;
 
   return {
-    prompt: `A batter uses flour to sugar in a ${flourParts}:${sugarParts} ratio. If you use ${flour} cups of flour, how many cups of sugar do you need?`,
+    prompt: `Your ${getRecipeLabel(context)} batter uses a ${flourParts}:${sugarParts} flour-to-sugar ratio. If the ${getStagePlace(stage)} gets ${flour} cups of flour, how many cups of sugar does it need?`,
     answer,
     choices: makeChoices(answer, 6),
-    hint: "Scale both parts of the ratio by the same amount.",
+    hint: "Scale the sugar part by the same factor as the flour part.",
   };
 }
 
-export function algebraicBalance({ targetDifficulty }) {
+export function algebraicBalance({ targetDifficulty, stage, context }) {
   const x = randomInt(4, getScale(targetDifficulty, 8, 18));
   const multiplier = randomInt(2, 3);
   const extra = randomInt(6, 18);
   const total = x * multiplier + extra;
 
   return {
-    prompt: `${multiplier} equal sprinkle jars plus ${extra} bonus sprinkles make ${total}. How many sprinkles are in one jar?`,
+    prompt: `At the ${getStagePlace(stage)}, ${multiplier} sprinkle jars and ${extra} loose sprinkles make ${total}. How many sprinkles are in one jar?`,
     answer: x,
     choices: makeChoices(x, 8),
-    hint: "Subtract the bonus first, then split the rest into equal groups.",
+    hint: "Subtract the loose sprinkles, then split the rest into equal jars.",
   };
 }
 
-export function optimizationBestDeal() {
+export function optimizationBestDeal({ context }) {
+  const item = getRecipeSingularLabel(context);
   const options = [
-    { label: "6-cookie box", size: 6, price: 8, answer: 6 },
-    { label: "10-cookie box", size: 10, price: 12, answer: 10 },
+    { label: `6-${item} box`, size: 6, price: 8, answer: 6 },
+    { label: `10-${item} box`, size: 10, price: 12, answer: 10 },
   ];
   const best = options[1].price / options[1].size < options[0].price / options[0].size ? options[1] : options[0];
 
   return {
-    prompt: "Which box is the better deal: 6 cookies for 8 coins or 10 cookies for 12 coins?",
+    prompt: `Two ${item} boxes are on your bakery shelf. Which is the better deal: 6 for 8 coins or 10 for 12 coins?`,
     answer: best.answer,
     answerLabel: best.label,
     choices: shuffle([6, 10, 8, 12]),
-    hint: "Compare the cost per cookie for each box.",
+    hint: "Find the cost for one item in each box, then compare them.",
   };
 }

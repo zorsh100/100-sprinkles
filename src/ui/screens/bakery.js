@@ -1,4 +1,5 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-205459";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-233000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-233000";
 import {
   formatOrderCount,
   getMissingPantry,
@@ -8,9 +9,9 @@ import {
   getTotalShopCost,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260509-205459";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-205459";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-205459";
+} from "../../game/helpers.js?v=20260509-233000";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-233000";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-233000";
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
@@ -311,7 +312,8 @@ function renderQuestionPanel(gameState, currentStage) {
 
   if (session.saleReady) {
     return `
-      <section class="panel question-card">
+      <section class="panel question-card celebration-panel bake-finish-panel">
+        ${renderCelebrationBurst({ icon: session.saleReady.recipeIcon, label: 'Bake Complete!' })}
         <div class="section-head">
           <div>
             <p class="eyebrow">Bake complete</p>
@@ -320,6 +322,7 @@ function renderQuestionPanel(gameState, currentStage) {
           </div>
           <div class="badge">${formatOrderCount(player.SR, session.saleReady.batchCount) || "Ready to serve"}</div>
         </div>
+        ${renderMascot({ mood: 'celebrate', compact: true, message: `You did it! These ${session.saleReady.recipeName.toLowerCase()} are ready to wow your customers.` })}
         <div class="receipt-card">
           <span>Sale value: ${session.saleReady.revenue} coins</span>
           <span>Sprinkles earned: ${session.saleReady.sprinklesEarned}</span>
@@ -356,6 +359,7 @@ function renderQuestionPanel(gameState, currentStage) {
       </div>
     `
     : "";
+  const sceneMarkup = question.scene ? renderStoryScene(question.scene) : "";
 
   return `
     <section class="panel question-card stage-panel stage-${currentStage}">
@@ -363,9 +367,10 @@ function renderQuestionPanel(gameState, currentStage) {
         <div>
           <p class="eyebrow">Math challenge</p>
           <h2>${STAGE_META[currentStage].title}</h2>
-          <p class="muted">${escapeHtml(question.prompt)}</p>
         </div>
       </div>
+      ${sceneMarkup}
+      <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<p><strong>${escapeHtml(question.promptSecondary)}</strong></p>` : ""}
       ${visuals}
       <div class="answer-grid regular-answer-grid">
@@ -386,6 +391,33 @@ function renderQuestionPanel(gameState, currentStage) {
           .join("")}
       </div>
     </section>
+  `;
+}
+
+function renderStoryScene(scene) {
+  const groups = Array.isArray(scene.groups) ? scene.groups : [];
+
+  if (!groups.length) {
+    return "";
+  }
+
+  return `
+    <div class="story-scene-card" aria-label="${escapeHtml(scene.label ?? "Story scene")}">
+      <div class="story-scene-label">${escapeHtml(scene.label ?? "Bakery scene")}</div>
+      <div class="story-scene-groups ${scene.kind === "equal_groups" ? "equal-groups-scene" : "count-scene"}">
+        ${groups
+          .map((group, index) => `
+            <div class="story-scene-group">
+              ${group.frame ? `<div class="story-scene-frame">${escapeHtml(group.frame)}</div>` : ""}
+              <div class="story-scene-tokens">
+                ${Array.from({ length: Number(group.count) || 0 }, () => `<span class="story-scene-token">${escapeHtml(group.emoji ?? "✨")}</span>`).join("")}
+              </div>
+            </div>
+            ${index < groups.length - 1 ? `<div class="story-scene-operator" aria-hidden="true">${escapeHtml(scene.operator ?? "+")}</div>` : ""}
+          `)
+          .join("")}
+      </div>
+    </div>
   `;
 }
 

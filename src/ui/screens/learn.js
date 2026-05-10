@@ -1,4 +1,4 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260509-205459";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260509-233000";
 
 export function renderLearnScreen(player) {
   const window = getSRWindow(player.SR);

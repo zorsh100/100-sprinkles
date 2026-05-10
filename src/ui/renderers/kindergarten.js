@@ -1,4 +1,5 @@
-import { STAGE_META } from "../../game/data.js?v=20260509-205459";
+import { STAGE_META } from "../../game/data.js?v=20260509-233000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-233000";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -54,11 +55,13 @@ export function renderKindergartenBakery({ player, session, currentStage, select
 
 function renderKindergartenSale(saleReady) {
   return `
-    <section class="panel kinder-question-panel">
+    <section class="panel kinder-question-panel celebration-panel kinder-celebration-panel">
+      ${renderCelebrationBurst({ icon: saleReady.recipeIcon, label: 'Treats Ready!' })}
       <div class="empty-state kinder-empty">
         <div class="kinder-empty-art">${saleReady.recipeIcon} 🎉</div>
         <h2>All baked!</h2>
         <p class="muted">Tap the big button to serve your treats.</p>
+        ${renderMascot({ mood: 'celebrate', compact: true, message: `Hooray! These treats are ready to earn ${saleReady.revenue} coins.` })}
         <button class="primary-button kinder-start-button" data-sell-order type="button">
           Serve for ${saleReady.revenue} coins
         </button>

@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260509-205459";
+import { navigate } from "../app/router.js?v=20260509-233000";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,15 +8,15 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260509-205459";
-import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-205459";
-import { renderShell } from "./shell.js?v=20260509-205459";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-205459";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-205459";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260509-205459";
-import { renderStatsScreen } from "./screens/stats.js?v=20260509-205459";
-import { renderTitleScreen } from "./screens/title.js?v=20260509-205459";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-205459";
+} from "../game/engine.js?v=20260509-233000";
+import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-233000";
+import { renderShell } from "./shell.js?v=20260509-233000";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-233000";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-233000";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260509-233000";
+import { renderStatsScreen } from "./screens/stats.js?v=20260509-233000";
+import { renderTitleScreen } from "./screens/title.js?v=20260509-233000";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-233000";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
