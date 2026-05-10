@@ -4,16 +4,18 @@ import { QUESTION_BANK } from "./bank.js?v=20260509-205459";
 
 export function generateQuestion({ SR, stage, context = {}, recentTemplates = [] }) {
   const targetDifficulty = SR + randomInt(-20, 20);
+  const allowedQuestionTypes = allowedTypes(SR);
   const candidatePool = QUESTION_BANK.filter((template) =>
-    allowedTypes(SR).includes(template.type) &&
+    allowedQuestionTypes.includes(template.type) &&
     (isVisualMode(SR) || template.stages.includes(stage)) &&
     Math.abs(template.difficulty - targetDifficulty) <= 30,
   );
   const fallbackPool = QUESTION_BANK.filter((template) =>
-    allowedTypes(SR).includes(template.type) &&
+    allowedQuestionTypes.includes(template.type) &&
     (isVisualMode(SR) || template.stages.includes(stage)),
   );
-  const selectable = (candidatePool.length ? candidatePool : fallbackPool).filter(Boolean);
+  const permissivePool = QUESTION_BANK.filter((template) => allowedQuestionTypes.includes(template.type));
+  const selectable = (candidatePool.length ? candidatePool : fallbackPool.length ? fallbackPool : permissivePool).filter(Boolean);
   const selectedTemplate = weightedPick(selectable, (template) => {
     const closeness = 40 - Math.min(39, Math.abs(template.difficulty - targetDifficulty));
     const recentPenalty = recentTemplates.includes(template.id) ? 8 : 0;

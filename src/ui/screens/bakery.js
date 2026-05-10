@@ -42,68 +42,80 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
   const missingCost = getTotalShopCost(missingPantry);
 
   return `
-    <section class="flow-screen">
-      <section class="panel">
-        <div class="section-head">
+    <section class="flow-screen bakery-screen">
+      <section class="panel bakery-hero-panel">
+        <div class="section-head bakery-head">
           <div>
-            <p class="eyebrow">Pick a Recipe</p>
+            <p class="eyebrow eyebrow-pill">Pick a Recipe</p>
             <h2>Bake Menu</h2>
-            <p class="muted">${srToBand(player.SR)} skill band • choose what your bakery will make next</p>
+            <p class="muted bakery-subcopy">${srToBand(player.SR)} bakers get a bright, game-like menu so the next order feels exciting right away.</p>
           </div>
-          <div class="badge">${recipes.length} recipes unlocked</div>
+          <div class="badge bakery-unlock-badge">🍰 ${recipes.length} recipes ready</div>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <span class="muted tiny">Skill Rating</span>
-            <strong>${player.SR}</strong>
+        <div class="hud-strip" aria-label="Bakery stats">
+          <div class="hud-pill sr-pill">
+            <span class="hud-label">⭐ Skill Rating</span>
+            <strong class="hud-value">${player.SR}</strong>
           </div>
-          <div class="stat-card">
-            <span class="muted tiny">Coins</span>
-            <strong>${player.bank}</strong>
+          <div class="hud-pill coin-pill">
+            <span class="hud-label">🪙 Coins</span>
+            <strong class="hud-value">${player.bank}</strong>
           </div>
-          <div class="stat-card">
-            <span class="muted tiny">Sprinkles</span>
-            <strong>${player.sprinkles}</strong>
+          <div class="hud-pill sprinkle-pill">
+            <span class="hud-label">✨ Sprinkles</span>
+            <strong class="hud-value">${player.sprinkles}</strong>
           </div>
-          <div class="stat-card">
-            <span class="muted tiny">Mode</span>
-            <strong>${getSRMode(player.SR)}</strong>
+          <div class="hud-pill mode-pill">
+            <span class="hud-label">🎯 Mode</span>
+            <strong class="hud-value hud-text">${getSRMode(player.SR)}</strong>
           </div>
         </div>
       </section>
 
-      <section class="panel flow-screen">
-        <div class="section-head">
+      <section class="panel flow-screen recipe-selection-panel">
+        <div class="section-head bakery-head">
           <div>
-            <p class="eyebrow">Recipe Selection</p>
-            <h2>Choose Today’s Bake</h2>
-            <p class="muted">${supportsRecipeSets(player.SR) ? "Pick a recipe, choose your sets, and get the bakery ready." : "Pick a recipe and get the bakery ready."}</p>
+            <p class="eyebrow eyebrow-pill">Recipe Selection</p>
+            <h2>Choose Today's Bake</h2>
+            <p class="muted bakery-subcopy">${supportsRecipeSets(player.SR) ? "Pick a recipe, choose your sets, and get the bakery ready." : "Pick a recipe and get the bakery ready."}</p>
           </div>
-          ${countLabel ? `<div class="badge">${countLabel}</div>` : ""}
+          ${countLabel ? `<div class="badge count-badge">${countLabel}</div>` : ""}
         </div>
 
-        <div class="recipe-grid">
+        <div class="recipe-grid bakery-recipe-grid">
           ${recipes
             .map((recipe) => {
               const isSelected = session.selectedRecipeId === recipe.id;
               return `
-                <article class="recipe-card ${isSelected ? "selected" : ""}">
-                  <div class="split">
-                    <h3>${recipe.icon} ${recipe.name}</h3>
-                    <button class="recipe-button" type="button" data-recipe="${recipe.id}">
-                      ${isSelected ? "Selected" : "Choose"}
+                <article class="recipe-card bakery-recipe-card ${isSelected ? "selected" : ""}">
+                  <div class="recipe-card-head">
+                    <div>
+                      <h3>${recipe.icon} ${recipe.name}</h3>
+                      <p class="recipe-label">${isSelected ? "Today's star bake" : "Ready for a fresh batch"}</p>
+                    </div>
+                    ${renderRecipeStatusBadge(recipe, isSelected)}
+                  </div>
+                  <div class="recipe-details-grid">
+                    <div class="recipe-info-chip">
+                      <span class="recipe-info-title">Ingredients</span>
+                      <div class="recipe-icon-row">
+                        <span>🌾 ×${recipe.ingredients.flour}</span>
+                        <span>🍚 ×${recipe.ingredients.sugar}</span>
+                        <span>🥚 ×${recipe.ingredients.eggs}</span>
+                      </div>
+                    </div>
+                    <div class="recipe-info-chip">
+                      <span class="recipe-info-title">Rewards</span>
+                      <div class="recipe-icon-row">
+                        <span>🪙 ${recipe.baseReward}</span>
+                        <span>✨ ${recipe.sprinkleReward}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="recipe-card-footer">
+                    <button class="recipe-button ${isSelected ? "recipe-button-selected" : "recipe-button-choose"}" type="button" data-recipe="${recipe.id}">
+                      ${isSelected ? "✓ Selected" : "Choose Recipe"}
                     </button>
-                  </div>
-                  <p class="recipe-label">${isSelected ? "Current recipe" : "Tap to choose this recipe"}</p>
-                  <div class="recipe-meta">
-                    <span>${recipe.baseReward} earn coins</span>
-                    <span>${recipe.sprinkleReward} sprinkle reward</span>
-                    <span>Unlock SR ${recipe.unlockSR}</span>
-                  </div>
-                  <div class="ingredient-list">
-                    <span>Flour ${recipe.ingredients.flour}</span>
-                    <span>Sugar ${recipe.ingredients.sugar}</span>
-                    <span>Eggs ${recipe.ingredients.eggs}</span>
                   </div>
                 </article>
               `;
@@ -111,20 +123,25 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
             .join("")}
         </div>
 
-        <div class="panel flow-panel-spacer">
-          <div class="section-head">
+        <div class="panel flow-panel-spacer start-bake-panel">
+          <div class="section-head bakery-head start-bake-head">
             <div>
-              <h3>Start Bake</h3>
-              <p class="muted">Selected recipe: ${selectedRecipe ? `${selectedRecipe.icon} ${selectedRecipe.name}` : "None"}</p>
+              <p class="eyebrow eyebrow-pill">Start Bake</p>
+              <h3>Ready to Bake ${selectedRecipe ? `${selectedRecipe.icon} ${selectedRecipe.name}` : "something sweet"}?</h3>
+              <p class="muted bakery-subcopy">Tap the big button below to launch the next math-powered order.</p>
             </div>
-            <div class="badge">${isVisualMode(player.SR) ? "Picture Mode" : "5-stage bake"}</div>
+            <div class="badge visual-mode-badge" title="Visual mode uses picture-first math prompts for younger players.">${isVisualMode(player.SR) ? "🖼 Visual Mode" : "👁 Picture Math Off"}</div>
           </div>
+
+          <p class="visual-mode-note muted tiny">
+            ${isVisualMode(player.SR) ? "Picture-first math is on, so early bakers can solve by looking and counting." : "Visual Mode turns on automatically for the youngest bakers when picture math is the best fit."}
+          </p>
 
           ${
             supportsRecipeSets(player.SR)
               ? `
-                <label class="field">
-                  <span>Sets</span>
+                <label class="field start-bake-field">
+                  <span>Sets to bake</span>
                   <input id="batch-count" type="number" min="1" max="6" value="${orderCount}" />
                 </label>
               `
@@ -167,13 +184,25 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
               `
           }
 
-          <div class="flow-actions">
-            <button class="primary-button" id="start-order" type="button">Start Bake</button>
+          <div class="flow-actions start-bake-actions">
+            <button class="primary-button hero-bake-button" id="start-order" type="button">Start Bake</button>
           </div>
         </div>
       </section>
     </section>
   `;
+}
+
+function renderRecipeStatusBadge(recipe, isSelected) {
+  if (isSelected) {
+    return '<span class="recipe-status-badge recipe-status-selected">✓ Selected</span>';
+  }
+
+  if (recipe.unlockSR <= 0) {
+    return '<span class="recipe-status-badge recipe-status-unlocked">✓ Unlocked</span>';
+  }
+
+  return '<span class="recipe-status-badge recipe-status-unlocked">✓ Unlocked</span>';
 }
 
 function renderBakeScreen(gameState, currentStage, srWindow) {

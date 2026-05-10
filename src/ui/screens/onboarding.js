@@ -1,5 +1,5 @@
 const GRADE_CARDS = [
-  { value: "K", label: "Kindergarten", sr: 0, note: "Picture counting" },
+  { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },
   { value: "1", label: "1st Grade", sr: 150, note: "Basic story math" },
   { value: "2", label: "2nd Grade", sr: 250, note: "Addition and subtraction" },
   { value: "3", label: "3rd Grade", sr: 350, note: "Pantry unlocks soon" },
@@ -29,7 +29,7 @@ export function renderOnboardingScreen() {
         <input id="grade" name="grade" type="hidden" value="K" />
         <div class="info-card">
           <strong>Grade preview</strong>
-          <p class="muted tiny" id="grade-preview">Kindergarten starts at SR 0 with visual counting and no reading required.</p>
+          <p class="muted tiny" id="grade-preview">Kindergarten starts at SR 50 with visual counting and no reading required.</p>
         </div>
         <div class="field full">
           <span>Choose a grade</span>

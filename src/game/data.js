@@ -1,5 +1,6 @@
 export const GRADE_TO_SR = {
-  K: 0,
+  // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
+  K: 50,
   1: 150,
   2: 250,
   3: 350,
@@ -72,7 +73,7 @@ export const RECIPES = [
 export const DEFAULT_PLAYER = {
   username: "",
   grade: "K",
-  SR: 0,
+  SR: 50,
   bank: 0,
   sprinkles: 0,
   skill: {
@@ -89,28 +90,37 @@ export const DEFAULT_PLAYER = {
     sugar: 0,
     eggs: 0,
   },
-  unlockedRecipes: ["cupcakes", "cookies", "donuts", "muffins"],
+  knownRecipes: ["cupcakes", "cookies", "donuts", "muffins"],
   createdAt: 0,
 };
 
-export function normalizePlayer(player) {
+export function normalizePlayer(player = {}) {
+  const {
+    knownRecipes: savedKnownRecipes,
+    unlockedRecipes: legacyUnlockedRecipes,
+    ...playerData
+  } = player;
+  const knownRecipes = Array.isArray(savedKnownRecipes)
+    ? savedKnownRecipes
+    : Array.isArray(legacyUnlockedRecipes)
+      ? legacyUnlockedRecipes
+      : DEFAULT_PLAYER.knownRecipes;
+
   return {
     ...DEFAULT_PLAYER,
-    ...player,
+    ...playerData,
     pantry: {
       ...DEFAULT_PLAYER.pantry,
-      ...(player.pantry ?? {}),
+      ...(playerData.pantry ?? {}),
     },
     skill: {
       ...DEFAULT_PLAYER.skill,
-      ...(player.skill ?? {}),
-      recentResults: Array.isArray(player.skill?.recentResults)
-        ? player.skill.recentResults.slice(-8)
+      ...(playerData.skill ?? {}),
+      recentResults: Array.isArray(playerData.skill?.recentResults)
+        ? playerData.skill.recentResults.slice(-8)
         : [],
     },
-    unlockedRecipes: Array.isArray(player.unlockedRecipes)
-      ? player.unlockedRecipes
-      : DEFAULT_PLAYER.unlockedRecipes,
+    knownRecipes,
   };
 }
 

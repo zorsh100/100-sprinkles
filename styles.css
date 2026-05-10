@@ -26,12 +26,39 @@ body {
   min-height: 100vh;
   font-family: "Nunito", sans-serif;
   color: var(--ink);
-  background: #ffffff;
+  background-color: #fff8f0;
+  background-image:
+    linear-gradient(180deg, rgba(255, 248, 240, 0.96), rgba(255, 232, 204, 0.92)),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Ccircle cx='18' cy='22' r='3' fill='%23ff9f9f' fill-opacity='.26'/%3E%3Ccircle cx='74' cy='35' r='2.5' fill='%235ec2b7' fill-opacity='.24'/%3E%3Ccircle cx='122' cy='18' r='3' fill='%23ffb347' fill-opacity='.25'/%3E%3Crect width='12' height='4' x='36' y='78' rx='2' transform='rotate(24 42 80)' fill='%235a6ff0' fill-opacity='.17'/%3E%3Crect width='11' height='4' x='102' y='58' rx='2' transform='rotate(-28 108 60)' fill='%23ff8fb1' fill-opacity='.18'/%3E%3Ccircle cx='138' cy='102' r='2.5' fill='%2399d98c' fill-opacity='.22'/%3E%3Crect width='10' height='4' x='18' y='118' rx='2' transform='rotate(-18 23 120)' fill='%23ffb347' fill-opacity='.16'/%3E%3Ccircle cx='84' cy='126' r='3' fill='%23ff6b6b' fill-opacity='.18'/%3E%3Ccircle cx='52' cy='138' r='2.5' fill='%235ec2b7' fill-opacity='.18'/%3E%3C/g%3E%3C/svg%3E");
+  background-attachment: fixed;
 }
 
 body::before,
 body::after {
-  display: none;
+  content: "";
+  position: fixed;
+  inset: auto;
+  z-index: -1;
+  border-radius: 999px;
+  filter: blur(14px);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+body::before {
+  width: 320px;
+  height: 320px;
+  right: 2%;
+  top: 8%;
+  background: rgba(255, 182, 193, 0.42);
+}
+
+body::after {
+  width: 360px;
+  height: 360px;
+  left: 1%;
+  bottom: 6%;
+  background: rgba(255, 211, 153, 0.44);
 }
 
 button,
@@ -60,12 +87,21 @@ button {
 }
 
 .eyebrow {
-  margin: 0 0 6px;
+  margin: 0 0 10px;
   color: var(--accent);
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: 0.82rem;
+  font-size: 0.84rem;
+}
+
+.eyebrow-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 107, 107, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(255, 107, 107, 0.1);
 }
 
 h1,
@@ -78,6 +114,16 @@ h3 {
 
 h1 {
   font-size: clamp(3rem, 5vw, 5rem);
+}
+
+h2 {
+  font-size: clamp(2rem, 3vw, 2.6rem);
+  font-weight: 800;
+}
+
+h3 {
+  font-size: clamp(1.5rem, 2vw, 1.9rem);
+  font-weight: 800;
 }
 
 .hero-copy {
@@ -111,6 +157,15 @@ h1 {
   padding: 14px 22px;
   font-weight: 800;
   box-shadow: 0 14px 30px rgba(255, 107, 107, 0.35);
+}
+
+.primary-button:focus-visible,
+.secondary-button:focus-visible,
+.recipe-button:focus-visible,
+.choice-button:focus-visible,
+.ghost-button:focus-visible {
+  outline: 3px solid rgba(90, 111, 240, 0.32);
+  outline-offset: 3px;
 }
 
 .secondary-button,
@@ -513,22 +568,24 @@ h1 {
 }
 
 .recipe-card {
-  padding: 18px;
-  border-radius: 22px;
-  background: #ffffff;
-  border: 2px solid rgba(90, 111, 240, 0.12);
-  box-shadow: 0 10px 24px rgba(117, 74, 41, 0.08);
+  padding: 20px;
+  border-radius: 26px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 245, 0.96));
+  border: 2px solid rgba(226, 190, 161, 0.4);
+  box-shadow: 0 14px 30px rgba(117, 74, 41, 0.1);
 }
 
 .recipe-card.selected {
-  border-color: rgba(90, 111, 240, 0.58);
-  box-shadow: 0 16px 30px rgba(90, 111, 240, 0.14);
+  border: 4px solid var(--accent);
+  background: linear-gradient(180deg, #fff0f0, #fff8f5);
+  box-shadow: 0 20px 38px rgba(255, 107, 107, 0.22);
+  transform: translateY(-2px);
 }
 
 .recipe-label {
-  margin: 0;
-  color: var(--accent-4);
-  font-size: 0.92rem;
+  margin: 4px 0 0;
+  color: #b85b55;
+  font-size: 0.96rem;
   font-weight: 800;
 }
 
@@ -544,6 +601,201 @@ h1 {
   display: grid;
   gap: 6px;
   color: var(--muted);
+}
+
+
+.bakery-screen {
+  gap: 22px;
+}
+
+.bakery-hero-panel,
+.recipe-selection-panel,
+.start-bake-panel {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 251, 246, 0.94));
+}
+
+.bakery-head {
+  align-items: flex-start;
+}
+
+.bakery-subcopy {
+  max-width: 640px;
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.bakery-unlock-badge,
+.count-badge,
+.visual-mode-badge {
+  background: rgba(255, 179, 71, 0.22);
+}
+
+.hud-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  padding: 16px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, rgba(255, 220, 179, 0.95), rgba(255, 196, 160, 0.9));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+.hud-pill {
+  display: grid;
+  gap: 6px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 10px 20px rgba(117, 74, 41, 0.1);
+}
+
+.hud-label {
+  font-size: 0.8rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(69, 49, 39, 0.7);
+}
+
+.hud-value {
+  font-family: "Baloo 2", cursive;
+  font-size: clamp(1.8rem, 3vw, 2.3rem);
+  line-height: 1;
+}
+
+.hud-value.hud-text {
+  font-size: clamp(1.1rem, 2vw, 1.45rem);
+  line-height: 1.15;
+}
+
+.sr-pill { background: rgba(255, 244, 185, 0.92); }
+.coin-pill { background: rgba(255, 232, 196, 0.92); }
+.sprinkle-pill { background: rgba(255, 224, 236, 0.92); }
+.mode-pill { background: rgba(219, 242, 239, 0.92); }
+
+.bakery-recipe-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+}
+
+.bakery-recipe-card {
+  position: relative;
+  gap: 16px;
+}
+
+.recipe-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.recipe-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.recipe-status-selected {
+  background: linear-gradient(135deg, var(--accent), #ff8e72);
+  color: #fff;
+}
+
+.recipe-status-unlocked {
+  background: rgba(60, 167, 112, 0.16);
+  color: var(--success);
+}
+
+.recipe-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.recipe-info-chip {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.recipe-info-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(69, 49, 39, 0.65);
+}
+
+.recipe-icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.recipe-card-footer {
+  margin-top: auto;
+}
+
+.recipe-button {
+  width: 100%;
+  min-height: 48px;
+  font-weight: 800;
+}
+
+.recipe-button-selected {
+  background: linear-gradient(135deg, var(--accent), #ff8e72);
+  color: #fff;
+  box-shadow: 0 16px 28px rgba(255, 107, 107, 0.24);
+}
+
+.recipe-button-choose {
+  background: linear-gradient(135deg, #ffd166, #ffb347);
+  color: #553116;
+  box-shadow: 0 16px 28px rgba(255, 177, 71, 0.24);
+}
+
+.start-bake-panel {
+  padding: 24px;
+}
+
+.start-bake-head {
+  margin-bottom: 10px;
+}
+
+.visual-mode-note {
+  margin: 0 0 12px;
+}
+
+.start-bake-field {
+  max-width: 260px;
+}
+
+.start-bake-actions {
+  margin-top: 22px;
+}
+
+.hero-bake-button {
+  width: min(100%, 560px);
+  min-height: 74px;
+  padding: 18px 28px;
+  font-size: 1.35rem;
+  letter-spacing: 0.01em;
+  animation: heroPulse 2.2s ease-in-out 1;
+}
+
+@keyframes heroPulse {
+  0% { transform: scale(0.98); box-shadow: 0 0 0 rgba(255, 107, 107, 0); }
+  35% { transform: scale(1.02); box-shadow: 0 18px 36px rgba(255, 107, 107, 0.42); }
+  100% { transform: scale(1); box-shadow: 0 14px 30px rgba(255, 107, 107, 0.35); }
 }
 
 .inventory-grid {
@@ -820,6 +1072,8 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .hud-strip,
+  .recipe-details-grid,
   .kinder-summary,
   .kindergarten-stats-grid,
   .kinder-stage-track,
@@ -845,8 +1099,17 @@ h1 {
 
   .answer-grid,
   .form-grid,
-  .stage-grid {
+  .stage-grid,
+  .stats-grid,
+  .hud-strip,
+  .recipe-details-grid {
     grid-template-columns: 1fr;
+  }
+
+  .recipe-card-head,
+  .section-head {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .kinder-answer-grid {
@@ -855,6 +1118,10 @@ h1 {
 
   .sale-ready-card {
     grid-template-columns: 1fr;
+  }
+
+  .hero-bake-button {
+    width: 100%;
   }
 
   .kinder-choice-button {

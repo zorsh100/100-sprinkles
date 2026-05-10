@@ -1,4 +1,4 @@
-import { syncRouteFromState, subscribeToRouteChanges } from "./app/router.js?v=20260509-205459";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260509-205459";
 import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260509-205459";
 import { renderApp } from "./ui/render.js?v=20260509-205459";
 
@@ -6,14 +6,20 @@ const appRoot = document.querySelector("#app");
 
 let gameState = loadGame();
 let uiState = {
-  route: syncRouteFromState(gameState),
+  route: resolveRouteForGameState(gameState, getRouteFromHash()),
 };
 
-function syncAndRender() {
+function syncAndRender(requestedRoute = uiState.route) {
+  const resolvedRoute = resolveRouteForGameState(gameState, requestedRoute);
+
   uiState = {
     ...uiState,
-    route: syncRouteFromState(gameState),
+    route: resolvedRoute,
   };
+
+  if (resolvedRoute !== getRouteFromHash()) {
+    navigate(resolvedRoute);
+  }
 
   saveGame(gameState);
   renderApp(appRoot, gameState, uiState, handleAction);
@@ -27,14 +33,6 @@ function handleAction(action) {
       break;
     case "UPDATE_GAME":
       gameState = action.payload;
-
-      if (gameState.session.order || gameState.session.saleReady) {
-        uiState = { ...uiState, route: "bake" };
-      } else if (gameState.session.pendingRecipeUnlocks?.length) {
-        uiState = { ...uiState, route: "unlock" };
-      } else if (gameState.session.recentSale) {
-        uiState = { ...uiState, route: "stats" };
-      }
       break;
     case "NAVIGATE":
       uiState = {
@@ -51,12 +49,51 @@ function handleAction(action) {
       break;
   }
 
-  syncAndRender();
+  syncAndRender(uiState.route);
 }
 
 subscribeToRouteChanges((route) => {
-  uiState = { ...uiState, route };
+  const resolvedRoute = resolveRouteForGameState(gameState, route);
+
+  if (resolvedRoute !== route) {
+    navigate(resolvedRoute);
+    return;
+  }
+
+  uiState = { ...uiState, route: resolvedRoute };
   renderApp(appRoot, gameState, uiState, handleAction);
 });
 
-syncAndRender();
+function resolveRouteForGameState(currentGameState, requestedRoute = "title") {
+  if (requestedRoute === "title") {
+    return "title";
+  }
+
+  if (requestedRoute === "settings") {
+    return "settings";
+  }
+
+  if (!currentGameState.player) {
+    return requestedRoute === "profile" ? "profile" : "title";
+  }
+
+  if (currentGameState.session.order || currentGameState.session.saleReady) {
+    return "bake";
+  }
+
+  if (currentGameState.session.pendingRecipeUnlocks?.length) {
+    return requestedRoute === "stats" ? "stats" : "unlock";
+  }
+
+  if (currentGameState.session.recentSale) {
+    return requestedRoute === "stats" || requestedRoute === "recipe" ? requestedRoute : "stats";
+  }
+
+  if (requestedRoute === "profile") {
+    return "profile";
+  }
+
+  return "recipe";
+}
+
+syncAndRender(uiState.route);

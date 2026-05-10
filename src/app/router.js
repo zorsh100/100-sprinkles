@@ -8,8 +8,8 @@ const ROUTES = {
   unlock: "#/unlock",
 };
 
-function routeFromHash(hashValue) {
-  const hash = hashValue || window.location.hash;
+export function getRouteFromHash(hashValue = window.location.hash) {
+  const hash = hashValue;
 
   if (hash === ROUTES.profile) return "profile";
   if (hash === ROUTES.recipe) return "recipe";
@@ -20,18 +20,6 @@ function routeFromHash(hashValue) {
   return "title";
 }
 
-export function syncRouteFromState(gameState) {
-  const currentRoute = routeFromHash();
-  const desiredRoute = getAllowedRoute(gameState, currentRoute);
-  const desiredHash = ROUTES[desiredRoute];
-
-  if (window.location.hash !== desiredHash) {
-    window.location.hash = desiredHash;
-  }
-
-  return desiredRoute;
-}
-
 export function navigate(routeName) {
   const nextHash = ROUTES[routeName] ?? ROUTES.title;
 
@@ -39,47 +27,11 @@ export function navigate(routeName) {
     window.location.hash = nextHash;
   }
 
-  return routeFromHash(nextHash);
+  return getRouteFromHash(nextHash);
 }
 
 export function subscribeToRouteChanges(onRouteChange) {
   window.addEventListener("hashchange", () => {
-    onRouteChange(routeFromHash());
+    onRouteChange(getRouteFromHash());
   });
-}
-
-function getAllowedRoute(gameState, requestedRoute) {
-  if (requestedRoute === "title") {
-    return "title";
-  }
-
-  if (requestedRoute === "settings") {
-    return "settings";
-  }
-
-  if (!gameState.player) {
-    return requestedRoute === "profile" ? "profile" : "title";
-  }
-
-  if (gameState.session.order || gameState.session.saleReady) {
-    return "bake";
-  }
-
-  if (gameState.session.pendingRecipeUnlocks?.length) {
-    return requestedRoute === "stats" ? "stats" : "unlock";
-  }
-
-  if (gameState.session.recentSale) {
-    if (requestedRoute === "stats" || requestedRoute === "recipe") {
-      return requestedRoute;
-    }
-
-    return "stats";
-  }
-
-  if (requestedRoute === "profile") {
-    return "profile";
-  }
-
-  return "recipe";
 }

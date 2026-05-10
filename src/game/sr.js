@@ -1,6 +1,4 @@
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
+import { clamp } from "./math.js?v=20260509-205459";
 
 export const VISUAL_MODE_END_SR = 110;
 export const VISUAL_BRIDGE_START_SR = 80;

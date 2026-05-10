@@ -11,6 +11,7 @@ import {
   getShopCost,
   supportsRecipeSets,
 } from "./helpers.js?v=20260509-205459";
+import { formatSignedValue } from "./math.js?v=20260509-205459";
 import { generateQuestion } from "./questions/generator.js?v=20260509-205459";
 import { applySRResult, isVisualMode } from "./sr.js?v=20260509-205459";
 
@@ -190,14 +191,14 @@ export function submitAnswer(gameState, selectedAnswer) {
       },
       flash: {
         kind: "error",
-        text: `Not quite. ${question.hint} SR ${srResult.delta}.`,
+        text: `Not quite. ${question.hint} SR ${formatSignedValue(srResult.delta)}.`,
       },
     };
   }
 
   const nextStageIndex = session.order.stageIndex + 1;
   const completedStages = [...session.order.completedStages, question.stage];
-  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.SR, srResult.nextSR, player.unlockedRecipes);
+  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.SR, srResult.nextSR, player.knownRecipes);
 
   if (nextStageIndex >= STAGES.length) {
     return finishOrder(gameState, srResult.player, completedStages, newlyUnlockedRecipes);
@@ -240,7 +241,7 @@ export function submitAnswer(gameState, selectedAnswer) {
     },
     flash: {
       kind: "success",
-      text: `${question.stage} is complete. On to ${STAGES[nextStageIndex]}. SR +${srResult.delta}.`,
+      text: `${question.stage} is complete. On to ${STAGES[nextStageIndex]}. SR ${formatSignedValue(srResult.delta)}.`,
     },
   };
 }

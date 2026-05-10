@@ -1,9 +1,8 @@
+import { clamp } from "./math.js?v=20260509-205459";
 import { INGREDIENT_COSTS, RECIPES } from "./data.js?v=20260509-205459";
 import { getAllowedQuestionTypes } from "./sr.js?v=20260509-205459";
 
-export function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
+export { clamp } from "./math.js?v=20260509-205459";
 
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -87,14 +86,14 @@ export function getRecipeById(recipeId) {
 
 export function getUnlockedRecipes(player) {
   return RECIPES.filter(
-    (recipe) => player.unlockedRecipes.includes(recipe.id) && player.SR >= recipe.unlockSR,
+    (recipe) => player.knownRecipes.includes(recipe.id) && player.SR >= recipe.unlockSR,
   );
 }
 
-export function getNewlyUnlockedRecipes(previousSR, nextSR, unlockedRecipeIds = []) {
+export function getNewlyUnlockedRecipes(previousSR, nextSR, knownRecipeIds = []) {
   return RECIPES.filter(
     (recipe) =>
-      unlockedRecipeIds.includes(recipe.id) && previousSR < recipe.unlockSR && nextSR >= recipe.unlockSR,
+      knownRecipeIds.includes(recipe.id) && previousSR < recipe.unlockSR && nextSR >= recipe.unlockSR,
   );
 }
 
