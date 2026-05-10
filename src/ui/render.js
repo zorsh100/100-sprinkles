@@ -9,7 +9,7 @@ import {
   startOrder,
   submitAnswer,
 } from "../game/engine.js?v=20260509-205459";
-import { getSaveSummary } from "../state.js?v=20260509-205459";
+import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-205459";
 import { renderShell } from "./shell.js?v=20260509-205459";
 import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-205459";
 import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-205459";
@@ -101,7 +101,7 @@ function attachOnboardingEvents(root, dispatch) {
   }
 
   function syncSubmitState() {
-    const ready = Boolean(String(usernameInput.value ?? "").trim()) && Boolean(gradeInput.value);
+    const ready = isValidPlayerName(usernameInput.value) && Boolean(gradeInput.value);
     submitButton.disabled = !ready;
     submitButton.setAttribute("aria-disabled", String(!ready));
   }
@@ -137,7 +137,7 @@ function attachOnboardingEvents(root, dispatch) {
     const username = String(formData.get("username") ?? "").trim();
     const grade = String(formData.get("grade") ?? "K");
 
-    if (!username) {
+    if (!isValidPlayerName(username)) {
       syncSubmitState();
       return;
     }

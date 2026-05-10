@@ -262,6 +262,18 @@ h3 {
   padding: 16px;
 }
 
+.kinder-summary-baker {
+  background: rgba(255, 236, 198, 0.95);
+}
+
+.kinder-summary-sprinkles {
+  background: rgba(255, 226, 235, 0.95);
+}
+
+.kinder-summary-streak {
+  background: rgba(220, 245, 240, 0.95);
+}
+
 .kinder-summary-card strong {
   display: block;
   margin-top: 8px;
@@ -314,6 +326,11 @@ h3 {
   margin: 18px 0;
 }
 
+.grouped-tray-grid {
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+}
+
 .kinder-tray {
   display: grid;
   grid-template-columns: repeat(auto-fit, 84px);
@@ -348,12 +365,33 @@ h3 {
 
 .kinder-choice-button {
   min-height: 112px;
-  background: linear-gradient(135deg, rgba(90, 111, 240, 0.12), rgba(94, 194, 183, 0.14));
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 16px 28px rgba(117, 74, 41, 0.16);
+}
+
+.answer-color-0 {
+  background: linear-gradient(135deg, #ff9aa2, #ffb7b2);
+  color: #5a2626;
+}
+
+.answer-color-1 {
+  background: linear-gradient(135deg, #ffd166, #ffe29a);
+  color: #5b4206;
+}
+
+.answer-color-2 {
+  background: linear-gradient(135deg, #88d8b0, #b9fbc0);
+  color: #1f513a;
+}
+
+.answer-color-3 {
+  background: linear-gradient(135deg, #c3bef0, #d6ccff);
+  color: #40306f;
 }
 
 .kinder-choice-number {
   font-family: "Baloo 2", cursive;
-  font-size: 2.7rem;
+  font-size: 3.2rem;
   line-height: 1;
 }
 
@@ -368,6 +406,19 @@ h3 {
   background: rgba(255, 255, 255, 0.86);
   font-family: "Baloo 2", cursive;
   font-size: 1.8rem;
+}
+
+.kinder-operator-bubble {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255, 209, 102, 0.96), rgba(255, 159, 159, 0.92));
+  color: #6a3722;
+  font-family: "Baloo 2", cursive;
+  font-size: 2.1rem;
+  box-shadow: 0 14px 24px rgba(117, 74, 41, 0.14);
 }
 
 .kinder-progress-panel,
@@ -403,18 +454,21 @@ h3 {
   justify-items: center;
   padding: 14px 8px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.78);
-  color: var(--muted);
+  background: rgba(255, 248, 242, 0.92);
+  border: 1px solid rgba(232, 213, 192, 0.92);
+  color: #755f54;
   font-weight: 800;
 }
 
 .kinder-stage-stop.active {
   background: linear-gradient(135deg, var(--accent-2), var(--accent));
   color: #fff;
+  border-color: rgba(255, 107, 107, 0.7);
 }
 
 .kinder-stage-stop.done {
-  background: rgba(60, 167, 112, 0.16);
+  background: rgba(60, 167, 112, 0.18);
+  border-color: rgba(60, 167, 112, 0.35);
   color: var(--success);
 }
 
@@ -964,12 +1018,12 @@ h3 {
 }
 
 .choice-button.correct {
-  background: rgba(255, 182, 193, 0.28);
+  background: linear-gradient(135deg, rgba(255, 182, 193, 0.9), rgba(255, 232, 196, 0.92));
   color: var(--ink);
 }
 
 .choice-button.wrong {
-  background: rgba(216, 87, 87, 0.14);
+  background: rgba(216, 87, 87, 0.18);
   color: var(--danger);
 }
 
@@ -1055,6 +1109,13 @@ h3 {
   padding: 10px 14px;
   border-radius: 999px;
   font-weight: 800;
+}
+
+.kinder-question-panel.stage-panel::after {
+  inset: auto 18px 18px auto;
+  width: 110px;
+  height: 110px;
+  opacity: 0.34;
 }
 
 .progress-bar {
@@ -1169,6 +1230,10 @@ h3 {
   .kinder-stage-track,
   .kinder-tray-grid,
   .loop-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .grouped-tray-grid {
     grid-template-columns: 1fr;
   }
 }

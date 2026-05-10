@@ -37,7 +37,7 @@ export function visualCountAll({ targetDifficulty }) {
     choices: makeChoices(answer, 4),
     visuals: {
       left: Array.from({ length: addA }, () => "🧁"),
-      right: Array.from({ length: addB }, () => "🍩"),
+      right: Array.from({ length: addB }, () => "🧁"),
     },
     hint: "Count each treat, then count them all together.",
   };

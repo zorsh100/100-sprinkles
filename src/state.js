@@ -78,13 +78,20 @@ export function getSaveSummary(gameState) {
   };
 }
 
+export function isValidPlayerName(username) {
+  const trimmedName = String(username ?? "").trim();
+  const letterMatches = trimmedName.match(/[A-Za-z]/g) ?? [];
+  return trimmedName.length >= 2 && letterMatches.length >= 2;
+}
+
 export function createNewPlayer({ username, grade }) {
   const SR = GRADE_TO_SR[grade];
   const trimmedName = String(username ?? "").trim().slice(0, 24);
+  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sprinkle";
   const createdAt = Date.now();
   const player = normalizePlayer({
     ...DEFAULT_PLAYER,
-    username: trimmedName || "Chef Sprinkle",
+    username: safeName,
     grade,
     SR,
     bank: SR >= 300 ? 25 : 0,

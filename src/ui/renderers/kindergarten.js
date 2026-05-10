@@ -12,16 +12,16 @@ export function renderKindergartenBakery({ player, session, currentStage, select
           </div>
           <div class="badge">Picture mode</div>
         </div>
-        <div class="kinder-summary">
-          <div class="kinder-summary-card">
+        <div class="kinder-summary kinder-hud-strip">
+          <div class="kinder-summary-card kinder-summary-baker">
             <span class="muted tiny">Baker</span>
             <strong>${escapeHtml(player.username)}</strong>
           </div>
-          <div class="kinder-summary-card">
+          <div class="kinder-summary-card kinder-summary-sprinkles">
             <span class="muted tiny">Sprinkles</span>
             <strong>${player.sprinkles}</strong>
           </div>
-          <div class="kinder-summary-card">
+          <div class="kinder-summary-card kinder-summary-streak">
             <span class="muted tiny">Streak</span>
             <strong>${player.skill.currentStreak}</strong>
           </div>
@@ -70,6 +70,7 @@ function renderKindergartenSale(saleReady) {
 function renderKindergartenQuestion({ session, currentStage }) {
   const question = session.currentQuestion;
   const promptLabel = question.subtype === "compare_groups" ? "How many more?" : "Count them all";
+  const groupOperator = question.subtype === "compare_groups" ? "−" : "+";
 
   return `
     <section class="panel kinder-question-panel stage-panel stage-${currentStage}">
@@ -78,25 +79,25 @@ function renderKindergartenQuestion({ session, currentStage }) {
           <p class="eyebrow">Math time</p>
           <h2>${promptLabel}</h2>
         </div>
-        <div class="stage-banner">${STAGE_META[currentStage].icon} ${currentStage}</div>
       </div>
       <div class="kinder-equation-row">
         ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(question.promptSecondary)}</div>` : ""}
       </div>
-      <div class="kinder-tray-grid">
+      <div class="kinder-tray-grid grouped-tray-grid">
         <div class="kinder-tray">
           ${question.visuals.left.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
         </div>
+        <div class="kinder-operator-bubble" aria-hidden="true">${groupOperator}</div>
         <div class="kinder-tray tray-soft">
           ${question.visuals.right.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
         </div>
       </div>
-      <div class="kinder-answer-grid">
+      <div class="kinder-answer-grid colorful-answer-grid">
         ${question.choices
-          .map((choice) => {
+          .map((choice, index) => {
             const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
             return `
-              <button class="choice-button kinder-choice-button ${resultClass}" type="button" data-answer="${choice}">
+              <button class="choice-button kinder-choice-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
                 <span class="kinder-choice-number">${choice}</span>
               </button>
             `;
@@ -129,7 +130,7 @@ function renderKindergartenStageTrack(session, currentStage) {
       const className = done ? "done" : active ? "active" : "";
       return `
         <div class="kinder-stage-stop ${className}">
-          <div class="kinder-stage-icon">${STAGE_META[stage].icon}</div>
+          <div class="kinder-stage-icon">${done ? "✓" : STAGE_META[stage].icon}</div>
           <div class="kinder-stage-label">${stage}</div>
         </div>
       `;
