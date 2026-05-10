@@ -1,6 +1,6 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-031800";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-031800";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-031800";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-040200";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-040200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-040200";
 import {
   formatOrderCount,
   getMissingPantry,
@@ -11,9 +11,9 @@ import {
   getTotalShopCost,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260510-031800";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-031800";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-031800";
+} from "../../game/helpers.js?v=20260510-040200";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-040200";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-040200";
 
 const INGREDIENT_META = {
   flour: {
@@ -480,16 +480,44 @@ function getQuestionMission(question, batchCount) {
     return `Count every tray in ${batchCount > 1 ? `${batchCount} baking sets` : "this baking set"}.`;
   }
 
+  if (question.subtype === "array_rows") {
+    return "Use rows and columns to count the full bakery tray.";
+  }
+
+  if (question.subtype === "share_equal_groups") {
+    return "Split the batch evenly so every bowl, tray, or box matches.";
+  }
+
+  if (question.subtype === "missing_factor") {
+    return "Use the total and the size of each group to find how many groups there are.";
+  }
+
   if (question.subtype === "revenue_total" || question.subtype === "ingredient_total") {
     return "Work out the full coin total before the next step.";
+  }
+
+  if (question.subtype === "ingredient_combo") {
+    return "Find both ingredient totals and add them for the full restock cost.";
+  }
+
+  if (question.subtype === "multi_step_total") {
+    return "Multiply the trays first, then combine the extra treats.";
   }
 
   if (question.subtype === "profit") {
     return "Decide what the bakery keeps after paying costs.";
   }
 
-  if (question.subtype === "half_of_set" || question.subtype === "quarter_of_set") {
+  if (
+    question.subtype === "half_of_set" ||
+    question.subtype === "third_of_set" ||
+    question.subtype === "quarter_of_set"
+  ) {
     return "Split the batch into fair topping groups.";
+  }
+
+  if (question.subtype === "remainder_leftover") {
+    return "Pack equal boxes first, then find what is left for the sample plate.";
   }
 
   if (question.subtype === "scale_ratio") {
