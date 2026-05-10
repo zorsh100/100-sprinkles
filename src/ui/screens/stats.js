@@ -1,6 +1,7 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260509-235200";
-import { getSRMode } from "../../game/sr.js?v=20260509-235200";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-235200";
+import { formatOrderCount } from "../../game/helpers.js?v=20260510-011500";
+import { renderCoinIcon } from "../components/icons.js?v=20260510-011500";
+import { getSRMode } from "../../game/sr.js?v=20260510-011500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-011500";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
@@ -21,7 +22,7 @@ export function renderStatsScreen(gameState) {
               ${renderCelebrationBurst({ icon: sale.recipeIcon, label: `${sale.recipeName} sold!` })}
               <strong>${sale.recipeIcon} ${sale.recipeName}</strong>
               <span>${formatOrderCount(player.SR, sale.batchCount) ? `${formatOrderCount(player.SR, sale.batchCount)} sold` : "Sold and served"}</span>
-              <span>${sale.revenue} coins earned</span>
+              <span>${renderCoinIcon("coin-icon-sm")} ${sale.revenue} coins earned</span>
               <span>${sale.sprinklesEarned} sprinkles earned</span>
             </div>
             ${renderMascot({ mood: "celebrate", compact: true, message: `Amazing job! Your ${sale.recipeName.toLowerCase()} brought in ${sale.revenue} coins.` })}

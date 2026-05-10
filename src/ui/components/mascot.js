@@ -1,3 +1,5 @@
+import { renderCoinIcon } from "./icons.js?v=20260510-011500";
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -34,7 +36,7 @@ export function renderCelebrationBurst({ icon = "🧁", label = "Fresh treats!" 
       <span class="celebration-badge">${escapeHtml(label)}</span>
       <span class="celebration-main-icon">${escapeHtml(icon)}</span>
       <span class="celebration-token token-a">✨</span>
-      <span class="celebration-token token-b">🪙</span>
+      ${renderCoinIcon("celebration-token token-b coin-icon-burst")}
       <span class="celebration-token token-c">🎉</span>
       <span class="celebration-ribbon ribbon-a"></span>
       <span class="celebration-ribbon ribbon-b"></span>

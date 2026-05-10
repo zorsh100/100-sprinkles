@@ -1,6 +1,6 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260509-235200";
-import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260509-235200";
-import { renderApp } from "./ui/render.js?v=20260509-235200";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260510-011500";
+import { createNewPlayer, loadGame, resetGame, saveGame } from "./state.js?v=20260510-011500";
+import { renderApp } from "./ui/render.js?v=20260510-011500";
 
 const appRoot = document.querySelector("#app");
 
@@ -69,8 +69,8 @@ function resolveRouteForGameState(currentGameState, requestedRoute = "title") {
     return "title";
   }
 
-  if (requestedRoute === "settings") {
-    return "settings";
+  if (["settings", "shop", "learn"].includes(requestedRoute)) {
+    return currentGameState.player ? requestedRoute : "title";
   }
 
   if (!currentGameState.player) {

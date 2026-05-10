@@ -5,6 +5,8 @@ const ROUTES = {
   bake: "#/bake",
   stats: "#/stats",
   settings: "#/settings",
+  shop: "#/shop",
+  learn: "#/learn",
   unlock: "#/unlock",
 };
 
@@ -16,6 +18,8 @@ export function getRouteFromHash(hashValue = window.location.hash) {
   if (hash === ROUTES.bake) return "bake";
   if (hash === ROUTES.stats) return "stats";
   if (hash === ROUTES.settings) return "settings";
+  if (hash === ROUTES.shop) return "shop";
+  if (hash === ROUTES.learn) return "learn";
   if (hash === ROUTES.unlock) return "unlock";
   return "title";
 }

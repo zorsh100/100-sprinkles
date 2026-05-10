@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260509-235200";
+import { navigate } from "../app/router.js?v=20260510-011500";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,15 +8,17 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260509-235200";
-import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-235200";
-import { renderShell } from "./shell.js?v=20260509-235200";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-235200";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-235200";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260509-235200";
-import { renderStatsScreen } from "./screens/stats.js?v=20260509-235200";
-import { renderTitleScreen } from "./screens/title.js?v=20260509-235200";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-235200";
+} from "../game/engine.js?v=20260510-011500";
+import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-011500";
+import { renderShell } from "./shell.js?v=20260510-011500";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-011500";
+import { renderLearnScreen } from "./screens/learn.js?v=20260510-011500";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-011500";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260510-011500";
+import { renderShopScreen } from "./screens/shop.js?v=20260510-011500";
+import { renderStatsScreen } from "./screens/stats.js?v=20260510-011500";
+import { renderTitleScreen } from "./screens/title.js?v=20260510-011500";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-011500";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -60,7 +62,15 @@ function getScreenMarkup(gameState, route, saveSummary) {
   }
 
   if (route === "settings") {
-    return renderSettingsScreen(saveSummary);
+    return renderSettingsScreen(saveSummary, gameState.player);
+  }
+
+  if (route === "shop") {
+    return renderShopScreen(gameState.player);
+  }
+
+  if (route === "learn") {
+    return renderLearnScreen(gameState.player);
   }
 
   if (route === "unlock") {
