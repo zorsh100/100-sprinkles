@@ -1,4 +1,4 @@
-import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-040200";
+import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-040900";
 
 const STORAGE_KEY = "sprinkles-100-player";
 const SAVE_VERSION = 3;
@@ -245,7 +245,7 @@ export function createNewPlayer(gameState, { username, grade, slotId }) {
   const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? findFirstEmptySlotId(syncedState.saveSlots));
   const SR = GRADE_TO_SR[grade];
   const trimmedName = String(username ?? "").trim().slice(0, 24);
-  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
+  const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sprinkles";
   const createdAt = Date.now();
   const player = normalizePlayer({
     ...DEFAULT_PLAYER,

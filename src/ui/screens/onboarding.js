@@ -1,4 +1,4 @@
-import { renderMascot } from "../components/mascot.js?v=20260510-040200";
+import { renderMascot } from "../components/mascot.js?v=20260510-040900";
 
 const GRADE_CARDS = [
   { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },
@@ -14,7 +14,7 @@ const GRADE_CARDS = [
 
 export function renderOnboardingScreen(slotSummary) {
   const slotLabel = slotSummary?.slotLabel ?? "Player 1";
-  const defaultChefName = "Chef Sunny";
+  const defaultChefName = "Chef Sprinkles";
 
   return `
     <section class="panel onboarding-card flow-screen">
