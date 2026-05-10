@@ -1,6 +1,6 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-024900";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-024900";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-024900";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260510-031800";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260510-031800";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260510-031800";
 import {
   formatOrderCount,
   getMissingPantry,
@@ -11,9 +11,9 @@ import {
   getTotalShopCost,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260510-024900";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-024900";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-024900";
+} from "../../game/helpers.js?v=20260510-031800";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260510-031800";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260510-031800";
 
 const INGREDIENT_META = {
   flour: {

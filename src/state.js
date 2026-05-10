@@ -1,4 +1,4 @@
-import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-024900";
+import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-031800";
 
 const STORAGE_KEY = "sprinkles-100-player";
 const SAVE_VERSION = 3;
