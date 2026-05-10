@@ -1,4 +1,4 @@
-import { renderMascot } from "../components/mascot.js?v=20260509-233000";
+import { renderMascot } from "../components/mascot.js?v=20260509-235200";
 
 export function renderTitleScreen(saveSummary) {
   return `
@@ -9,7 +9,7 @@ export function renderTitleScreen(saveSummary) {
         <div class="store-window window-right"></div>
         <div class="store-door"></div>
       </div>
-      <img class="title-logo" src="./logo.png?v=20260509-233000" alt="100 Sprinkles logo" />
+      <img class="title-logo" src="./logo.png?v=20260509-235200" alt="100 Sprinkles logo" />
       ${renderMascot({ mood: "happy", message: saveSummary ? `Welcome back, ${saveSummary.username}! Your bakery is ready for another sweet round.` : "Welcome to 100 Sprinkles! Pick a chef name and let's open your bakery." })}
       <div class="title-actions">
         <button class="primary-button title-button" type="button" data-go-profile>

@@ -1,17 +1,24 @@
-import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-233000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-233000";
+import { RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260509-235200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-235200";
 import {
   formatOrderCount,
   getMissingPantry,
   getOrderCount,
   getPantryNeed,
   getRecipeById,
+  getShopCost,
   getTotalShopCost,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260509-233000";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-233000";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-233000";
+} from "../../game/helpers.js?v=20260509-235200";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260509-235200";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260509-235200";
+
+const INGREDIENT_META = {
+  flour: { label: "Flour", emoji: "🌾️", accentClass: "ingredient-flour" },
+  sugar: { label: "Sugar", emoji: "🍬️", accentClass: "ingredient-sugar" },
+  eggs: { label: "Eggs", emoji: "🥚️", accentClass: "ingredient-eggs" },
+};
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
@@ -44,6 +51,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
   const countLabel = formatOrderCount(player.SR, orderCount);
   const missingPantry = player.SR >= 300 && pantryNeed ? getMissingPantry(player, pantryNeed) : {};
   const isReadyToBake = Object.keys(missingPantry).length === 0;
+  const isBlockedByPantry = player.SR >= 300 && !isReadyToBake;
   const missingCost = getTotalShopCost(missingPantry);
 
   return `
@@ -53,7 +61,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           <div>
             <p class="eyebrow eyebrow-pill">Pick a Recipe</p>
             <h2>Bake Menu</h2>
-            <p class="muted bakery-subcopy">${srToBand(player.SR)} bakers get a bright, game-like menu so the next order feels exciting right away.</p>
+            <p class="muted bakery-subcopy">Your bakery is booming. Pick a recipe and get the ovens going.</p>
           </div>
           <div class="badge bakery-unlock-badge">${formatRecipeCountBadge(unlockedRecipes.length)}</div>
         </div>
@@ -82,9 +90,8 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           <div>
             <p class="eyebrow eyebrow-pill">Recipe Selection</p>
             <h2>Choose Today's Bake</h2>
-            <p class="muted bakery-subcopy">${supportsRecipeSets(player.SR) ? "Pick a recipe, choose your sets, and get the bakery ready." : "Pick a recipe and get the bakery ready."}</p>
+            <p class="muted bakery-subcopy">${supportsRecipeSets(player.SR) ? "Pick a recipe, choose your baking sets, and restock anything the pantry needs." : "Pick a recipe and get the bakery ready."}</p>
           </div>
-          ${countLabel ? `<div class="badge count-badge">${countLabel}</div>` : ""}
         </div>
 
         <div class="recipe-grid bakery-recipe-grid">
@@ -101,20 +108,20 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                     </div>
                     ${renderRecipeStatusBadge(recipe, isSelected, isUnlocked)}
                   </div>
-                  <div class="recipe-details-grid">
+                  <div class="recipe-details-grid recipe-details-stack">
                     <div class="recipe-info-chip">
                       <span class="recipe-info-title">Ingredients</span>
-                      <div class="recipe-icon-row">
-                        <span>🌾 x${recipe.ingredients.flour}</span>
-                        <span>🍬 x${recipe.ingredients.sugar}</span>
-                        <span>🥚 x${recipe.ingredients.eggs}</span>
+                      <div class="recipe-icon-row recipe-ingredient-list">
+                        <span>${renderIngredientToken("flour", recipe.ingredients.flour)}</span>
+                        <span>${renderIngredientToken("sugar", recipe.ingredients.sugar)}</span>
+                        <span>${renderIngredientToken("eggs", recipe.ingredients.eggs)}</span>
                       </div>
                     </div>
                     <div class="recipe-info-chip">
                       <span class="recipe-info-title">Rewards</span>
-                      <div class="recipe-icon-row">
-                        <span>🪙 ${recipe.baseReward}</span>
-                        <span>✨ ${recipe.sprinkleReward}</span>
+                      <div class="recipe-icon-row recipe-reward-list">
+                        <span>🪙️ Coins ${recipe.baseReward}</span>
+                        <span>✨ Sprinkles ${recipe.sprinkleReward}</span>
                       </div>
                     </div>
                   </div>
@@ -134,15 +141,26 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
             <div class="badge visual-mode-badge" title="Visual mode uses picture-first math prompts for younger players.">${isVisualMode(player.SR) ? "🖼 Visual Mode" : "🎯 Story Mode"}</div>
           </div>
 
+          ${
+            isBlockedByPantry
+              ? `<div class="restock-alert-banner" role="alert">🪙️ Need ${missingCost} coins to restock before baking.</div>`
+              : ""
+          }
+
           <p class="visual-mode-note muted tiny">${renderStartBakeNote(player, isReadyToBake, missingCost)}</p>
 
           ${
             supportsRecipeSets(player.SR)
               ? `
-                <label class="field start-bake-field">
-                  <span>Sets to bake</span>
-                  <input id="batch-count" type="number" min="1" max="6" value="${orderCount}" />
-                </label>
+                <div class="start-bake-stepper-block">
+                  <span class="stepper-label">Baking: ${countLabel}</span>
+                  <div class="batch-stepper" aria-label="Sets to bake">
+                    <button class="stepper-button" type="button" data-batch-step="-1" ${orderCount <= 1 ? "disabled" : ""}>−</button>
+                    <span class="stepper-value" id="batch-count-value">${orderCount}</span>
+                    <button class="stepper-button" type="button" data-batch-step="1" ${orderCount >= 6 ? "disabled" : ""}>+</button>
+                  </div>
+                  <input id="batch-count" type="hidden" value="${orderCount}" />
+                </div>
               `
               : ""
           }
@@ -150,20 +168,23 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           ${
             player.SR >= 300 && pantryNeed
               ? `
-                <div class="inventory-grid compact-pantry-grid">
+                <div class="inventory-grid compact-pantry-grid ingredient-shop-grid">
                   ${Object.entries(pantryNeed)
                     .map(([ingredient, amount]) => {
                       const owned = player.pantry[ingredient];
                       const missing = Math.max(0, amount - owned);
+                      const meta = INGREDIENT_META[ingredient] ?? { label: ingredient, emoji: "🧺", accentClass: "ingredient-generic" };
+                      const cost = getShopCost(ingredient, missing || 1);
                       return `
-                        <div class="inventory-card ${missing ? "missing" : "ready"}">
-                          <strong>${ingredient}</strong>
+                        <div class="inventory-card ingredient-shop-card ${meta.accentClass} ${missing ? "missing" : "ready"}">
+                          <div class="ingredient-shop-icon" aria-hidden="true">${meta.emoji}</div>
+                          <strong>${meta.label}</strong>
                           <span>Need ${amount}</span>
                           <span>Have ${owned}</span>
                           ${
                             missing
-                              ? `<button class="secondary-button quick-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${missing}">Buy ${missing}</button>`
-                              : `<span class="inventory-status">Ready</span>`
+                              ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${missing}">Buy ${missing} — 🪙️${cost}</button>`
+                              : `<span class="inventory-status">Ready for the bake</span>`
                           }
                         </div>
                       `;
@@ -221,7 +242,7 @@ function renderRecipeAction(recipe, isSelected, isUnlocked) {
 
 function renderStartBakeNote(player, isReadyToBake, missingCost) {
   if (player.SR >= 300 && !isReadyToBake) {
-    return `Need ${missingCost} coins to restock before baking.`;
+    return `Restock the pantry, then start the next bake.`;
   }
 
   if (isVisualMode(player.SR)) {
@@ -241,6 +262,11 @@ function renderStartBakeNote(player, isReadyToBake, missingCost) {
 
 function formatRecipeCountBadge(count) {
   return `🍰 ${count} recipe${count === 1 ? "" : "s"} ready`;
+}
+
+function renderIngredientToken(ingredient, amount) {
+  const meta = INGREDIENT_META[ingredient] ?? { label: ingredient, emoji: "🧺" };
+  return `${meta.emoji} ${meta.label} ×${amount}`;
 }
 
 function renderBakeScreen(gameState, currentStage, srWindow) {
@@ -445,3 +471,5 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;");
 }
+
+

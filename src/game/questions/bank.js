@@ -12,7 +12,7 @@ import {
   ratioScale,
   visualCountAll,
   visualCountDifference,
-} from "./templates.js?v=20260509-233000";
+} from "./templates.js?v=20260509-235200";
 
 const ALL_STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
 

@@ -1,4 +1,4 @@
-import { INGREDIENT_COSTS } from "../../game/data.js?v=20260509-233000";
+import { INGREDIENT_COSTS } from "../../game/data.js?v=20260509-235200";
 
 export function renderShopScreen(player) {
   return `

@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260509-233000";
+import { navigate } from "../app/router.js?v=20260509-235200";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,15 +8,15 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260509-233000";
-import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-233000";
-import { renderShell } from "./shell.js?v=20260509-233000";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-233000";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-233000";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260509-233000";
-import { renderStatsScreen } from "./screens/stats.js?v=20260509-233000";
-import { renderTitleScreen } from "./screens/title.js?v=20260509-233000";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-233000";
+} from "../game/engine.js?v=20260509-235200";
+import { getSaveSummary, isValidPlayerName } from "../state.js?v=20260509-235200";
+import { renderShell } from "./shell.js?v=20260509-235200";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260509-235200";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260509-235200";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260509-235200";
+import { renderStatsScreen } from "./screens/stats.js?v=20260509-235200";
+import { renderTitleScreen } from "./screens/title.js?v=20260509-235200";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260509-235200";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -161,9 +161,12 @@ function attachRecipeEvents(root, gameState, dispatch) {
   const batchInput = root.querySelector("#batch-count");
 
   if (batchInput) {
-    batchInput.addEventListener("change", () => {
-      const updated = setBatchCount(gameState, batchInput.value);
-      dispatch({ type: "UPDATE_GAME", payload: updated });
+    root.querySelectorAll("[data-batch-step]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextValue = Number(batchInput.value || 1) + Number(button.dataset.batchStep || 0);
+        const updated = setBatchCount(gameState, nextValue);
+        dispatch({ type: "UPDATE_GAME", payload: updated });
+      });
     });
   }
 

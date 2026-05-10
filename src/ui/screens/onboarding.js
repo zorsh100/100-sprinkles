@@ -1,4 +1,4 @@
-import { renderMascot } from "../components/mascot.js?v=20260509-233000";
+import { renderMascot } from "../components/mascot.js?v=20260509-235200";
 
 const GRADE_CARDS = [
   { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },

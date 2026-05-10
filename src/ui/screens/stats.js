@@ -1,6 +1,6 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260509-233000";
-import { getSRMode } from "../../game/sr.js?v=20260509-233000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-233000";
+import { formatOrderCount } from "../../game/helpers.js?v=20260509-235200";
+import { getSRMode } from "../../game/sr.js?v=20260509-235200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260509-235200";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
