@@ -20,7 +20,7 @@ export function renderUnlockScreen(gameState) {
                 <h3>${escapeHtml(recipe.name)}</h3>
                 <p class="muted tiny">Unlocked at SR ${recipe.unlockSR}</p>
                 <div class="recipe-meta">
-                  <span>${recipe.baseReward} base coins</span>
+                  <span>${recipe.baseReward} earn coins</span>
                   <span>${recipe.sprinkleReward} sprinkle reward</span>
                 </div>
               </article>

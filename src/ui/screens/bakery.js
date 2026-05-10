@@ -96,7 +96,7 @@ function renderRecipeScreen(gameState, recipes, selectedRecipe, pantryNeed) {
                   </div>
                   <p class="recipe-label">${isSelected ? "Current recipe" : "Tap to choose this recipe"}</p>
                   <div class="recipe-meta">
-                    <span>${recipe.baseReward} base coins</span>
+                    <span>${recipe.baseReward} earn coins</span>
                     <span>${recipe.sprinkleReward} sprinkle reward</span>
                     <span>Unlock SR ${recipe.unlockSR}</span>
                   </div>
@@ -185,35 +185,25 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
       <section class="panel kinder-hero-panel regular-bake-hero">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Start Bake</p>
-            <h2>Baking in Progress</h2>
-            <p class="muted">Solve the math, move through each stage, then serve the order.</p>
+            <h2>Bake</h2>
+            <p class="muted">Solve the math and finish each bakery stage.</p>
           </div>
-          <div class="badge">${getSRMode(player.SR)}</div>
+          <div class="badge">${Math.round(progress)}% complete</div>
         </div>
-        <div class="kinder-summary regular-bake-summary">
-          <div class="kinder-summary-card">
-            <span class="muted tiny">Skill Rating</span>
-            <strong>${player.SR}</strong>
-          </div>
-          <div class="kinder-summary-card">
-            <span class="muted tiny">Streak</span>
-            <strong>${player.skill.currentStreak}</strong>
-          </div>
-          <div class="kinder-summary-card">
-            <span class="muted tiny">Accuracy</span>
-            <strong>${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</strong>
-          </div>
+        <div class="pill-row">
+          <span class="pill">${getSRMode(player.SR)}</span>
+          <span class="pill">SR ${player.SR}</span>
+          <span class="pill">Streak ${player.skill.currentStreak}</span>
+          <span class="pill">Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
         </div>
         <div class="kinder-stage-banner-row">
           <div class="kinder-stage-banner">
             <span>${STAGE_META[currentStage].icon}</span>
             <span>${STAGE_META[currentStage].title}</span>
           </div>
-          <div class="badge">${Math.round(progress)}% complete</div>
+          <div class="pill">Target window ${srWindow.min}-${srWindow.max}</div>
         </div>
         <div class="kinder-path-block">
-          <p class="muted tiny">Stage Tracker</p>
           <div class="progress-bar">
             <div class="progress-fill" style="width: ${progress}%"></div>
           </div>
@@ -232,13 +222,10 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
             }).join("")}
           </div>
         </div>
-        <div class="panel flow-panel-spacer regular-bake-pantry">
-          <div class="pill-row">
-            <span class="pill">Target window ${srWindow.min}-${srWindow.max}</span>
-            <span class="pill">Flour ${player.pantry.flour}</span>
-            <span class="pill">Sugar ${player.pantry.sugar}</span>
-            <span class="pill">Eggs ${player.pantry.eggs}</span>
-          </div>
+        <div class="pill-row flow-panel-spacer regular-bake-pantry">
+          <span class="pill">Flour ${player.pantry.flour}</span>
+          <span class="pill">Sugar ${player.pantry.sugar}</span>
+          <span class="pill">Eggs ${player.pantry.eggs}</span>
         </div>
       </section>
       ${renderQuestionPanel(gameState, currentStage)}
