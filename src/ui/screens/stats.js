@@ -52,7 +52,7 @@ export function renderStatsScreen(gameState) {
       </div>
 
       <div class="flow-actions settings-actions">
-        <button class="primary-button" type="button" data-go-recipe>Pick New Recipe</button>
+        <button class="primary-button" type="button" data-go-recipe>Bake More</button>
         <button class="secondary-button" type="button" data-go-settings>Settings</button>
       </div>
     </section>
