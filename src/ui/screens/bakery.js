@@ -256,18 +256,17 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
           </div>
           <div class="badge">${Math.round(progress)}% complete</div>
         </div>
-        <div class="pill-row">
-          <span class="pill">${getSRMode(player.SR)}</span>
-          <span class="pill">SR ${player.SR}</span>
-          <span class="pill">Streak ${player.skill.currentStreak}</span>
-          <span class="pill">Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
+        <div class="pill-row regular-status-row">
+          <span class="pill mode-status-pill">${getSRMode(player.SR)}</span>
+          <span class="pill sr-status-pill">⭐ SR ${player.SR}</span>
+          <span class="pill streak-status-pill">🔥 Streak ${player.skill.currentStreak}</span>
+          <span class="pill accuracy-status-pill">✅ Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
         </div>
         <div class="kinder-stage-banner-row">
           <div class="kinder-stage-banner">
             <span>${STAGE_META[currentStage].icon}</span>
             <span>${STAGE_META[currentStage].title}</span>
           </div>
-          <div class="pill">Target window ${srWindow.min}-${srWindow.max}</div>
         </div>
         <div class="kinder-path-block">
           <div class="progress-bar">
@@ -278,21 +277,28 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
               const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
               const active = !session.saleReady && currentStage === stage && session.order;
               const className = done ? "done" : active ? "active" : "";
+              const label = done ? `✓ ${stage}` : stage;
 
               return `
                 <div class="stage-chip ${className}">
-                  <div>${STAGE_META[stage].icon}</div>
-                  <div>${stage}</div>
+                  <div>${done ? "✓" : STAGE_META[stage].icon}</div>
+                  <div>${label}</div>
                 </div>
               `;
             }).join("")}
           </div>
         </div>
-        <div class="pill-row flow-panel-spacer regular-bake-pantry">
-          <span class="pill">Flour ${player.pantry.flour}</span>
-          <span class="pill">Sugar ${player.pantry.sugar}</span>
-          <span class="pill">Eggs ${player.pantry.eggs}</span>
-        </div>
+        ${
+          player.SR >= 300
+            ? `
+              <div class="pill-row flow-panel-spacer regular-bake-pantry">
+                <span class="pill pantry-pill">🌾 Flour ${player.pantry.flour}</span>
+                <span class="pill pantry-pill">🍬 Sugar ${player.pantry.sugar}</span>
+                <span class="pill pantry-pill">🥚 Eggs ${player.pantry.eggs}</span>
+              </div>
+            `
+            : ""
+        }
       </section>
       ${renderQuestionPanel(gameState, currentStage)}
     </section>
@@ -359,13 +365,12 @@ function renderQuestionPanel(gameState, currentStage) {
           <h2>${STAGE_META[currentStage].title}</h2>
           <p class="muted">${escapeHtml(question.prompt)}</p>
         </div>
-        <div class="stage-banner">${STAGE_META[currentStage].icon} ${currentStage}</div>
       </div>
       ${question.promptSecondary ? `<p><strong>${escapeHtml(question.promptSecondary)}</strong></p>` : ""}
       ${visuals}
-      <div class="answer-grid">
+      <div class="answer-grid regular-answer-grid">
         ${question.choices
-          .map((choice) => {
+          .map((choice, index) => {
             const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
             const label =
               question.type === "optimization" && choice === question.answer && question.answerLabel
@@ -373,8 +378,8 @@ function renderQuestionPanel(gameState, currentStage) {
                 : String(choice);
 
             return `
-              <button class="choice-button ${resultClass}" type="button" data-answer="${choice}">
-                ${escapeHtml(label)}
+              <button class="choice-button regular-answer-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
+                <span class="regular-answer-number">${escapeHtml(label)}</span>
               </button>
             `;
           })

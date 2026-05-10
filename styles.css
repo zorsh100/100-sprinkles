@@ -608,11 +608,40 @@ h3 {
 }
 
 .pill {
-  padding: 9px 12px;
+  padding: 11px 16px;
   border-radius: 999px;
   background: rgba(90, 111, 240, 0.12);
   color: var(--accent-4);
   font-weight: 800;
+}
+
+.regular-status-row {
+  gap: 12px;
+}
+
+.mode-status-pill {
+  background: rgba(219, 242, 239, 0.92);
+  color: #255b52;
+}
+
+.sr-status-pill {
+  background: rgba(255, 244, 185, 0.92);
+  color: #6b5200;
+}
+
+.streak-status-pill {
+  background: rgba(255, 224, 203, 0.94);
+  color: #8f4d19;
+}
+
+.accuracy-status-pill {
+  background: rgba(220, 245, 220, 0.96);
+  color: #25603b;
+}
+
+.pantry-pill {
+  background: rgba(255, 248, 242, 0.96);
+  color: #6d5144;
 }
 
 .recipe-card,
@@ -1027,6 +1056,22 @@ h3 {
   color: var(--danger);
 }
 
+.regular-answer-grid {
+  gap: 16px;
+}
+
+.regular-answer-button {
+  min-height: 96px;
+  border: 2px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 16px 28px rgba(117, 74, 41, 0.16);
+}
+
+.regular-answer-number {
+  font-family: "Baloo 2", cursive;
+  font-size: 2rem;
+  line-height: 1;
+}
+
 .answer-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -1049,19 +1094,22 @@ h3 {
   border-radius: 20px;
   padding: 12px;
   text-align: center;
-  background: rgba(255, 255, 255, 0.8);
-  color: var(--muted);
+  background: rgba(255, 248, 242, 0.92);
+  border: 1px solid rgba(232, 213, 192, 0.92);
+  color: #755f54;
   font-weight: 800;
 }
 
 .stage-chip.active {
   color: #fff;
-  background: linear-gradient(135deg, var(--accent-3), var(--accent-4));
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  border-color: rgba(255, 107, 107, 0.7);
 }
 
 .stage-chip.done {
   color: var(--success);
-  background: rgba(60, 167, 112, 0.14);
+  background: rgba(60, 167, 112, 0.18);
+  border-color: rgba(60, 167, 112, 0.35);
 }
 
 .stage-prep {
@@ -1092,12 +1140,13 @@ h3 {
 .stage-panel::after {
   content: "";
   position: absolute;
-  inset: auto -40px -60px auto;
-  width: 200px;
-  height: 200px;
+  inset: auto 18px 18px auto;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   background: color-mix(in srgb, var(--stage-color), white 62%);
-  opacity: 0.75;
+  opacity: 0.34;
+  pointer-events: none;
 }
 
 .stage-banner {
