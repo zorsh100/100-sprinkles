@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260511-194700";
+import { clamp } from "./math.js?v=20260511-201500";
 
 export const VISUAL_MODE_END_SR = 110;
 export const VISUAL_BRIDGE_START_SR = 80;

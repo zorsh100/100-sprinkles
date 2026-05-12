@@ -1,5 +1,6 @@
-import { getSRMode } from "../../game/sr.js?v=20260511-194700";
-import { renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { getSRMode } from "../../game/sr.js?v=20260511-201500";
+import { renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
 
 export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
   const hasActiveSave = Boolean(activeSaveSummary && player);
@@ -22,7 +23,16 @@ export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
 
       <section class="utility-save-card settings-current-card">
         <p class="eyebrow">Current Baker</p>
-        <h3>${hasActiveSave ? escapeHtml(activeSaveSummary.username) : "No baker selected"}</h3>
+        ${
+          hasActiveSave
+            ? `
+              <div class="settings-current-baker">
+                ${renderPlayerAvatar(activeSaveSummary.avatarId, { size: "lg", className: "settings-baker-avatar", label: `${activeSaveSummary.username}'s baker portrait` })}
+                <h3>${escapeHtml(activeSaveSummary.username)}</h3>
+              </div>
+            `
+            : "<h3>No baker selected</h3>"
+        }
         <p class="settings-summary-line">
           ${hasActiveSave ? escapeHtml(getSettingsSummary(activeSaveSummary)) : "Open a notebook to create or switch to a baker."}
         </p>
@@ -76,9 +86,12 @@ function renderSaveSlotCard(summary) {
   return `
     <article class="utility-save-card settings-save-card save-slot-card ${summary.isActive ? "active" : ""}">
       <div class="save-slot-head">
-        <div>
-          <p class="eyebrow">${slotName}</p>
-          <h3>${bakerName}</h3>
+        <div class="save-slot-headline">
+          ${renderPlayerAvatar(summary.avatarId, { size: "md", className: "save-slot-avatar", label: `${summary.username}'s baker portrait` })}
+          <div>
+            <p class="eyebrow">${slotName}</p>
+            <h3>${bakerName}</h3>
+          </div>
         </div>
         <div class="save-slot-chip ${summary.isActive ? "save-slot-chip-active" : ""}">
           ${summary.isActive ? "Current baker" : "Saved notebook"}

@@ -1,5 +1,6 @@
-import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260511-194700";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260511-201500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -16,7 +17,10 @@ export function renderKindergartenBakery({ player, session, currentStage, select
         <div class="kinder-summary kinder-hud-strip">
           <div class="kinder-summary-card kinder-summary-baker">
             <span class="muted tiny">Baker</span>
-            <strong>${escapeHtml(player.username)}</strong>
+            <div class="kinder-baker-row">
+              ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "kinder-baker-avatar", label: `${player.username}'s baker portrait` })}
+              <strong>${escapeHtml(player.username)}</strong>
+            </div>
           </div>
           <div class="kinder-summary-card kinder-summary-sprinkles">
             <span class="muted tiny">Sprinkles</span>

@@ -1,7 +1,7 @@
-import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260511-194700";
+import { GRADE_TO_SR, PLAYER_AVATAR_IDS, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260511-201500";
 
 const STORAGE_KEY = "sprinkles-100-player";
-const SAVE_VERSION = 3;
+const SAVE_VERSION = 4;
 const SAVE_SLOT_IDS = ["slot-1", "slot-2"];
 const AVAILABLE_NEW_PLAYER_GRADES = new Set(["K", "1", "2", "3", "4", "5"]);
 
@@ -126,6 +126,7 @@ function createSaveSummary(slot, activeSaveSlot) {
     isActive: slot.id === activeSaveSlot,
     empty: false,
     username: slot.player.username,
+    avatarId: slot.player.avatarId,
     grade: slot.player.grade,
     SR: slot.player.SR,
     coins: slot.player.bank,
@@ -241,10 +242,11 @@ export function isValidPlayerName(username) {
   return trimmedName.length >= 2 && letterMatches.length >= 2;
 }
 
-export function createNewPlayer(gameState, { username, grade, slotId }) {
+export function createNewPlayer(gameState, { username, grade, slotId, avatarId }) {
   const syncedState = syncActiveSlot(gameState);
   const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? findFirstEmptySlotId(syncedState.saveSlots));
   const normalizedGrade = AVAILABLE_NEW_PLAYER_GRADES.has(String(grade)) ? String(grade) : "K";
+  const normalizedAvatarId = PLAYER_AVATAR_IDS.includes(String(avatarId)) ? String(avatarId) : DEFAULT_PLAYER.avatarId;
   const SR = GRADE_TO_SR[normalizedGrade];
   const trimmedName = String(username ?? "").trim().slice(0, 24);
   const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
@@ -252,6 +254,7 @@ export function createNewPlayer(gameState, { username, grade, slotId }) {
   const player = normalizePlayer({
     ...DEFAULT_PLAYER,
     username: safeName,
+    avatarId: normalizedAvatarId,
     grade: normalizedGrade,
     SR,
     bank: SR >= 300 ? 25 : 0,
@@ -284,7 +287,7 @@ export function createNewPlayer(gameState, { username, grade, slotId }) {
   });
 }
 
-export function updatePlayerProfile(gameState, { username, slotId }) {
+export function updatePlayerProfile(gameState, { username, slotId, avatarId }) {
   const syncedState = syncActiveSlot(gameState);
   const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? syncedState.activeSaveSlot);
   const targetSlot = syncedState.saveSlots.find((slot) => slot.id === targetSlotId);
@@ -295,9 +298,10 @@ export function updatePlayerProfile(gameState, { username, slotId }) {
 
   const trimmedName = String(username ?? "").trim().slice(0, 24);
   const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
+  const normalizedAvatarId = PLAYER_AVATAR_IDS.includes(String(avatarId)) ? String(avatarId) : targetSlot.player.avatarId ?? DEFAULT_PLAYER.avatarId;
   const flash = {
     kind: "success",
-    text: `${safeName}'s notebook is updated and ready for more bakery math.`,
+    text: `${safeName}'s baker card is updated and ready for more bakery math.`,
   };
 
   const nextSaveSlots = syncedState.saveSlots.map((slot) => {
@@ -308,6 +312,7 @@ export function updatePlayerProfile(gameState, { username, slotId }) {
     const nextPlayer = normalizePlayer({
       ...slot.player,
       username: safeName,
+      avatarId: normalizedAvatarId,
     });
 
     return createSaveSlot(slot.id, {

@@ -1,5 +1,6 @@
-import { renderCoinIcon } from "../components/icons.js?v=20260511-194700";
-import { renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { renderCoinIcon } from "../components/icons.js?v=20260511-201500";
+import { renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
 
 export function renderTitleScreen(saveSummaries) {
   const filledSlots = saveSummaries.filter((summary) => !summary.empty);
@@ -18,7 +19,7 @@ export function renderTitleScreen(saveSummaries) {
         <div class="store-window window-right"></div>
         <div class="store-door"></div>
       </div>
-      <img class="title-logo" src="./logo.png?v=20260511-194700" alt="100 Sprinkles logo" />
+      <img class="title-logo" src="./logo.png?v=20260511-201500" alt="100 Sprinkles logo" />
       ${renderMascot({ mood: "happy", message: mascotMessage })}
       <section class="title-save-grid" aria-label="Player save slots">
         ${saveSummaries.map((summary) => renderSaveSlot(summary)).join("")}
@@ -49,10 +50,15 @@ function renderSaveSlot(summary) {
   return `
     <article class="title-slot-card ${summary.isActive ? "active" : ""}">
       <div class="save-slot-head">
-        <p class="eyebrow">${summary.slotLabel}</p>
+        <div class="save-slot-headline">
+          ${renderPlayerAvatar(summary.avatarId, { size: "md", className: "save-slot-avatar", label: `${summary.username}'s baker portrait` })}
+          <div>
+            <p class="eyebrow">${summary.slotLabel}</p>
+            <h3>${escapeHtml(summary.username)}</h3>
+          </div>
+        </div>
         ${summary.isActive ? '<span class="save-slot-chip save-slot-chip-active">Last used</span>' : '<span class="save-slot-chip">Saved</span>'}
       </div>
-      <h3>${escapeHtml(summary.username)}</h3>
       <p class="muted">${escapeHtml(summary.grade === "K" ? "Kindergarten" : `Grade ${summary.grade}`)} baker, SR ${summary.SR}</p>
       <div class="title-slot-stats">
         <span class="badge">${renderCoinIcon("coin-icon-sm")} ${summary.coins} coins</span>

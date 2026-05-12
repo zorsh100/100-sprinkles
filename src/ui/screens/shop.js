@@ -1,6 +1,6 @@
-import { INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260511-194700";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-194700";
-import { renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260511-201500";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-201500";
+import { renderMascot } from "../components/mascot.js?v=20260511-201500";
 
 const INGREDIENT_META = {
   flour: {
@@ -23,7 +23,7 @@ const INGREDIENT_META = {
   },
 };
 
-const PANTRY_SCENE_VERSION = "20260511-194700";
+const PANTRY_SCENE_VERSION = "20260511-201500";
 const PANTRY_SCENE_SRC = `./assets/bakery-scenes/pantry-cupboard.png?v=${PANTRY_SCENE_VERSION}`;
 
 export function renderShopScreen(player) {

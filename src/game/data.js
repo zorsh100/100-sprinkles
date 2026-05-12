@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260511-194700";
+import { clamp } from "./math.js?v=20260511-201500";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -30,6 +30,7 @@ export const INGREDIENT_COSTS = {
 };
 
 export const MAX_SPRINKLES = 100;
+export const PLAYER_AVATAR_IDS = ["baker-1", "baker-2", "baker-3", "baker-4", "baker-5", "baker-6", "baker-7", "baker-8"];
 
 export const RECIPES = [
   {
@@ -156,6 +157,7 @@ export const RECIPES = [
 
 export const DEFAULT_PLAYER = {
   username: "",
+  avatarId: PLAYER_AVATAR_IDS[0],
   grade: "K",
   SR: 50,
   bank: 0,
@@ -194,6 +196,7 @@ export function normalizePlayer(player = {}) {
   return {
     ...DEFAULT_PLAYER,
     ...playerData,
+    avatarId: PLAYER_AVATAR_IDS.includes(playerData.avatarId) ? playerData.avatarId : DEFAULT_PLAYER.avatarId,
     sprinkles: clamp(Number(playerData.sprinkles ?? DEFAULT_PLAYER.sprinkles) || 0, 0, MAX_SPRINKLES),
     pantry: {
       ...DEFAULT_PLAYER.pantry,

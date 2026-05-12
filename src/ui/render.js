@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260511-194700";
+import { navigate } from "../app/router.js?v=20260511-201500";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,17 +8,18 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260511-194700";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260511-194700";
-import { renderShell } from "./shell.js?v=20260511-194700";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260511-194700";
-import { renderLearnScreen } from "./screens/learn.js?v=20260511-194700";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260511-194700";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260511-194700";
-import { renderShopScreen } from "./screens/shop.js?v=20260511-194700";
-import { renderStatsScreen } from "./screens/stats.js?v=20260511-194700";
-import { renderTitleScreen } from "./screens/title.js?v=20260511-194700";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260511-194700";
+} from "../game/engine.js?v=20260511-201500";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260511-201500";
+import { renderShell } from "./shell.js?v=20260511-201500";
+import { getPlayerAvatarOption } from "./components/player-avatar.js?v=20260511-201500";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260511-201500";
+import { renderLearnScreen } from "./screens/learn.js?v=20260511-201500";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260511-201500";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260511-201500";
+import { renderShopScreen } from "./screens/shop.js?v=20260511-201500";
+import { renderStatsScreen } from "./screens/stats.js?v=20260511-201500";
+import { renderTitleScreen } from "./screens/title.js?v=20260511-201500";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260511-201500";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -102,6 +103,8 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
   const gradePreview = root.querySelector("#grade-preview");
   const gradePreviewCard = root.querySelector("#grade-preview-card");
   const usernameInput = root.querySelector("#username");
+  const avatarInput = root.querySelector("#avatar-id");
+  const avatarPreviewName = root.querySelector("#avatar-preview-name");
   const submitButton = root.querySelector("#start-baking");
   const onboardingMode = form?.dataset.onboardingMode ?? "create";
 
@@ -139,6 +142,24 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
     });
   });
 
+  root.querySelectorAll("[data-avatar-choice]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const avatarId = button.dataset.avatarChoice;
+      const selectedOption = getPlayerAvatarOption(avatarId);
+      avatarInput.value = selectedOption.id;
+
+      root.querySelectorAll("[data-avatar-choice]").forEach((card) => {
+        const isActive = card === button;
+        card.classList.toggle("active", isActive);
+        card.setAttribute("aria-checked", String(isActive));
+      });
+
+      if (avatarPreviewName) {
+        avatarPreviewName.textContent = selectedOption.label;
+      }
+    });
+  });
+
   usernameInput.addEventListener("input", () => {
     syncSubmitState();
   });
@@ -154,6 +175,7 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
 
     const formData = new FormData(event.currentTarget);
     const username = String(formData.get("username") ?? "").trim();
+    const avatarId = String(formData.get("avatarId") ?? "");
     const grade = String(formData.get("grade") ?? "K");
 
     if (username && !isValidPlayerName(username)) {
@@ -166,6 +188,7 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
         type: "UPDATE_PLAYER_PROFILE",
         payload: {
           username,
+          avatarId,
           slotId: uiState.pendingSaveSlotId ?? gameState.activeSaveSlot,
         },
       });
@@ -177,6 +200,7 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
       type: "START_GAME",
       payload: {
         username,
+        avatarId,
         grade,
         slotId: uiState.pendingSaveSlotId ?? gameState.activeSaveSlot,
       },

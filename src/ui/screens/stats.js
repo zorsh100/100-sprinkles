@@ -1,7 +1,8 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260511-194700";
-import { renderCoinIcon } from "../components/icons.js?v=20260511-194700";
-import { getSRMode } from "../../game/sr.js?v=20260511-194700";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { formatOrderCount } from "../../game/helpers.js?v=20260511-201500";
+import { renderCoinIcon } from "../components/icons.js?v=20260511-201500";
+import { getSRMode } from "../../game/sr.js?v=20260511-201500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
@@ -18,6 +19,14 @@ export function renderStatsScreen(gameState) {
         <p class="eyebrow">Stats</p>
         <h2>Bakery Report</h2>
         <p class="muted">You finished a bake. Here’s how your bakery is growing.</p>
+      </div>
+
+      <div class="report-baker-card">
+        ${renderPlayerAvatar(player.avatarId, { size: "lg", className: "report-baker-avatar", label: `${player.username}'s baker portrait` })}
+        <div>
+          <span class="muted tiny">Baker</span>
+          <strong>${escapeHtml(player.username)}</strong>
+        </div>
       </div>
 
       ${

@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260511-194700";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260511-201500";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -70,22 +70,6 @@ function getRecipeSingularLabel(context) {
   }
 
   return label;
-}
-
-function getRecipeToken(context) {
-  const words = getRecipeLabel(context)
-    .split(/\s+/)
-    .filter(Boolean);
-
-  if (!words.length) {
-    return "TR";
-  }
-
-  if (words.length === 1) {
-    return words[0].slice(0, 2).toUpperCase();
-  }
-
-  return `${words[0][0]}${words[1][0]}`.toUpperCase();
 }
 
 function withEmojiPresentation(symbol) {

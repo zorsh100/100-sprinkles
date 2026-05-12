@@ -1,6 +1,7 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-194700";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-194700";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-201500";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-201500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -14,9 +15,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260511-194700";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260511-194700";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-194700";
+} from "../../game/helpers.js?v=20260511-201500";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260511-201500";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-201500";
 
 const INGREDIENT_META = {
   flour: {
@@ -36,7 +37,7 @@ const INGREDIENT_META = {
   },
 };
 
-const BAKERY_SCENE_VERSION = "20260511-194700";
+const BAKERY_SCENE_VERSION = "20260511-201500";
 
 const BAKERY_STATION_ART = [
   {
@@ -71,7 +72,6 @@ export function renderBakeryScreen(gameState) {
   const orderCount = getOrderCount(player.SR, session.batchCount);
   const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, orderCount) : null;
   const currentStage = session.order ? STAGES[session.order.stageIndex] : "prep";
-  const srWindow = getSRWindow(player.SR);
 
   if (session.order || session.saleReady) {
     if (isVisualMode(player.SR)) {
@@ -105,6 +105,15 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           <div class="badge bakery-unlock-badge">${formatRecipeCountBadge(unlockedRecipes.length)}</div>
         </div>
         <div class="hud-strip" aria-label="Bakery stats">
+          <div class="hud-pill baker-pill">
+            <div class="hud-baker-row">
+              ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "hud-baker-avatar", label: `${player.username}'s baker portrait` })}
+              <div>
+                <span class="hud-label">Baker</span>
+                <strong class="hud-baker-name">${escapeHtml(player.username)}</strong>
+              </div>
+            </div>
+          </div>
           <div class="hud-pill sr-pill">
             <span class="hud-label">Skill Rating</span>
             <strong class="hud-value">${player.SR}</strong>

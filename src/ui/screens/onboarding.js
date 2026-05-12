@@ -1,4 +1,6 @@
-import { renderMascot } from "../components/mascot.js?v=20260511-194700";
+import { renderMascot } from "../components/mascot.js?v=20260511-201500";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260511-201500";
+import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260511-201500";
 
 const GRADE_BUCKETS = [
   {
@@ -107,6 +109,7 @@ export function renderOnboardingScreen(slotSummary) {
   const isEditing = Boolean(slotSummary && !slotSummary.empty);
   const currentGrade = slotSummary?.grade ?? "K";
   const currentName = isEditing ? escapeHtml(slotSummary.username ?? "") : "";
+  const currentAvatarId = getPlayerAvatarOption(slotSummary?.avatarId ?? PLAYER_AVATAR_IDS[0]).id;
 
   return `
     <section class="panel onboarding-card flow-screen">
@@ -137,6 +140,20 @@ export function renderOnboardingScreen(slotSummary) {
           <input id="username" name="username" maxlength="24" placeholder="${defaultChefName}" value="${currentName}" />
           <p class="muted tiny">Leave it blank to use ${defaultChefName}.</p>
         </label>
+        <input id="avatar-id" name="avatarId" type="hidden" value="${currentAvatarId}" />
+        <div class="field full">
+          <span>Pick your baker picture</span>
+          <div class="onboarding-avatar-panel">
+            <div class="onboarding-avatar-preview">
+              ${renderPlayerAvatar(currentAvatarId, { size: "xl", className: "onboarding-avatar-hero", label: `Selected baker: ${getPlayerAvatarOption(currentAvatarId).label}` })}
+              <div>
+                <strong id="avatar-preview-name">${escapeHtml(getPlayerAvatarOption(currentAvatarId).label)}</strong>
+                <p class="muted tiny">This baker picture will follow the notebook around the bakery.</p>
+              </div>
+            </div>
+            ${renderPlayerAvatarPicker(currentAvatarId)}
+          </div>
+        </div>
         <input id="grade" name="grade" type="hidden" value="${currentGrade}" />
         ${
           isEditing
@@ -195,7 +212,7 @@ export function renderOnboardingScreen(slotSummary) {
         }
         <div class="field full">
           <button class="primary-button onboarding-submit-button" id="start-baking" type="submit" disabled aria-disabled="true">
-            ${isEditing ? "Save Baker Name" : `Start Baking In ${slotLabel}`}
+            ${isEditing ? "Save Baker Profile" : `Start Baking In ${slotLabel}`}
           </button>
         </div>
       </form>

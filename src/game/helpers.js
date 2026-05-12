@@ -1,8 +1,8 @@
-import { clamp } from "./math.js?v=20260511-194700";
-import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260511-194700";
-import { getAllowedQuestionTypes } from "./sr.js?v=20260511-194700";
+import { clamp } from "./math.js?v=20260511-201500";
+import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260511-201500";
+import { getAllowedQuestionTypes } from "./sr.js?v=20260511-201500";
 
-export { clamp } from "./math.js?v=20260511-194700";
+export { clamp } from "./math.js?v=20260511-201500";
 
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
