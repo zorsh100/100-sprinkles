@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260511-211500";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260512-001000";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -250,18 +250,6 @@ function getQuarterPrompt(stage, total, context) {
   return `${total} ${recipeLabel} are lined up on finishing trays. One fourth get the star topping. How many ${recipeLabel} is that?`;
 }
 
-function getVisualAccent(stage) {
-  const accents = {
-    prep: { token: withEmojiPresentation("🥄"), label: "scoops" },
-    mixing: { token: withEmojiPresentation("✨"), label: "sprinkles" },
-    timing: { token: withEmojiPresentation("⭐"), label: "star toppers" },
-    finishing: { token: withEmojiPresentation("🍓"), label: "berry toppers" },
-    serving: { token: withEmojiPresentation("🪙"), label: "gold coins" },
-  };
-
-  return accents[stage] ?? accents.mixing;
-}
-
 export function visualCountAll({ targetDifficulty, stage, context }) {
   const maxToken = targetDifficulty < 60 ? 4 : 7;
   const addA = randomInt(1, maxToken);
@@ -269,20 +257,33 @@ export function visualCountAll({ targetDifficulty, stage, context }) {
   const answer = addA + addB;
   const recipeEmoji = getRecipeSceneEmoji(context);
   const recipeLabel = getRecipeLabel(context);
-  const accent = getVisualAccent(stage);
+  const leftLabelByStage = {
+    prep: "Prep tray",
+    mixing: "First bowl",
+    timing: "Top tray",
+    finishing: "Cooling tray",
+    serving: "Front box",
+  };
+  const rightLabelByStage = {
+    prep: "Next tray",
+    mixing: "Second bowl",
+    timing: "Bottom tray",
+    finishing: "Second tray",
+    serving: "Next box",
+  };
 
   return {
-    prompt: `How many ${recipeLabel} and ${accent.label} are there all together?`,
+    prompt: `How many ${recipeLabel} are there all together?`,
     promptSecondary: `${addA} + ${addB}`,
     answer,
     choices: makeChoices(answer, 4),
     visuals: {
-      leftLabel: recipeLabel,
-      rightLabel: accent.label,
+      leftLabel: leftLabelByStage[stage] ?? "First group",
+      rightLabel: rightLabelByStage[stage] ?? "Second group",
       left: Array.from({ length: addA }, () => recipeEmoji),
-      right: Array.from({ length: addB }, () => accent.token),
+      right: Array.from({ length: addB }, () => recipeEmoji),
     },
-    hint: `Count the ${recipeLabel} and the ${accent.label}, then add them together.`,
+    hint: `Count both groups of ${recipeLabel}, then add them together.`,
   };
 }
 

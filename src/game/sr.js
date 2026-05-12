@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260511-211500";
+import { clamp } from "./math.js?v=20260512-001000";
 
 export const VISUAL_MODE_END_SR = 110;
 export const VISUAL_BRIDGE_START_SR = 80;
@@ -60,6 +60,12 @@ export function applySRResult({ player, question, correct, attemptNumber }) {
     delta += attemptNumber === 1 ? 2 : 0;
     delta -= attemptNumber > 1 ? Math.min(attemptNumber - 1, 3) : 0;
     delta = clamp(delta, 5, 18);
+
+    if (attemptNumber === 2) {
+      delta = 0;
+    } else if (attemptNumber >= 3) {
+      delta = -clamp(attemptNumber - 2, 1, 4);
+    }
   } else {
     let penalty = 5;
     penalty += Math.round(clamp((player.SR - (question.difficulty ?? player.SR)) / 40, -1, 4));
@@ -69,7 +75,13 @@ export function applySRResult({ player, question, correct, attemptNumber }) {
 
   if (player.SR < VISUAL_MODE_END_SR) {
     if (correct) {
-      delta = clamp(Math.round(delta * 0.65), 3, 8);
+      if (attemptNumber === 1) {
+        delta = clamp(Math.round(delta * 0.65), 3, 8);
+      } else if (attemptNumber === 2) {
+        delta = 0;
+      } else {
+        delta = -clamp(Math.round(Math.abs(delta) * 0.6), 1, 3);
+      }
     } else {
       delta = -clamp(Math.round(Math.abs(delta) * 0.6), 2, 6);
     }
