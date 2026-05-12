@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260511-201500";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260511-210200";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -61,6 +61,18 @@ function getRecipeLabel(context) {
 function getRecipeSingularLabel(context) {
   const label = getRecipeLabel(context);
 
+  if (label === "cookies") {
+    return "cookie";
+  }
+
+  if (label === "sugar cookies") {
+    return "sugar cookie";
+  }
+
+  if (label === "pies") {
+    return "pie";
+  }
+
   if (label.endsWith("ies")) {
     return `${label.slice(0, -3)}y`;
   }
@@ -107,6 +119,11 @@ function getStagePlace(stage) {
 function getScale(targetDifficulty, low, high) {
   const normalized = clamp((targetDifficulty - 100) / 800, 0, 1);
   return Math.round(low + (high - low) * normalized);
+}
+
+function getChoiceSpread(targetDifficulty, easySpread, hardSpread) {
+  const normalized = clamp((targetDifficulty - 100) / 500, 0, 1);
+  return Math.max(2, Math.round(easySpread + (hardSpread - easySpread) * normalized));
 }
 
 function pickIngredient(excludeKey = null) {
@@ -230,42 +247,86 @@ function getQuarterPrompt(stage, total, context) {
     return `${total} ${recipeLabel} are boxed for customers. One fourth go into party boxes. How many ${recipeLabel} is one fourth?`;
   }
 
-  return `${total} ${recipeLabel} are lined up on finishing trays. One fourth get the star topping. How many treats is that?`;
+  return `${total} ${recipeLabel} are lined up on finishing trays. One fourth get the star topping. How many ${recipeLabel} is that?`;
 }
 
-export function visualCountAll({ targetDifficulty }) {
+function getVisualAccent(stage) {
+  const accents = {
+    prep: { token: withEmojiPresentation("🥄"), label: "scoops" },
+    mixing: { token: withEmojiPresentation("✨"), label: "sprinkles" },
+    timing: { token: withEmojiPresentation("⭐"), label: "star toppers" },
+    finishing: { token: withEmojiPresentation("🍓"), label: "berry toppers" },
+    serving: { token: withEmojiPresentation("🪙"), label: "gold coins" },
+  };
+
+  return accents[stage] ?? accents.mixing;
+}
+
+export function visualCountAll({ targetDifficulty, stage, context }) {
   const maxToken = targetDifficulty < 60 ? 4 : 7;
   const addA = randomInt(1, maxToken);
   const addB = randomInt(1, maxToken);
   const answer = addA + addB;
+  const recipeEmoji = getRecipeSceneEmoji(context);
+  const recipeLabel = getRecipeLabel(context);
+  const accent = getVisualAccent(stage);
 
   return {
-    prompt: "How many treats are there all together?",
+    prompt: `How many ${recipeLabel} and ${accent.label} are there all together?`,
     promptSecondary: `${addA} + ${addB}`,
     answer,
     choices: makeChoices(answer, 4),
     visuals: {
-      left: Array.from({ length: addA }, () => "🧁"),
-      right: Array.from({ length: addB }, () => "🧁"),
+      leftLabel: recipeLabel,
+      rightLabel: accent.label,
+      left: Array.from({ length: addA }, () => recipeEmoji),
+      right: Array.from({ length: addB }, () => accent.token),
     },
-    hint: "Count both groups, then add them together.",
+    hint: `Count the ${recipeLabel} and the ${accent.label}, then add them together.`,
   };
 }
 
-export function visualCountDifference({ targetDifficulty }) {
+export function visualCountDifference({ targetDifficulty, context }) {
   const left = randomInt(4, targetDifficulty < 80 ? 7 : 9);
   const right = randomInt(1, left - 1);
   const answer = left - right;
+  const recipeEmoji = getRecipeSceneEmoji(context);
+  const recipeLabel = getRecipeLabel(context);
 
   return {
-    prompt: "How many more cupcakes are on the top tray?",
+    prompt: `How many more ${recipeLabel} are on the top tray?`,
+    promptSecondary: `${left} - ${right}`,
     answer,
     choices: makeChoices(answer, 4),
     visuals: {
-      left: Array.from({ length: left }, () => "🧁"),
-      right: Array.from({ length: right }, () => "🧁"),
+      leftLabel: "Top tray",
+      rightLabel: "Bottom tray",
+      left: Array.from({ length: left }, () => recipeEmoji),
+      right: Array.from({ length: right }, () => recipeEmoji),
     },
-    hint: "Match the cupcakes in pairs and count what is left.",
+    hint: `Match the ${recipeLabel} in pairs and count what is left on the top tray.`,
+  };
+}
+
+export function visualTakeAway({ targetDifficulty, context }) {
+  const total = randomInt(5, targetDifficulty < 100 ? 8 : 10);
+  const moved = randomInt(1, Math.max(2, total - 2));
+  const answer = total - moved;
+  const recipeEmoji = getRecipeSceneEmoji(context);
+  const recipeLabel = getRecipeLabel(context);
+
+  return {
+    prompt: `${total} ${recipeLabel} are on the tray. ${moved} move ahead to the next bakery step. How many are left?`,
+    promptSecondary: `${total} - ${moved}`,
+    answer,
+    choices: makeChoices(answer, 4),
+    visuals: {
+      leftLabel: "Start tray",
+      rightLabel: "Moved on",
+      left: Array.from({ length: total }, () => recipeEmoji),
+      right: Array.from({ length: moved }, () => recipeEmoji),
+    },
+    hint: `Start with all ${total}, then take away the ${moved} ${recipeLabel} that moved on.`,
   };
 }
 
@@ -281,7 +342,7 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
   return {
     prompt: targetDifficulty < 180 ? easyPrompt : standardPrompt,
     answer,
-    choices: makeChoices(answer, 10),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 10, 6)),
     mission: `Find the new total of ${supply.unitPlural} at the ${supply.place}.`,
     scene: {
       kind: "groups",
@@ -298,7 +359,7 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
 }
 
 export function arithmeticSubtractionStory({ targetDifficulty, stage, context }) {
-  const total = randomInt(12, getScale(targetDifficulty, 18, 95));
+  const total = randomInt(12, getScale(targetDifficulty, 18, 110));
   const used = randomInt(3, Math.max(5, Math.floor(total * 0.65)));
   const answer = total - used;
   const supply = getStageBatchMeta(stage, context);
@@ -308,7 +369,7 @@ export function arithmeticSubtractionStory({ targetDifficulty, stage, context })
   return {
     prompt: targetDifficulty < 220 ? easyPrompt : standardPrompt,
     answer,
-    choices: makeChoices(answer, 10),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 10, 6)),
     mission: `Figure out how many ${supply.unitPlural} are still on the ${supply.place}.`,
     scene: {
       kind: "groups",
@@ -340,7 +401,7 @@ export function arithmeticMultiplicationGroups({ targetDifficulty, stage, contex
   return {
     prompt: promptByStage[stage] ?? promptByStage.serving,
     answer,
-    choices: makeChoices(answer, 14),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 14, 8)),
     mission: `Count every ${meta.unitSingular} across the equal ${meta.containerPlural}.`,
     scene: {
       kind: "equal_groups",
@@ -378,13 +439,14 @@ export function arithmeticArrayRows({ targetDifficulty, stage, context }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.serving,
     answer,
-    choices: makeChoices(answer, 14),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 14, 8)),
     mission: `Use rows and columns on the ${meta.frame.toLowerCase()} to count the full set.`,
     scene: {
-      kind: "equal_groups",
+      kind: "array",
       label: `${rows} Rows on the ${toTitleCase(meta.frame)}`,
       caption: "Count rows and columns to find the full array.",
-      operator: "×",
+      rows,
+      columns,
       groups: Array.from({ length: rows }, (_, index) =>
         withSceneCountLabel(
           {
@@ -417,7 +479,7 @@ export function arithmeticDivisionShare({ targetDifficulty, stage, context }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.serving,
     answer: each,
-    choices: makeChoices(each, 8, 1),
+    choices: makeChoices(each, getChoiceSpread(targetDifficulty, 8, 5), 1),
     mission: `Split the whole batch evenly into ${groups} ${meta.containerPlural}.`,
     scene: {
       kind: "groups",
@@ -447,7 +509,7 @@ export function arithmeticMissingFactor({ targetDifficulty, stage, context }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.serving,
     answer: groups,
-    choices: makeChoices(groups, 6, 1),
+    choices: makeChoices(groups, getChoiceSpread(targetDifficulty, 7, 4), 1),
     mission: `Use the total and each ${meta.containerSingular} size to find how many ${meta.containerPlural} there are.`,
     scene: {
       kind: "groups",
@@ -473,7 +535,7 @@ export function costRevenue({ targetDifficulty, context }) {
   return {
     prompt: `At the bakery counter, a customer buys ${boxes} boxes of ${recipeLabel}. Each box sells for ${coins} coins. How many coins does the bakery earn?`,
     answer,
-    choices: makeChoices(answer, 12),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 12, 7)),
     mission: `Find the full coin total from ${boxes} boxes of ${recipeLabel}.`,
     scene: {
       kind: "equal_groups",
@@ -483,7 +545,7 @@ export function costRevenue({ targetDifficulty, context }) {
       groups: Array.from({ length: boxes }, () =>
         withSceneCountLabel(
           {
-            tokenText: "$",
+            tokenText: withEmojiPresentation("🪙"),
             variant: "coin",
             count: coins,
             frame: "Box",
@@ -509,7 +571,7 @@ export function costBatches({ targetDifficulty, stage }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.prep,
     answer,
-    choices: makeChoices(answer, 12),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 12, 7)),
     mission: `Work out the full coin cost for the ${ingredient.label}.`,
     scene: {
       kind: "equal_groups",
@@ -519,7 +581,7 @@ export function costBatches({ targetDifficulty, stage }) {
       groups: Array.from({ length: bags }, () =>
         withSceneCountLabel(
           {
-            tokenText: "$",
+            tokenText: withEmojiPresentation("🪙"),
             variant: "coin",
             count: costEach,
             frame: toTitleCase(ingredient.singular),
@@ -550,7 +612,7 @@ export function costIngredientCombo({ targetDifficulty, stage }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.prep,
     answer,
-    choices: makeChoices(answer, 16),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 14, 8)),
     mission: `Find each ingredient total, then add both restock costs together.`,
     scene: {
       kind: "groups",
@@ -558,8 +620,8 @@ export function costIngredientCombo({ targetDifficulty, stage }) {
       caption: "Find each ingredient total, then add them together.",
       operator: "+",
       groups: [
-        withSceneCountLabel({ tokenText: "$", variant: "coin", count: firstTotal, frame: toTitleCase(firstIngredient.label) }, "coins"),
-        withSceneCountLabel({ tokenText: "$", variant: "coin", count: secondTotal, frame: toTitleCase(secondIngredient.label) }, "coins"),
+        withSceneCountLabel({ tokenText: withEmojiPresentation("🪙"), variant: "coin", count: firstTotal, frame: toTitleCase(firstIngredient.label) }, "coins"),
+        withSceneCountLabel({ tokenText: withEmojiPresentation("🪙"), variant: "coin", count: secondTotal, frame: toTitleCase(secondIngredient.label) }, "coins"),
       ],
     },
     hint: "Multiply each ingredient count by its cost, then add the two totals.",
@@ -581,7 +643,7 @@ export function arithmeticMultiStepTotal({ targetDifficulty, stage, context }) {
   return {
     prompt: promptByStage[stage] ?? promptByStage.finishing,
     answer,
-    choices: makeChoices(answer, 16),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 14, 8)),
     mission: `Multiply the full trays first, then add the extra ${meta.unitPlural}.`,
     hint: `First multiply ${groups} by ${each}, then add the extra ${extra}.`,
   };
@@ -598,7 +660,7 @@ export function businessProfit({ targetDifficulty, context }) {
   return {
     prompt: `At the bakery counter, you sell ${boxes} boxes of ${recipeLabel} for ${priceEach} coins each. Ingredients cost ${spend} coins. What profit does the bakery keep?`,
     answer,
-    choices: makeChoices(answer, 12, 1),
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 12, 7), 1),
     mission: `Find the bakery profit after taking the ingredient cost away from the earnings.`,
     scene: {
       kind: "groups",
@@ -606,8 +668,8 @@ export function businessProfit({ targetDifficulty, context }) {
       caption: "Find the money earned, then take away the cost.",
       operator: "−",
       groups: [
-        withSceneCountLabel({ tokenText: "$", variant: "coin", count: revenue, frame: "Earned" }, "coins"),
-        withSceneCountLabel({ tokenText: "$", variant: "coin", count: spend, frame: "Cost" }, "coins"),
+        withSceneCountLabel({ tokenText: withEmojiPresentation("🪙"), variant: "coin", count: revenue, frame: "Earned" }, "coins"),
+        withSceneCountLabel({ tokenText: withEmojiPresentation("🪙"), variant: "coin", count: spend, frame: "Cost" }, "coins"),
       ],
     },
     hint: "Multiply to find the money earned, then subtract the ingredient cost.",
@@ -617,39 +679,56 @@ export function businessProfit({ targetDifficulty, context }) {
 export function fractionHalf({ targetDifficulty, stage, context }) {
   const total = randomInt(4, getScale(targetDifficulty, 5, 10)) * 2;
   const answer = total / 2;
+  const recipeLabel = getRecipeLabel(context);
+  const missionByStage = {
+    mixing: "Find how many batter scoops belong in the vanilla half.",
+    finishing: `Find how many ${recipeLabel} get the glaze.`,
+    serving: `Find how many ${recipeLabel} go to the school order.`,
+  };
 
   return {
     prompt: getHalfPrompt(stage, total, context),
     answer,
-    choices: makeChoices(answer, 8, 1),
-    mission: "Split the batch into 2 equal groups to find one half.",
-    hint: "Split the total into 2 equal groups to find one half.",
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 8, 5), 1),
+    mission: missionByStage[stage] ?? `Find half of the ${recipeLabel}.`,
+    hint: "Divide the total by 2 to find one half.",
   };
 }
 
 export function fractionThird({ targetDifficulty, stage, context }) {
   const total = randomInt(3, getScale(targetDifficulty, 4, 8)) * 3;
   const answer = total / 3;
+  const recipeLabel = getRecipeLabel(context);
+  const missionByStage = {
+    mixing: "Find how many scoops go into one flavor bowl.",
+    finishing: `Find how many ${recipeLabel} get berry drizzle.`,
+    serving: `Find how many ${recipeLabel} go to one class table.`,
+  };
 
   return {
     prompt: getThirdPrompt(stage, total, context),
     answer,
-    choices: makeChoices(answer, 10, 1),
-    mission: "Split the batch into 3 equal groups to find one third.",
-    hint: "Split the total into 3 equal groups to find one third.",
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 8, 5), 1),
+    mission: missionByStage[stage] ?? `Find one third of the ${recipeLabel}.`,
+    hint: "Divide the total by 3 to find one third.",
   };
 }
 
 export function fractionQuarter({ targetDifficulty, stage, context }) {
   const total = randomInt(3, getScale(targetDifficulty, 4, 8)) * 4;
   const answer = total / 4;
+  const recipeLabel = getRecipeLabel(context);
+  const missionByStage = {
+    finishing: `Find how many ${recipeLabel} get the star topping.`,
+    serving: `Find how many ${recipeLabel} go into the party boxes.`,
+  };
 
   return {
     prompt: getQuarterPrompt(stage, total, context),
     answer,
-    choices: makeChoices(answer, 10, 1),
-    mission: "Split the batch into 4 equal groups to find one fourth.",
-    hint: "Split the total into 4 equal groups to find one fourth.",
+    choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 8, 5), 1),
+    mission: missionByStage[stage] ?? `Find one fourth of the ${recipeLabel}.`,
+    hint: "Divide the total by 4 to find one fourth.",
   };
 }
 
@@ -663,8 +742,24 @@ export function arithmeticRemainderLeftover({ targetDifficulty, context }) {
   return {
     prompt: `${total} ${recipeLabel} are packed ${boxSize} to a box. After all the full boxes are filled, how many are left for the sample plate?`,
     answer: leftover,
-    choices: makeChoices(leftover, 4, 0),
+    choices: makeChoices(leftover, getChoiceSpread(targetDifficulty, 5, 3), 0),
     mission: "Pack the full boxes first, then find what is left over.",
+    scene: {
+      kind: "groups",
+      label: "Full Boxes and Leftovers",
+      caption: "Fill the equal boxes first, then see what is left for the sample plate.",
+      operator: "+",
+      groups: [
+        withSceneCountLabel(
+          { tokenText: withEmojiPresentation("📦"), variant: "treat", count: fullBoxes, frame: `${boxSize} per box` },
+          "full boxes",
+        ),
+        withSceneCountLabel(
+          { tokenText: getRecipeSceneEmoji(context), variant: "treat", count: leftover, frame: "Leftover" },
+          recipeLabel,
+        ),
+      ],
+    },
     hint: "Use division to fill the full boxes, then find the leftover treats.",
   };
 }
@@ -703,16 +798,17 @@ export function algebraicBalance({ targetDifficulty, stage }) {
 export function optimizationBestDeal({ context }) {
   const item = getRecipeSingularLabel(context);
   const options = [
-    { label: `6-${item} box`, size: 6, price: 8, answer: 6 },
-    { label: `10-${item} box`, size: 10, price: 12, answer: 10 },
+    { id: "A", label: `Box A: 6 ${item}s for 8 coins`, size: 6, price: 8 },
+    { id: "B", label: `Box B: 10 ${item}s for 12 coins`, size: 10, price: 12 },
   ];
   const best = options[1].price / options[1].size < options[0].price / options[0].size ? options[1] : options[0];
 
   return {
     prompt: `Two ${item} boxes are in your bakery case. Which is the better deal: 6 for 8 coins or 10 for 12 coins?`,
-    answer: best.answer,
+    answer: best.id,
     answerLabel: best.label,
-    choices: shuffle([6, 10, 8, 12]),
+    choices: shuffle(options.map((option) => option.id)),
+    choiceLabels: Object.fromEntries(options.map((option) => [option.id, option.label])),
     mission: `Compare both box prices to find the better deal for one ${item}.`,
     hint: "Find the cost for one item in each box, then compare them.",
   };

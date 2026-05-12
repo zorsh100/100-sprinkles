@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260511-201500";
+import { navigate } from "../app/router.js?v=20260511-210200";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,18 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260511-201500";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260511-201500";
-import { renderShell } from "./shell.js?v=20260511-201500";
-import { getPlayerAvatarOption } from "./components/player-avatar.js?v=20260511-201500";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260511-201500";
-import { renderLearnScreen } from "./screens/learn.js?v=20260511-201500";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260511-201500";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260511-201500";
-import { renderShopScreen } from "./screens/shop.js?v=20260511-201500";
-import { renderStatsScreen } from "./screens/stats.js?v=20260511-201500";
-import { renderTitleScreen } from "./screens/title.js?v=20260511-201500";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260511-201500";
+} from "../game/engine.js?v=20260511-210200";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260511-210200";
+import { renderShell } from "./shell.js?v=20260511-210200";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260511-210200";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260511-210200";
+import { renderLearnScreen } from "./screens/learn.js?v=20260511-210200";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260511-210200";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260511-210200";
+import { renderShopScreen } from "./screens/shop.js?v=20260511-210200";
+import { renderStatsScreen } from "./screens/stats.js?v=20260511-210200";
+import { renderTitleScreen } from "./screens/title.js?v=20260511-210200";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260511-210200";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -104,6 +104,7 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
   const gradePreviewCard = root.querySelector("#grade-preview-card");
   const usernameInput = root.querySelector("#username");
   const avatarInput = root.querySelector("#avatar-id");
+  const avatarPreviewPortrait = root.querySelector("#avatar-preview-portrait");
   const avatarPreviewName = root.querySelector("#avatar-preview-name");
   const submitButton = root.querySelector("#start-baking");
   const onboardingMode = form?.dataset.onboardingMode ?? "create";
@@ -156,6 +157,14 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
 
       if (avatarPreviewName) {
         avatarPreviewName.textContent = selectedOption.label;
+      }
+
+      if (avatarPreviewPortrait) {
+        avatarPreviewPortrait.innerHTML = renderPlayerAvatar(selectedOption.id, {
+          size: "xl",
+          className: "onboarding-avatar-hero",
+          label: `Selected baker: ${selectedOption.label}`,
+        });
       }
     });
   });

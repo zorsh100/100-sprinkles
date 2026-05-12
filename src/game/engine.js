@@ -1,4 +1,4 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260511-201500";
+import { createInitialSession, STAGES } from "./data.js?v=20260511-210200";
 import {
   canAffordIngredients,
   clamp,
@@ -13,10 +13,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260511-201500";
-import { formatSignedValue } from "./math.js?v=20260511-201500";
-import { generateQuestion } from "./questions/generator.js?v=20260511-201500";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260511-201500";
+} from "./helpers.js?v=20260511-210200";
+import { formatSignedValue } from "./math.js?v=20260511-210200";
+import { generateQuestion } from "./questions/generator.js?v=20260511-210200";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260511-210200";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -168,7 +168,9 @@ export function submitAnswer(gameState, selectedAnswer) {
     return setFlash(gameState, "error", "Start an order to get a fresh math challenge.");
   }
 
-  const correct = Number(selectedAnswer) === Number(question.answer);
+  const normalizedSelectedAnswer = String(selectedAnswer);
+  const normalizedAnswer = String(question.answer);
+  const correct = normalizedSelectedAnswer === normalizedAnswer;
   const attemptNumber = (question.attemptCount ?? 0) + 1;
   const srResult = applySRResult({
     player,
@@ -193,7 +195,7 @@ export function submitAnswer(gameState, selectedAnswer) {
         },
         questionResult: {
           correct: false,
-          selectedAnswer: Number(selectedAnswer),
+          selectedAnswer: normalizedSelectedAnswer,
           attemptNumber,
           srDelta: srResult.delta,
         },
@@ -246,7 +248,7 @@ export function submitAnswer(gameState, selectedAnswer) {
       },
       questionResult: {
         correct: true,
-        selectedAnswer: Number(selectedAnswer),
+        selectedAnswer: normalizedSelectedAnswer,
         attemptNumber,
         srDelta: srResult.delta,
         sprinklesEarned: earnedFirstTrySprinkle + earnedStreakSprinkle,

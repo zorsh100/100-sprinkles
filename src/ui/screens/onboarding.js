@@ -1,6 +1,6 @@
-import { renderMascot } from "../components/mascot.js?v=20260511-201500";
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260511-201500";
-import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260511-201500";
+import { renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260511-210200";
+import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260511-210200";
 
 const GRADE_BUCKETS = [
   {
@@ -120,8 +120,8 @@ export function renderOnboardingScreen(slotSummary) {
           <p class="muted onboarding-subcopy">
             ${
               isEditing
-                ? "Change the chef name for this notebook. If you leave it blank, we'll use Chef Sunny."
-                : "Add a chef name if you want one, or leave it blank and we'll use Chef Sunny."
+                ? "Change the baker picture or chef name for this notebook. If you leave the name blank, we'll use Chef Sunny."
+                : "Pick a baker picture, add a chef name if you want one, or leave it blank and we'll use Chef Sunny."
             }
           </p>
         </div>
@@ -131,8 +131,8 @@ export function renderOnboardingScreen(slotSummary) {
         mood: "happy",
         compact: true,
         message: isEditing
-          ? `Update the chef name for ${slotLabel.toLowerCase()}. If you leave it blank, I'll use Chef Sunny.`
-          : `Choose a chef name and grade for ${slotLabel.toLowerCase()}, and I'll set up the bakery math just right.`,
+          ? `Update the baker picture or chef name for ${slotLabel.toLowerCase()}. If you leave the name blank, I'll use Chef Sunny.`
+          : `Choose a baker picture, chef name, and grade for ${slotLabel.toLowerCase()}, and I'll set up the bakery math just right.`,
       })}
       <form id="onboarding-form" class="form-grid onboarding-form" data-onboarding-mode="${isEditing ? "edit" : "create"}">
         <label class="field full">
@@ -145,7 +145,9 @@ export function renderOnboardingScreen(slotSummary) {
           <span>Pick your baker picture</span>
           <div class="onboarding-avatar-panel">
             <div class="onboarding-avatar-preview">
-              ${renderPlayerAvatar(currentAvatarId, { size: "xl", className: "onboarding-avatar-hero", label: `Selected baker: ${getPlayerAvatarOption(currentAvatarId).label}` })}
+              <div id="avatar-preview-portrait">
+                ${renderPlayerAvatar(currentAvatarId, { size: "xl", className: "onboarding-avatar-hero", label: `Selected baker: ${getPlayerAvatarOption(currentAvatarId).label}` })}
+              </div>
               <div>
                 <strong id="avatar-preview-name">${escapeHtml(getPlayerAvatarOption(currentAvatarId).label)}</strong>
                 <p class="muted tiny">This baker picture will follow the notebook around the bakery.</p>
@@ -160,7 +162,7 @@ export function renderOnboardingScreen(slotSummary) {
             ? `
               <div class="info-card onboarding-info-card">
                 <strong>Current grade</strong>
-                <p class="muted tiny">${getGradeLabel(currentGrade)} stays the same while you rename this notebook.</p>
+                <p class="muted tiny">${getGradeLabel(currentGrade)} stays the same while you update this baker card.</p>
               </div>
             `
             : `

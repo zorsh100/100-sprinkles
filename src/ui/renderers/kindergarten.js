@@ -1,6 +1,6 @@
-import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260511-201500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-201500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
+import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260511-210200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-210200";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -77,8 +77,13 @@ function renderKindergartenSale(saleReady) {
 
 function renderKindergartenQuestion({ session, currentStage }) {
   const question = session.currentQuestion;
-  const promptLabel = question.subtype === "compare_groups" ? "How many more?" : "Count them all";
-  const groupOperator = question.subtype === "compare_groups" ? "−" : "+";
+  const promptLabel =
+    question.subtype === "compare_groups"
+      ? "How many more?"
+      : question.subtype === "take_away"
+        ? "How many are left?"
+        : "Count them all";
+  const groupOperator = question.subtype === "compare_groups" || question.subtype === "take_away" ? "−" : "+";
 
   return `
     <section class="panel kinder-question-panel stage-panel stage-${currentStage}">
@@ -86,6 +91,7 @@ function renderKindergartenQuestion({ session, currentStage }) {
         <div>
           <p class="eyebrow">Math time</p>
           <h2>${promptLabel}</h2>
+          <p class="muted kinder-question-prompt">${escapeHtml(question.prompt ?? "")}</p>
         </div>
       </div>
       <div class="kinder-equation-row">
@@ -93,10 +99,12 @@ function renderKindergartenQuestion({ session, currentStage }) {
       </div>
       <div class="kinder-tray-grid grouped-tray-grid">
         <div class="kinder-tray">
+          ${question.visuals.leftLabel ? `<div class="kinder-tray-label">${escapeHtml(question.visuals.leftLabel)}</div>` : ""}
           ${question.visuals.left.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
         </div>
         <div class="kinder-operator-bubble" aria-hidden="true">${groupOperator}</div>
         <div class="kinder-tray tray-soft">
+          ${question.visuals.rightLabel ? `<div class="kinder-tray-label">${escapeHtml(question.visuals.rightLabel)}</div>` : ""}
           ${question.visuals.right.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
         </div>
       </div>
@@ -151,11 +159,11 @@ function getChoiceClass(result, choice, answer) {
     return "";
   }
 
-  if (result.correct && Number(choice) === Number(result.selectedAnswer)) {
+  if (String(choice) === String(result.selectedAnswer) && result.correct) {
     return "correct";
   }
 
-  if (Number(choice) === Number(result.selectedAnswer) && !result.correct) {
+  if (String(choice) === String(result.selectedAnswer) && !result.correct) {
     return "wrong";
   }
 

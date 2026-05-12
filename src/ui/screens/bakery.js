@@ -1,7 +1,7 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-201500";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-201500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-201500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-210200";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-210200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-210200";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -15,9 +15,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260511-201500";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260511-201500";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-201500";
+} from "../../game/helpers.js?v=20260511-210200";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260511-210200";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-210200";
 
 const INGREDIENT_META = {
   flour: {
@@ -37,7 +37,7 @@ const INGREDIENT_META = {
   },
 };
 
-const BAKERY_SCENE_VERSION = "20260511-201500";
+const BAKERY_SCENE_VERSION = "20260511-210200";
 
 const BAKERY_STATION_ART = [
   {
@@ -354,6 +354,10 @@ function renderBakeScreen(gameState, currentStage) {
           <div class="badge">${activeRecipe ? `${activeRecipe.icon} ${escapeHtml(activeRecipe.name)}` : "Bake in progress"}</div>
         </div>
         <div class="pill-row regular-status-row">
+          <span class="pill regular-baker-pill">
+            ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "hud-baker-avatar", label: `${player.username}'s baker portrait` })}
+            <span>${escapeHtml(player.username)}</span>
+          </span>
           <span class="pill mode-status-pill">${getSRMode(player.SR)}</span>
           <span class="pill sr-status-pill">SR ${player.SR} • ${srToBand(player.SR)}</span>
           <span class="pill streak-status-pill">Streak ${player.skill.currentStreak}</span>
@@ -482,9 +486,10 @@ function renderQuestionPanel(gameState, currentStage) {
           .map((choice, index) => {
             const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
             const label =
-              question.type === "optimization" && choice === question.answer && question.answerLabel
+              question.choiceLabels?.[choice] ??
+              (question.type === "optimization" && choice === question.answer && question.answerLabel
                 ? question.answerLabel
-                : String(choice);
+                : String(choice));
 
             return `
               <button class="choice-button regular-answer-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
@@ -627,6 +632,10 @@ function renderStoryScene(scene) {
     return "";
   }
 
+  if (scene.kind === "array") {
+    return renderArrayScene(scene);
+  }
+
   const useGroupedLayout = groups.some((group) => Number(group.count) > 12);
 
   return `
@@ -648,6 +657,31 @@ function renderStoryScene(scene) {
               ${index < groups.length - 1 ? `<div class="story-scene-operator" aria-hidden="true">${escapeHtml(scene.operator ?? "+")}</div>` : ""}
             `;
           })
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderArrayScene(scene) {
+  const groups = Array.isArray(scene.groups) ? scene.groups : [];
+
+  return `
+    <div class="story-scene-card" aria-label="${escapeHtml(scene.label ?? "Array scene")}">
+      <div class="story-scene-label">${escapeHtml(scene.label ?? "Bakery array")}</div>
+      ${scene.caption ? `<p class="story-scene-caption">${escapeHtml(scene.caption)}</p>` : ""}
+      <div class="story-array-scene">
+        ${groups
+          .map(
+            (group) => `
+              <div class="story-array-row">
+                ${group.frame ? `<div class="story-scene-frame">${escapeHtml(group.frame)}</div>` : ""}
+                <div class="story-array-tokens">
+                  ${Array.from({ length: Number(group.count) || 0 }, () => renderSceneToken(group)).join("")}
+                </div>
+              </div>
+            `,
+          )
           .join("")}
       </div>
     </div>
@@ -706,11 +740,11 @@ function getChoiceClass(result, choice) {
     return "";
   }
 
-  if (result.correct && Number(choice) === Number(result.selectedAnswer)) {
+  if (String(choice) === String(result.selectedAnswer) && result.correct) {
     return "correct";
   }
 
-  if (Number(choice) === Number(result.selectedAnswer) && !result.correct) {
+  if (String(choice) === String(result.selectedAnswer) && !result.correct) {
     return "wrong";
   }
 

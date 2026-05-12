@@ -1,6 +1,6 @@
-import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260511-201500";
-import { isVisualMode } from "../sr.js?v=20260511-201500";
-import { QUESTION_BANK } from "./bank.js?v=20260511-201500";
+import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260511-210200";
+import { isVisualMode } from "../sr.js?v=20260511-210200";
+import { QUESTION_BANK } from "./bank.js?v=20260511-210200";
 
 const TEMPLATE_META_BY_ID = new Map(QUESTION_BANK.map((template) => [template.id, template]));
 
@@ -48,6 +48,7 @@ function getClosenessWeight(templateDifficulty, targetDifficulty) {
 export function generateQuestion({ SR, stage, context = {}, recentTemplates = [] }) {
   const targetDifficulty = SR + randomInt(-20, 20);
   const allowedQuestionTypes = allowedTypes(SR);
+  const isBridgeBand = SR >= 80 && SR < 110;
   const srMatches = (template) =>
     (template.minSR == null || SR >= template.minSR) &&
     (template.maxSR == null || SR <= template.maxSR);
@@ -80,7 +81,11 @@ export function generateQuestion({ SR, stage, context = {}, recentTemplates = []
   const selectedTemplate = weightedPick(selectable, (template) => {
     const closeness = getClosenessWeight(template.difficulty, targetDifficulty);
     const recentPenalty = getRecentPenalty(template, recentTemplates);
-    return Math.max(1, closeness - recentPenalty);
+    const adjustedPenalty =
+      isBridgeBand && selectable.length <= 2
+        ? Math.min(6, Math.round(recentPenalty * 0.25))
+        : recentPenalty;
+    return Math.max(isBridgeBand ? 4 : 1, closeness - adjustedPenalty);
   });
   const question = selectedTemplate.generator({
     stage,

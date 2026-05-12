@@ -1,6 +1,6 @@
-import { getSRMode } from "../../game/sr.js?v=20260511-201500";
-import { renderMascot } from "../components/mascot.js?v=20260511-201500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-201500";
+import { getSRMode } from "../../game/sr.js?v=20260511-210200";
+import { renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-210200";
 
 export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
   const hasActiveSave = Boolean(activeSaveSummary && player);
@@ -42,7 +42,7 @@ export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
             ? `
               <div class="slot-action-row settings-current-actions">
                 <button class="secondary-button" type="button" data-edit-player-slot="${activeSaveSummary.slotId}">
-                  Edit Baker Name
+                  Edit Baker Profile
                 </button>
               </div>
             `

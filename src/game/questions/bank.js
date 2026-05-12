@@ -19,7 +19,8 @@ import {
   ratioScale,
   visualCountAll,
   visualCountDifference,
-} from "./templates.js?v=20260511-201500";
+  visualTakeAway,
+} from "./templates.js?v=20260511-210200";
 
 const ALL_STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
 
@@ -38,9 +39,32 @@ export const QUESTION_BANK = [
     type: "arithmetic_visual",
     subtype: "compare_groups",
     stages: ALL_STAGES,
-    difficulty: 80,
+    difficulty: 75,
     steps: 1,
+    maxSR: 79,
     generator: visualCountDifference,
+  },
+  {
+    id: "visual-count-difference-bridge",
+    type: "arithmetic_visual",
+    subtype: "compare_groups",
+    stages: ALL_STAGES,
+    difficulty: 95,
+    steps: 1,
+    minSR: 80,
+    maxSR: 109,
+    generator: visualCountDifference,
+  },
+  {
+    id: "visual-take-away-bridge",
+    type: "arithmetic_visual",
+    subtype: "take_away",
+    stages: ALL_STAGES,
+    difficulty: 102,
+    steps: 1,
+    minSR: 80,
+    maxSR: 109,
+    generator: visualTakeAway,
   },
   {
     id: "addition-story",
@@ -57,8 +81,8 @@ export const QUESTION_BANK = [
     type: "arithmetic",
     subtype: "subtraction_story",
     stages: ALL_STAGES,
-    difficulty: 240,
-    maxSR: 319,
+    difficulty: 300,
+    maxSR: 399,
     steps: 1,
     generator: arithmeticSubtractionStory,
   },
