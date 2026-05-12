@@ -1,6 +1,6 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-001500";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-001500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-001500";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260511-194700";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-194700";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260511-194700";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -14,9 +14,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260511-001500";
-import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260511-001500";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-001500";
+} from "../../game/helpers.js?v=20260511-194700";
+import { getSRMode, getSRWindow, isVisualMode } from "../../game/sr.js?v=20260511-194700";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260511-194700";
 
 const INGREDIENT_META = {
   flour: {
@@ -36,7 +36,7 @@ const INGREDIENT_META = {
   },
 };
 
-const BAKERY_SCENE_VERSION = "20260511-001500";
+const BAKERY_SCENE_VERSION = "20260511-194700";
 
 const BAKERY_STATION_ART = [
   {
@@ -78,7 +78,7 @@ export function renderBakeryScreen(gameState) {
       return renderKindergartenBakery({ player, session, currentStage, selectedRecipe });
     }
 
-    return renderBakeScreen(gameState, currentStage, srWindow);
+    return renderBakeScreen(gameState, currentStage);
   }
 
   return renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRecipe, pantryNeed);
@@ -329,9 +329,10 @@ function renderBakeStationGallery() {
   `;
 }
 
-function renderBakeScreen(gameState, currentStage, srWindow) {
+function renderBakeScreen(gameState, currentStage) {
   const { player, session } = gameState;
   const progress = session.saleReady ? 100 : session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
+  const activeRecipe = session.order ? getRecipeById(session.order.recipeId) : null;
 
   return `
     <section class="flow-screen">
@@ -341,7 +342,7 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
             <h2>Keep the Bake Moving</h2>
             <p class="muted">Each right answer helps the order roll from one bakery station to the next.</p>
           </div>
-          <div class="badge">Target SR ${srWindow.min}–${srWindow.max}</div>
+          <div class="badge">${activeRecipe ? `${activeRecipe.icon} ${escapeHtml(activeRecipe.name)}` : "Bake in progress"}</div>
         </div>
         <div class="pill-row regular-status-row">
           <span class="pill mode-status-pill">${getSRMode(player.SR)}</span>
@@ -368,7 +369,7 @@ function renderBakeScreen(gameState, currentStage, srWindow) {
               const label = done ? `✓ ${stage}` : stage;
 
               return `
-                <div class="stage-chip ${className}">
+                <div class="stage-chip stage-chip-${stage} ${className}">
                   <div>${done ? "✓" : STAGE_META[stage].icon}</div>
                   <div>${label}</div>
                 </div>
@@ -426,13 +427,13 @@ function renderQuestionPanel(gameState, currentStage) {
   if (!question) {
     return `
       <section class="panel question-card">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Math challenge</p>
-            <h2>Ready to bake</h2>
-            <p class="muted">Start an order to get your next adaptive question.</p>
-          </div>
-          <div class="stage-banner">Target SR ${player.SR}</div>
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Math challenge</p>
+              <h2>Ready to bake</h2>
+              <p class="muted">Start an order to get your next adaptive question.</p>
+            </div>
+          <div class="stage-banner">Bake line ready</div>
         </div>
       </section>
     `;
@@ -535,7 +536,7 @@ function renderStoryTicket(question, currentStage, activeRecipe, batchCount) {
         </div>
         <div>
           <span class="story-ticket-label">Mission</span>
-          <strong>${escapeHtml(getQuestionMission(question, batchCount))}</strong>
+          <strong>${escapeHtml(question.mission ?? getQuestionMission(question, batchCount))}</strong>
         </div>
       </div>
     </div>
@@ -617,21 +618,23 @@ function renderStoryScene(scene) {
     return "";
   }
 
+  const useGroupedLayout = groups.some((group) => Number(group.count) > 12);
+
   return `
     <div class="story-scene-card" aria-label="${escapeHtml(scene.label ?? "Story scene")}">
       <div class="story-scene-label">${escapeHtml(scene.label ?? "Bakery scene")}</div>
       ${scene.caption ? `<p class="story-scene-caption">${escapeHtml(scene.caption)}</p>` : ""}
-      <div class="story-scene-groups ${scene.kind === "equal_groups" ? "equal-groups-scene" : "count-scene"}">
+      <div class="story-scene-groups ${scene.kind === "equal_groups" ? "equal-groups-scene" : "count-scene"} ${useGroupedLayout ? "grouped-story-scene" : ""}">
         ${groups
           .map((group, index) => {
-            const tokenClass = group.variant ? ` token-${escapeHtml(group.variant)}` : "";
-            const tokenText = escapeHtml(group.tokenText ?? group.emoji ?? "•");
             return `
-              <div class="story-scene-group">
+              <div class="story-scene-group ${useGroupedLayout ? "grouped-scene-group" : ""}">
                 ${group.frame ? `<div class="story-scene-frame">${escapeHtml(group.frame)}</div>` : ""}
-                <div class="story-scene-tokens">
-                  ${Array.from({ length: Number(group.count) || 0 }, () => `<span class="story-scene-token${tokenClass}">${tokenText}</span>`).join("")}
-                </div>
+                ${
+                  useGroupedLayout
+                    ? renderGroupedSceneTokens(group)
+                    : `<div class="story-scene-tokens">${Array.from({ length: Number(group.count) || 0 }, () => renderSceneToken(group)).join("")}</div>`
+                }
               </div>
               ${index < groups.length - 1 ? `<div class="story-scene-operator" aria-hidden="true">${escapeHtml(scene.operator ?? "+")}</div>` : ""}
             `;
@@ -640,6 +643,53 @@ function renderStoryScene(scene) {
       </div>
     </div>
   `;
+}
+
+function renderGroupedSceneTokens(group) {
+  const count = Number(group.count) || 0;
+  const bundleSize = 5;
+  const bundles = [];
+  let remaining = count;
+
+  while (remaining > 0) {
+    const nextSize = Math.min(bundleSize, remaining);
+    bundles.push(nextSize);
+    remaining -= nextSize;
+  }
+
+  const visibleBundles = bundles.slice(0, 6);
+  const extraBundleCount = Math.max(0, bundles.length - visibleBundles.length);
+  const countLabel = group.countLabel ?? "items";
+
+  return `
+    <div class="story-scene-group-summary">${count} ${escapeHtml(countLabel)} total</div>
+    <div class="story-scene-bundles">
+      ${visibleBundles
+        .map(
+          (bundleCount) => `
+            <div class="story-scene-bundle">
+              <span class="story-scene-bundle-label">${bundleCount}</span>
+              <div class="story-scene-bundle-tokens">
+                ${Array.from({ length: bundleCount }, () => renderSceneToken(group)).join("")}
+              </div>
+            </div>
+          `,
+        )
+        .join("")}
+      ${extraBundleCount ? `<div class="story-scene-bundle story-scene-bundle-summary">+${extraBundleCount} more trays of 5</div>` : ""}
+    </div>
+  `;
+}
+
+function renderSceneToken(group) {
+  const tokenClass = group.variant ? ` token-${escapeHtml(group.variant)}` : "";
+  const emojiClass = group.tokenText && containsEmoji(group.tokenText) ? " token-emoji" : "";
+  const tokenText = escapeHtml(group.tokenText ?? group.emoji ?? "•");
+  return `<span class="story-scene-token${tokenClass}${emojiClass}">${tokenText}</span>`;
+}
+
+function containsEmoji(value) {
+  return /[\u2190-\u2BFF\u{1F000}-\u{1FAFF}]/u.test(String(value ?? ""));
 }
 
 function getChoiceClass(result, choice) {

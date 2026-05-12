@@ -1,4 +1,4 @@
-import { renderMascot } from "../components/mascot.js?v=20260511-001500";
+import { renderMascot } from "../components/mascot.js?v=20260511-194700";
 
 const GRADE_BUCKETS = [
   {

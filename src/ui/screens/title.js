@@ -1,5 +1,5 @@
-import { renderCoinIcon } from "../components/icons.js?v=20260511-001500";
-import { renderMascot } from "../components/mascot.js?v=20260511-001500";
+import { renderCoinIcon } from "../components/icons.js?v=20260511-194700";
+import { renderMascot } from "../components/mascot.js?v=20260511-194700";
 
 export function renderTitleScreen(saveSummaries) {
   const filledSlots = saveSummaries.filter((summary) => !summary.empty);
@@ -18,7 +18,7 @@ export function renderTitleScreen(saveSummaries) {
         <div class="store-window window-right"></div>
         <div class="store-door"></div>
       </div>
-      <img class="title-logo" src="./logo.png?v=20260511-001500" alt="100 Sprinkles logo" />
+      <img class="title-logo" src="./logo.png?v=20260511-194700" alt="100 Sprinkles logo" />
       ${renderMascot({ mood: "happy", message: mascotMessage })}
       <section class="title-save-grid" aria-label="Player save slots">
         ${saveSummaries.map((summary) => renderSaveSlot(summary)).join("")}

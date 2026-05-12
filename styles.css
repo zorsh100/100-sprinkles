@@ -1329,6 +1329,8 @@ button[aria-disabled="true"] {
 
 .regular-answer-grid {
   gap: 16px;
+  overflow: hidden;
+  padding: 4px 10px 8px 4px;
 }
 
 .regular-answer-button {
@@ -1365,9 +1367,10 @@ button[aria-disabled="true"] {
   border-radius: 20px;
   padding: 12px;
   text-align: center;
-  background: rgba(255, 248, 242, 0.92);
-  border: 1px solid rgba(232, 213, 192, 0.92);
-  color: #755f54;
+  background: rgba(255, 244, 235, 0.98);
+  border: 1px solid rgba(231, 191, 156, 0.96);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+  color: #8b6a58;
   font-weight: 800;
 }
 
@@ -3206,11 +3209,71 @@ body.title-route .title-screen-minimal {
   color: rgba(69, 49, 39, 0.72);
 }
 
+.story-scene-group-summary {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #7d604f;
+}
+
+.story-scene-bundles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.story-scene-bundle {
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  padding: 8px 10px;
+  min-width: 84px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(227, 196, 173, 0.7);
+}
+
+.story-scene-bundle-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 28px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 179, 71, 0.18);
+  color: #8c591b;
+  font-size: 0.8rem;
+  font-weight: 900;
+}
+
+.story-scene-bundle-tokens {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+  justify-items: center;
+}
+
+.story-scene-bundle-summary {
+  align-content: center;
+  justify-items: center;
+  text-align: center;
+  color: #7d604f;
+  font-weight: 900;
+}
+
 .story-scene-token {
   font-size: 0.82rem;
   font-weight: 900;
   letter-spacing: 0.02em;
   color: #5f4638;
+}
+
+.story-scene-token.token-emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 1.05rem;
+  line-height: 1;
+  letter-spacing: 0;
 }
 
 .story-scene-token.token-flour {
@@ -3221,6 +3284,11 @@ body.title-route .title-screen-minimal {
 .story-scene-token.token-sugar {
   background: linear-gradient(180deg, #fff1f6, #ffdce8);
   color: #a24b68;
+}
+
+.story-scene-token.token-mixing {
+  background: linear-gradient(180deg, #e8f8f6, #c9efea);
+  color: #2f746c;
 }
 
 .story-scene-token.token-coin {
@@ -3325,7 +3393,7 @@ body.title-route .title-screen-minimal {
 }
 
 .question-card.stage-panel {
-  overflow: visible;
+  overflow: hidden;
 }
 
 .story-scene-operator {
