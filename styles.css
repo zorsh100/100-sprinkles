@@ -1247,46 +1247,51 @@ button[aria-disabled="true"] {
 .player-avatar {
   display: block;
   flex: 0 0 auto;
-  width: 72px;
-  height: 72px;
-  border-radius: 24px;
-  background-image: var(--avatar-sheet);
-  background-size: 400% 200%;
-  background-position: var(--avatar-x) var(--avatar-y);
-  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+  width: 60px;
+  aspect-ratio: 5 / 8;
+  border-radius: 22px;
   background-color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 14px 28px rgba(117, 74, 41, 0.12);
   border: 2px solid rgba(255, 255, 255, 0.88);
 }
 
+.player-avatar-sheet {
+  position: absolute;
+  inset: 0;
+  width: 400%;
+  height: 200%;
+  background-image: var(--avatar-sheet);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  transform: translate(var(--avatar-offset-x), var(--avatar-offset-y));
+  transform-origin: top left;
+}
+
 .player-avatar-sm {
-  width: 52px;
-  height: 52px;
-  border-radius: 18px;
+  width: 42px;
+  border-radius: 16px;
 }
 
 .player-avatar-md {
-  width: 72px;
-  height: 72px;
+  width: 60px;
 }
 
 .player-avatar-lg {
-  width: 94px;
-  height: 94px;
-  border-radius: 28px;
+  width: 78px;
+  border-radius: 24px;
 }
 
 .player-avatar-xl {
-  width: 128px;
-  height: 128px;
-  border-radius: 34px;
+  width: 116px;
+  border-radius: 30px;
 }
 
 .player-avatar-picker {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 1 / 1;
+  width: min(100%, 104px);
   border-radius: 22px;
+  justify-self: center;
 }
 
 .grade-card {

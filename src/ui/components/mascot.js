@@ -1,4 +1,4 @@
-import { renderCoinIcon } from "./icons.js?v=20260512-001000";
+import { renderCoinIcon } from "./icons.js?v=20260512-093500";
 
 function escapeHtml(value) {
   return String(value)

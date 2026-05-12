@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260512-001000";
+import { navigate } from "../app/router.js?v=20260512-093500";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,18 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260512-001000";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260512-001000";
-import { renderShell } from "./shell.js?v=20260512-001000";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260512-001000";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260512-001000";
-import { renderLearnScreen } from "./screens/learn.js?v=20260512-001000";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260512-001000";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260512-001000";
-import { renderShopScreen } from "./screens/shop.js?v=20260512-001000";
-import { renderStatsScreen } from "./screens/stats.js?v=20260512-001000";
-import { renderTitleScreen } from "./screens/title.js?v=20260512-001000";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260512-001000";
+} from "../game/engine.js?v=20260512-093500";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260512-093500";
+import { renderShell } from "./shell.js?v=20260512-093500";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260512-093500";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260512-093500";
+import { renderLearnScreen } from "./screens/learn.js?v=20260512-093500";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260512-093500";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260512-093500";
+import { renderShopScreen } from "./screens/shop.js?v=20260512-093500";
+import { renderStatsScreen } from "./screens/stats.js?v=20260512-093500";
+import { renderTitleScreen } from "./screens/title.js?v=20260512-093500";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260512-093500";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);

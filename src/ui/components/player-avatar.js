@@ -1,6 +1,6 @@
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260512-001000";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260512-093500";
 
-const AVATAR_SHEET_VERSION = "20260512-001000";
+const AVATAR_SHEET_VERSION = "20260512-093500";
 const AVATAR_SHEET_SRC = `./assets/player-avatars/kid-bakers-sheet.png?v=${AVATAR_SHEET_VERSION}`;
 
 export const PLAYER_AVATAR_OPTIONS = [
@@ -29,7 +29,9 @@ export function renderPlayerAvatar(avatarId, { className = "", size = "md", labe
       role="img"
       aria-label="${escapeHtml(accessibleLabel)}"
       style="${getAvatarStyle(option)}"
-    ></div>
+    >
+      <span class="player-avatar-sheet" aria-hidden="true"></span>
+    </div>
   `;
 }
 
@@ -62,17 +64,17 @@ export function renderPlayerAvatarPicker(selectedAvatarId) {
 function getAvatarStyle(option) {
   return [
     `--avatar-sheet:url('${AVATAR_SHEET_SRC}')`,
-    `--avatar-x:${getBackgroundX(option.col)}`,
-    `--avatar-y:${getBackgroundY(option.row)}`,
+    `--avatar-offset-x:${getOffsetX(option.col)}`,
+    `--avatar-offset-y:${getOffsetY(option.row)}`,
   ].join(";");
 }
 
-function getBackgroundX(col) {
-  return ["0%", "33.333%", "66.666%", "100%"][col] ?? "0%";
+function getOffsetX(col) {
+  return ["0%", "-25%", "-50%", "-75%"][col] ?? "0%";
 }
 
-function getBackgroundY(row) {
-  return ["0%", "100%"][row] ?? "0%";
+function getOffsetY(row) {
+  return ["0%", "-50%"][row] ?? "0%";
 }
 
 function escapeHtml(value) {
