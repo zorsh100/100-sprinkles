@@ -1,4 +1,4 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260512-093500";
+import { createInitialSession, STAGES } from "./data.js?v=20260512-101400";
 import {
   canAffordIngredients,
   clamp,
@@ -13,10 +13,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260512-093500";
-import { formatSignedValue } from "./math.js?v=20260512-093500";
-import { generateQuestion } from "./questions/generator.js?v=20260512-093500";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260512-093500";
+} from "./helpers.js?v=20260512-101400";
+import { formatSignedValue } from "./math.js?v=20260512-101400";
+import { generateQuestion } from "./questions/generator.js?v=20260512-101400";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260512-101400";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -356,7 +356,8 @@ export function sellCurrentOrder(gameState) {
   const recentSales = [completedSale, ...(Array.isArray(session.recentSales) ? session.recentSales : session.recentSale ? [session.recentSale] : [])]
     .slice(0, 5);
   const nextSprinkles = clampSprinkles(player.sprinkles + saleReady.sprinklesEarned);
-  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.sprinkles, nextSprinkles, player.knownRecipes);
+  const newlyUnlockedRecipes = getNewlyUnlockedRecipes(player.sprinkles, nextSprinkles);
+  const nextKnownRecipes = [...new Set([...(player.knownRecipes ?? []), ...newlyUnlockedRecipes.map((recipe) => recipe.id)])];
 
   return {
     ...gameState,
@@ -364,6 +365,7 @@ export function sellCurrentOrder(gameState) {
       ...player,
       bank: player.bank + saleReady.revenue,
       sprinkles: nextSprinkles,
+      knownRecipes: nextKnownRecipes,
     },
     session: {
       ...session,

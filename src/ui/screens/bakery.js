@@ -1,7 +1,8 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260512-093500";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260512-093500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-093500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-093500";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260512-101400";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260512-101400";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-101400";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-101400";
+import { getStageArtMeta, renderStageArt, STAGE_GALLERY_ORDER } from "../components/stage-art.js?v=20260512-101400";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -15,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260512-093500";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260512-093500";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260512-093500";
+} from "../../game/helpers.js?v=20260512-101400";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260512-101400";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260512-101400";
 
 const INGREDIENT_META = {
   flour: {
@@ -36,29 +37,6 @@ const INGREDIENT_META = {
     note: "Helps batter hold together when the oven gets warm.",
   },
 };
-
-const BAKERY_SCENE_VERSION = "20260512-093500";
-
-const BAKERY_STATION_ART = [
-  {
-    title: "Mixing Bowl",
-    note: "Batter starts here with scoops, swirls, and careful counting.",
-    imageSrc: `./assets/bakery-scenes/stand-mixer.png?v=${BAKERY_SCENE_VERSION}`,
-    imageAlt: "Mint stand mixer with a silver mixing bowl",
-  },
-  {
-    title: "Oven Timer",
-    note: "Watch the minutes so the bake turns golden instead of rushed.",
-    imageSrc: `./assets/bakery-scenes/kitchen-timer.png?v=${BAKERY_SCENE_VERSION}`,
-    imageAlt: "Mint kitchen timer with numbered dial",
-  },
-  {
-    title: "Warm Oven",
-    note: "This is where the tray rises and the whole bakery starts to smell sweet.",
-    imageSrc: `./assets/bakery-scenes/oven-cake.png?v=${BAKERY_SCENE_VERSION}`,
-    imageAlt: "Cake baking in a warm oven",
-  },
-];
 
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
@@ -321,19 +299,20 @@ function renderIngredientToken(ingredient, amount) {
 function renderBakeStationGallery() {
   return `
     <section class="bakery-station-gallery" aria-label="Bakery stations">
-      ${BAKERY_STATION_ART.map(
-        (station) => `
+      ${STAGE_GALLERY_ORDER.map((stage) => {
+        const station = getStageArtMeta(stage);
+        return `
           <article class="bakery-station-card">
             <div class="bakery-station-art-frame">
-              <img class="bakery-station-art" src="${station.imageSrc}" alt="${escapeHtml(station.imageAlt)}" loading="lazy" decoding="async" />
+              ${renderStageArt(stage, { className: "bakery-station-art", altLabel: station.imageAlt })}
             </div>
             <div class="bakery-station-copy">
               <p class="eyebrow">${escapeHtml(station.title)}</p>
               <p class="muted bakery-station-note">${escapeHtml(station.note)}</p>
             </div>
           </article>
-        `,
-      ).join("")}
+        `;
+      }).join("")}
     </section>
   `;
 }
@@ -365,7 +344,9 @@ function renderBakeScreen(gameState, currentStage) {
         </div>
         <div class="kinder-stage-banner-row">
           <div class="kinder-stage-banner">
-            <span>${STAGE_META[currentStage].icon}</span>
+            <span class="kinder-stage-banner-art">
+              ${renderStageArt(currentStage, { className: "stage-art-image-banner", altLabel: `${STAGE_META[currentStage].title} stage art` })}
+            </span>
             <span>${STAGE_META[currentStage].title}</span>
           </div>
           <div class="badge">${Math.round(progress)}% complete</div>
@@ -383,7 +364,10 @@ function renderBakeScreen(gameState, currentStage) {
 
               return `
                 <div class="stage-chip stage-chip-${stage} ${className}">
-                  <div>${done ? "✓" : STAGE_META[stage].icon}</div>
+                  <div class="stage-chip-art-wrap">
+                    ${renderStageArt(stage, { className: "stage-art-image-chip", altLabel: `${STAGE_META[stage].title} stage icon` })}
+                    ${done ? '<span class="stage-chip-check">✓</span>' : ""}
+                  </div>
                   <div>${label}</div>
                 </div>
               `;
@@ -546,7 +530,12 @@ function renderStoryTicket(question, currentStage, activeRecipe, batchCount) {
         </div>
         <div>
           <span class="story-ticket-label">Station</span>
-          <strong>${escapeHtml(STAGE_META[currentStage].title)}</strong>
+          <strong class="story-ticket-stage">
+            <span class="story-ticket-stage-art">
+              ${renderStageArt(currentStage, { className: "stage-art-image-ticket", altLabel: `${STAGE_META[currentStage].title} stage art` })}
+            </span>
+            <span>${escapeHtml(STAGE_META[currentStage].title)}</span>
+          </strong>
         </div>
         <div>
           <span class="story-ticket-label">Mission</span>

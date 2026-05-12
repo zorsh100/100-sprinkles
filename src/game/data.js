@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260512-093500";
+import { clamp } from "./math.js?v=20260512-101400";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -155,6 +155,8 @@ export const RECIPES = [
   },
 ];
 
+export const STARTER_RECIPE_IDS = RECIPES.filter((recipe) => recipe.unlockSprinkles === 0).map((recipe) => recipe.id);
+
 export const DEFAULT_PLAYER = {
   username: "",
   avatarId: PLAYER_AVATAR_IDS[0],
@@ -176,7 +178,7 @@ export const DEFAULT_PLAYER = {
     sugar: 0,
     eggs: 0,
   },
-  knownRecipes: RECIPES.map((recipe) => recipe.id),
+  knownRecipes: STARTER_RECIPE_IDS,
   createdAt: 0,
 };
 
@@ -186,18 +188,22 @@ export function normalizePlayer(player = {}) {
     unlockedRecipes: legacyUnlockedRecipes,
     ...playerData
   } = player;
+  const normalizedSprinkles = clamp(Number(playerData.sprinkles ?? DEFAULT_PLAYER.sprinkles) || 0, 0, MAX_SPRINKLES);
   const knownRecipes = Array.isArray(savedKnownRecipes)
     ? savedKnownRecipes
     : Array.isArray(legacyUnlockedRecipes)
       ? legacyUnlockedRecipes
       : DEFAULT_PLAYER.knownRecipes;
-  const normalizedKnownRecipes = [...new Set([...DEFAULT_PLAYER.knownRecipes, ...knownRecipes])];
+  const discoveredRecipeIds = RECIPES.filter((recipe) => normalizedSprinkles >= recipe.unlockSprinkles).map((recipe) => recipe.id);
+  const normalizedKnownRecipes = RECIPES
+    .map((recipe) => recipe.id)
+    .filter((recipeId) => new Set([...STARTER_RECIPE_IDS, ...knownRecipes, ...discoveredRecipeIds]).has(recipeId));
 
   return {
     ...DEFAULT_PLAYER,
     ...playerData,
     avatarId: PLAYER_AVATAR_IDS.includes(playerData.avatarId) ? playerData.avatarId : DEFAULT_PLAYER.avatarId,
-    sprinkles: clamp(Number(playerData.sprinkles ?? DEFAULT_PLAYER.sprinkles) || 0, 0, MAX_SPRINKLES),
+    sprinkles: normalizedSprinkles,
     pantry: {
       ...DEFAULT_PLAYER.pantry,
       ...(playerData.pantry ?? {}),

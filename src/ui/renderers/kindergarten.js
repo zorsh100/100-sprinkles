@@ -1,6 +1,7 @@
-import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260512-093500";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-093500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-093500";
+import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260512-101400";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-101400";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-101400";
+import { renderStageArt } from "../components/stage-art.js?v=20260512-101400";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -33,7 +34,9 @@ export function renderKindergartenBakery({ player, session, currentStage, select
         </div>
         <div class="kinder-stage-banner-row">
           <div class="kinder-stage-banner">
-            <span>${STAGE_META[currentStage].icon}</span>
+            <span class="kinder-stage-banner-art">
+              ${renderStageArt(currentStage, { className: "stage-art-image-banner", altLabel: `${STAGE_META[currentStage].title} stage art` })}
+            </span>
             <span>${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</span>
           </div>
           <div class="badge">SR ${player.SR}</div>
@@ -146,7 +149,10 @@ function renderKindergartenStageTrack(session, currentStage) {
       const className = done ? "done" : active ? "active" : "";
       return `
         <div class="kinder-stage-stop ${className}">
-          <div class="kinder-stage-icon">${done ? "✓" : STAGE_META[stage].icon}</div>
+          <div class="kinder-stage-icon">
+            ${renderStageArt(stage, { className: "stage-art-image-track", altLabel: `${STAGE_META[stage].title} stage icon` })}
+            ${done ? '<span class="stage-chip-check">✓</span>' : ""}
+          </div>
           <div class="kinder-stage-label">${stage}</div>
         </div>
       `;

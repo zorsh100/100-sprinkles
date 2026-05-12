@@ -1,8 +1,8 @@
-import { clamp } from "./math.js?v=20260512-093500";
-import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260512-093500";
-import { getAllowedQuestionTypes } from "./sr.js?v=20260512-093500";
+import { clamp } from "./math.js?v=20260512-101400";
+import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260512-101400";
+import { getAllowedQuestionTypes } from "./sr.js?v=20260512-101400";
 
-export { clamp } from "./math.js?v=20260512-093500";
+export { clamp } from "./math.js?v=20260512-101400";
 
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -90,10 +90,9 @@ export function getUnlockedRecipes(player) {
   );
 }
 
-export function getNewlyUnlockedRecipes(previousSprinkles, nextSprinkles, knownRecipeIds = []) {
+export function getNewlyUnlockedRecipes(previousSprinkles, nextSprinkles) {
   return RECIPES.filter(
     (recipe) =>
-      knownRecipeIds.includes(recipe.id) &&
       previousSprinkles < recipe.unlockSprinkles &&
       nextSprinkles >= recipe.unlockSprinkles,
   );
