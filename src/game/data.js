@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260512-101400";
+import { clamp } from "./math.js?v=20260512-103200";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -194,10 +194,14 @@ export function normalizePlayer(player = {}) {
     : Array.isArray(legacyUnlockedRecipes)
       ? legacyUnlockedRecipes
       : DEFAULT_PLAYER.knownRecipes;
-  const discoveredRecipeIds = RECIPES.filter((recipe) => normalizedSprinkles >= recipe.unlockSprinkles).map((recipe) => recipe.id);
+  const allowedKnownRecipeIds = new Set(
+    RECIPES
+      .filter((recipe) => recipe.unlockSprinkles === 0 || normalizedSprinkles >= recipe.unlockSprinkles)
+      .map((recipe) => recipe.id),
+  );
   const normalizedKnownRecipes = RECIPES
     .map((recipe) => recipe.id)
-    .filter((recipeId) => new Set([...STARTER_RECIPE_IDS, ...knownRecipes, ...discoveredRecipeIds]).has(recipeId));
+    .filter((recipeId) => allowedKnownRecipeIds.has(recipeId));
 
   return {
     ...DEFAULT_PLAYER,
