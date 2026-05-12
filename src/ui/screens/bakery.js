@@ -36,6 +36,29 @@ const INGREDIENT_META = {
   },
 };
 
+const BAKERY_SCENE_VERSION = "20260511-001500";
+
+const BAKERY_STATION_ART = [
+  {
+    title: "Mixing Bowl",
+    note: "Batter starts here with scoops, swirls, and careful counting.",
+    imageSrc: `./assets/bakery-scenes/stand-mixer.png?v=${BAKERY_SCENE_VERSION}`,
+    imageAlt: "Mint stand mixer with a silver mixing bowl",
+  },
+  {
+    title: "Oven Timer",
+    note: "Watch the minutes so the bake turns golden instead of rushed.",
+    imageSrc: `./assets/bakery-scenes/kitchen-timer.png?v=${BAKERY_SCENE_VERSION}`,
+    imageAlt: "Mint kitchen timer with numbered dial",
+  },
+  {
+    title: "Warm Oven",
+    note: "This is where the tray rises and the whole bakery starts to smell sweet.",
+    imageSrc: `./assets/bakery-scenes/oven-cake.png?v=${BAKERY_SCENE_VERSION}`,
+    imageAlt: "Cake baking in a warm oven",
+  },
+];
+
 export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
   const knownRecipes = RECIPES.filter((recipe) => player.knownRecipes.includes(recipe.id));
@@ -163,6 +186,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           }
 
           <p class="visual-mode-note muted tiny">${renderStartBakeNote(player, isReadyToBake)}</p>
+          ${renderBakeStationGallery()}
 
           ${
             supportsRecipeSets(player.SR)
@@ -283,6 +307,26 @@ function formatRecipeCountBadge(count) {
 function renderIngredientToken(ingredient, amount) {
   const meta = INGREDIENT_META[ingredient] ?? { label: ingredient };
   return `${renderIngredientIcon(ingredient, "ingredient-mark-inline")} ${meta.label} ×${amount}`;
+}
+
+function renderBakeStationGallery() {
+  return `
+    <section class="bakery-station-gallery" aria-label="Bakery stations">
+      ${BAKERY_STATION_ART.map(
+        (station) => `
+          <article class="bakery-station-card">
+            <div class="bakery-station-art-frame">
+              <img class="bakery-station-art" src="${station.imageSrc}" alt="${escapeHtml(station.imageAlt)}" loading="lazy" decoding="async" />
+            </div>
+            <div class="bakery-station-copy">
+              <p class="eyebrow">${escapeHtml(station.title)}</p>
+              <p class="muted bakery-station-note">${escapeHtml(station.note)}</p>
+            </div>
+          </article>
+        `,
+      ).join("")}
+    </section>
+  `;
 }
 
 function renderBakeScreen(gameState, currentStage, srWindow) {

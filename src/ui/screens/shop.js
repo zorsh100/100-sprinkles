@@ -23,6 +23,9 @@ const INGREDIENT_META = {
   },
 };
 
+const PANTRY_SCENE_VERSION = "20260511-001500";
+const PANTRY_SCENE_SRC = `./assets/bakery-scenes/pantry-cupboard.png?v=${PANTRY_SCENE_VERSION}`;
+
 export function renderShopScreen(player) {
   const pantryTotal = Object.values(player.pantry).reduce((sum, amount) => sum + Number(amount || 0), 0);
   const hasLowCoins = player.bank < Math.min(...Object.values(INGREDIENT_COSTS));
@@ -59,27 +62,34 @@ export function renderShopScreen(player) {
             : ""
         }
 
-        <div class="utility-summary-grid shop-summary-grid">
-          <article class="mini-card utility-mini-card shop-summary-card">
-            <span class="muted tiny">Pantry pieces</span>
-            <strong>${pantryTotal}</strong>
-            <p class="muted tiny">Total ingredients on your shelves across flour, sugar, and eggs.</p>
-          </article>
-          <article class="mini-card utility-mini-card shop-summary-card">
-            <span class="muted tiny">Flour shelf</span>
-            <strong>${renderIngredientIcon("flour", "ingredient-mark-inline")} ${player.pantry.flour}</strong>
-            <p class="muted tiny">${getShelfStatus(player.pantry.flour)}</p>
-          </article>
-          <article class="mini-card utility-mini-card shop-summary-card">
-            <span class="muted tiny">Sugar shelf</span>
-            <strong>${renderIngredientIcon("sugar", "ingredient-mark-inline")} ${player.pantry.sugar}</strong>
-            <p class="muted tiny">${getShelfStatus(player.pantry.sugar)}</p>
-          </article>
-          <article class="mini-card utility-mini-card shop-summary-card">
-            <span class="muted tiny">Egg basket</span>
-            <strong>${renderIngredientIcon("eggs", "ingredient-mark-inline")} ${player.pantry.eggs}</strong>
-            <p class="muted tiny">${getShelfStatus(player.pantry.eggs)}</p>
-          </article>
+        <div class="shop-scene-layout">
+          <figure class="shop-scene-figure">
+            <img class="shop-scene-image" src="${PANTRY_SCENE_SRC}" alt="Bakery pantry shelves filled with labeled jars and baking supplies" loading="lazy" decoding="async" />
+            <figcaption class="shop-scene-caption">The pantry grows with every careful restock.</figcaption>
+          </figure>
+
+          <div class="utility-summary-grid shop-summary-grid">
+            <article class="mini-card utility-mini-card shop-summary-card">
+              <span class="muted tiny">Pantry pieces</span>
+              <strong>${pantryTotal}</strong>
+              <p class="muted tiny">Total ingredients on your shelves across flour, sugar, and eggs.</p>
+            </article>
+            <article class="mini-card utility-mini-card shop-summary-card">
+              <span class="muted tiny">Flour shelf</span>
+              <strong>${renderIngredientIcon("flour", "ingredient-mark-inline")} ${player.pantry.flour}</strong>
+              <p class="muted tiny">${getShelfStatus(player.pantry.flour)}</p>
+            </article>
+            <article class="mini-card utility-mini-card shop-summary-card">
+              <span class="muted tiny">Sugar shelf</span>
+              <strong>${renderIngredientIcon("sugar", "ingredient-mark-inline")} ${player.pantry.sugar}</strong>
+              <p class="muted tiny">${getShelfStatus(player.pantry.sugar)}</p>
+            </article>
+            <article class="mini-card utility-mini-card shop-summary-card">
+              <span class="muted tiny">Egg basket</span>
+              <strong>${renderIngredientIcon("eggs", "ingredient-mark-inline")} ${player.pantry.eggs}</strong>
+              <p class="muted tiny">${getShelfStatus(player.pantry.eggs)}</p>
+            </article>
+          </div>
         </div>
       </section>
 
