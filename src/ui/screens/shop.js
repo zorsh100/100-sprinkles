@@ -1,6 +1,7 @@
-import { INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260511-210200";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-210200";
-import { renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260511-211500";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-211500";
+import { renderMascot } from "../components/mascot.js?v=20260511-211500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-211500";
 
 const INGREDIENT_META = {
   flour: {
@@ -23,7 +24,7 @@ const INGREDIENT_META = {
   },
 };
 
-const PANTRY_SCENE_VERSION = "20260511-210200";
+const PANTRY_SCENE_VERSION = "20260511-211500";
 const PANTRY_SCENE_SRC = `./assets/bakery-scenes/pantry-cupboard.png?v=${PANTRY_SCENE_VERSION}`;
 
 export function renderShopScreen(player) {
@@ -45,6 +46,17 @@ export function renderShopScreen(player) {
           ? `You only have ${player.bank} coins right now, so even a tiny restock matters. Sell another bake soon and we can fill more shelves.`
           : `You have ${player.bank} coins ready. Let's fill the pantry with just enough for the next bake.`,
       })}
+
+      <section class="utility-save-card utility-baker-card">
+        <div class="utility-baker-row">
+          ${renderPlayerAvatar(player.avatarId, { size: "md", className: "utility-baker-avatar", label: `${player.username}'s baker portrait` })}
+          <div>
+            <p class="eyebrow">Current Baker</p>
+            <h3>${escapeHtml(player.username)}</h3>
+            <p class="muted tiny">Your chosen baker portrait stays with this notebook while you restock the pantry.</p>
+          </div>
+        </div>
+      </section>
 
       <section class="utility-save-card shop-overview-card">
         <div class="utility-save-head">

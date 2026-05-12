@@ -1745,7 +1745,8 @@ button[aria-disabled="true"] {
 
   .onboarding-avatar-preview,
   .save-slot-headline,
-  .settings-current-baker {
+  .settings-current-baker,
+  .utility-baker-row {
     align-items: flex-start;
     flex-direction: column;
   }
@@ -3722,6 +3723,21 @@ body.title-route .title-screen-minimal {
   margin-top: 4px;
   font-size: 1.3rem;
   font-family: "Baloo 2", cursive;
+}
+
+.utility-baker-card {
+  padding: 16px 18px;
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.98), rgba(255, 241, 232, 0.98));
+}
+
+.utility-baker-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.utility-baker-row h3 {
+  margin-bottom: 4px;
 }
 
 .slot-action-row {

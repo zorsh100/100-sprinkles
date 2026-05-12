@@ -1,5 +1,6 @@
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-210200";
-import { renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260511-211500";
+import { renderMascot } from "../components/mascot.js?v=20260511-211500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-211500";
 
 export function renderUnlockScreen(gameState) {
   const unlocks = gameState.session.pendingRecipeUnlocks ?? [];
@@ -20,6 +21,17 @@ export function renderUnlockScreen(gameState) {
           compact: true,
           message: "No new recipe page popped open this time, but the bakery is still ready for another order.",
         })}
+
+        <section class="utility-save-card utility-baker-card">
+          <div class="utility-baker-row">
+            ${renderPlayerAvatar(gameState.player.avatarId, { size: "md", className: "utility-baker-avatar", label: `${gameState.player.username}'s baker portrait` })}
+            <div>
+              <p class="eyebrow">Current Baker</p>
+              <h3>${escapeHtml(gameState.player.username)}</h3>
+              <p class="muted tiny">Keep collecting sprinkles with this notebook to unlock the next bakery treat.</p>
+            </div>
+          </div>
+        </section>
 
         <div class="empty-state utility-empty-card unlock-empty-card">
           <h3>No new unlocks yet</h3>
@@ -50,6 +62,17 @@ export function renderUnlockScreen(gameState) {
           ? "Look at that menu grow. These new treats are ready for a future baking day."
           : `A fresh page just opened in your recipe book. ${unlocks[0]?.name ?? "This treat"} is ready when you are.`,
       })}
+
+      <section class="utility-save-card utility-baker-card">
+        <div class="utility-baker-row">
+          ${renderPlayerAvatar(gameState.player.avatarId, { size: "md", className: "utility-baker-avatar", label: `${gameState.player.username}'s baker portrait` })}
+          <div>
+            <p class="eyebrow">Current Baker</p>
+            <h3>${escapeHtml(gameState.player.username)}</h3>
+            <p class="muted tiny">This notebook earned the new recipe page, and the baker portrait stays with it everywhere.</p>
+          </div>
+        </div>
+      </section>
 
       <section class="utility-save-card unlock-summary-card">
         <div class="utility-save-head">

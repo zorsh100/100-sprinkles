@@ -1,5 +1,6 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260511-210200";
-import { renderMascot } from "../components/mascot.js?v=20260511-210200";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260511-211500";
+import { renderMascot } from "../components/mascot.js?v=20260511-211500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260511-211500";
 
 const QUESTION_LABELS = {
   arithmetic_visual: "Picture counting",
@@ -33,6 +34,17 @@ export function renderLearnScreen(player) {
           ? "You're still in picture-first mode, so every challenge stays concrete and countable."
           : `Right now your bakery is in ${getSRMode(player.SR)}. The lab keeps questions close to your current challenge zone.`,
       })}
+
+      <section class="utility-save-card utility-baker-card">
+        <div class="utility-baker-row">
+          ${renderPlayerAvatar(player.avatarId, { size: "md", className: "utility-baker-avatar", label: `${player.username}'s baker portrait` })}
+          <div>
+            <p class="eyebrow">Current Baker</p>
+            <h3>${escapeHtml(player.username)}</h3>
+            <p class="muted tiny">This baker card travels with the notebook through every bakery room.</p>
+          </div>
+        </div>
+      </section>
 
       <section class="utility-save-card learn-overview-card">
         <div class="utility-save-head">
