@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260510-054400";
+import { navigate } from "../app/router.js?v=20260511-001500";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,17 +8,17 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260510-054400";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260510-054400";
-import { renderShell } from "./shell.js?v=20260510-054400";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260510-054400";
-import { renderLearnScreen } from "./screens/learn.js?v=20260510-054400";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260510-054400";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260510-054400";
-import { renderShopScreen } from "./screens/shop.js?v=20260510-054400";
-import { renderStatsScreen } from "./screens/stats.js?v=20260510-054400";
-import { renderTitleScreen } from "./screens/title.js?v=20260510-054400";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260510-054400";
+} from "../game/engine.js?v=20260511-001500";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260511-001500";
+import { renderShell } from "./shell.js?v=20260511-001500";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260511-001500";
+import { renderLearnScreen } from "./screens/learn.js?v=20260511-001500";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260511-001500";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260511-001500";
+import { renderShopScreen } from "./screens/shop.js?v=20260511-001500";
+import { renderStatsScreen } from "./screens/stats.js?v=20260511-001500";
+import { renderTitleScreen } from "./screens/title.js?v=20260511-001500";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260511-001500";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -110,11 +110,7 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
       return;
     }
 
-    const { grade, sr, note } = button.dataset;
-    gradePreview.textContent =
-      grade === "K"
-        ? `Kindergarten starts at SR ${sr} with ${note.toLowerCase()} and no reading required.`
-        : `${button.querySelector("strong").textContent} starts at SR ${sr} with ${note.toLowerCase()}.`;
+    gradePreview.textContent = button.dataset.preview ?? "";
     gradePreviewCard.classList.add("preview-live");
   }
 
@@ -127,6 +123,10 @@ function attachOnboardingEvents(root, gameState, uiState, dispatch) {
 
   root.querySelectorAll("[data-grade]").forEach((button) => {
     button.addEventListener("click", () => {
+      if (button.disabled || button.getAttribute("aria-disabled") === "true") {
+        return;
+      }
+
       const { grade } = button.dataset;
       gradeInput.value = grade;
 

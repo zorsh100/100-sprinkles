@@ -1,8 +1,9 @@
-import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260510-054400";
+import { GRADE_TO_SR, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20260511-001500";
 
 const STORAGE_KEY = "sprinkles-100-player";
 const SAVE_VERSION = 3;
 const SAVE_SLOT_IDS = ["slot-1", "slot-2"];
+const AVAILABLE_NEW_PLAYER_GRADES = new Set(["K", "1", "2", "3", "4", "5"]);
 
 function createSaveSlot(id, payload = {}) {
   const player = payload.player ? normalizePlayer(payload.player) : null;
@@ -243,14 +244,15 @@ export function isValidPlayerName(username) {
 export function createNewPlayer(gameState, { username, grade, slotId }) {
   const syncedState = syncActiveSlot(gameState);
   const targetSlotId = getPreferredActiveSlotId(syncedState.saveSlots, slotId ?? findFirstEmptySlotId(syncedState.saveSlots));
-  const SR = GRADE_TO_SR[grade];
+  const normalizedGrade = AVAILABLE_NEW_PLAYER_GRADES.has(String(grade)) ? String(grade) : "K";
+  const SR = GRADE_TO_SR[normalizedGrade];
   const trimmedName = String(username ?? "").trim().slice(0, 24);
   const safeName = isValidPlayerName(trimmedName) ? trimmedName : "Chef Sunny";
   const createdAt = Date.now();
   const player = normalizePlayer({
     ...DEFAULT_PLAYER,
     username: safeName,
-    grade,
+    grade: normalizedGrade,
     SR,
     bank: SR >= 300 ? 25 : 0,
     createdAt,

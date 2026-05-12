@@ -1,16 +1,105 @@
-import { renderMascot } from "../components/mascot.js?v=20260510-054400";
+import { renderMascot } from "../components/mascot.js?v=20260511-001500";
 
-const GRADE_CARDS = [
-  { value: "K", label: "Kindergarten", sr: 50, note: "Picture counting" },
-  { value: "1", label: "1st Grade", sr: 150, note: "Basic story math" },
-  { value: "2", label: "2nd Grade", sr: 250, note: "Addition and subtraction" },
-  { value: "3", label: "3rd Grade", sr: 350, note: "Pantry unlocks soon" },
-  { value: "4", label: "4th Grade", sr: 450, note: "Bigger numbers" },
-  { value: "5", label: "5th Grade", sr: 550, note: "Multiplication and cost" },
-  { value: "6", label: "6th Grade", sr: 650, note: "Full simulator" },
-  { value: "7", label: "7th Grade", sr: 750, note: "Ratios and strategy" },
-  { value: "8", label: "8th Grade", sr: 850, note: "Advanced bakery math" },
+const GRADE_BUCKETS = [
+  {
+    key: "k-1",
+    label: "K-1",
+    title: "Picture-First Bakery Math",
+    note: "Warm visuals, short prompts, and a gentle first step into story math.",
+    grades: [
+      {
+        value: "K",
+        label: "Kindergarten",
+        sr: 50,
+        note: "Picture counting",
+        preview: "Kindergarten starts at SR 50 with picture counting and no reading required.",
+        available: true,
+      },
+      {
+        value: "1",
+        label: "1st Grade",
+        sr: 150,
+        note: "Gentle story math",
+        preview: "1st Grade starts at SR 150 with short bakery stories and a gentle bridge out of picture mode.",
+        available: true,
+      },
+    ],
+  },
+  {
+    key: "2-5",
+    label: "2-5",
+    title: "Bakery Adventure Math",
+    note: "Active bake jobs, pantry math, and richer bakery story problems.",
+    grades: [
+      {
+        value: "2",
+        label: "2nd Grade",
+        sr: 250,
+        note: "Story totals",
+        preview: "2nd Grade starts at SR 250 with bakery story totals, take-away questions, and clearer reading support.",
+        available: true,
+      },
+      {
+        value: "3",
+        label: "3rd Grade",
+        sr: 350,
+        note: "Groups and sharing",
+        preview: "3rd Grade starts at SR 350 with bakery groups, sharing, arrays, and early pantry jobs.",
+        available: true,
+      },
+      {
+        value: "4",
+        label: "4th Grade",
+        sr: 450,
+        note: "Multi-step bakery jobs",
+        preview: "4th Grade starts at SR 450 with stronger multiplication, fractions, and multi-step bakery questions.",
+        available: true,
+      },
+      {
+        value: "5",
+        label: "5th Grade",
+        sr: 550,
+        note: "Bigger bakery systems",
+        preview: "5th Grade starts at SR 550 with deeper cost, batch, and bakery planning math.",
+        available: true,
+      },
+    ],
+  },
+  {
+    key: "6-8",
+    label: "6-8",
+    title: "Middle School Bakery Math",
+    note: "Cooling on the rack for a later update while we keep improving the younger paths.",
+    grades: [
+      {
+        value: "6",
+        label: "6th Grade",
+        sr: 650,
+        note: "Coming soon",
+        preview: "Grades 6-8 are cooling on the rack for now while we focus on K-1 and grades 2-5.",
+        available: false,
+      },
+      {
+        value: "7",
+        label: "7th Grade",
+        sr: 750,
+        note: "Coming soon",
+        preview: "Grades 6-8 are cooling on the rack for now while we focus on K-1 and grades 2-5.",
+        available: false,
+      },
+      {
+        value: "8",
+        label: "8th Grade",
+        sr: 850,
+        note: "Coming soon",
+        preview: "Grades 6-8 are cooling on the rack for now while we focus on K-1 and grades 2-5.",
+        available: false,
+      },
+    ],
+  },
 ];
+
+const GRADE_CARDS = GRADE_BUCKETS.flatMap((bucket) => bucket.grades);
 
 export function renderOnboardingScreen(slotSummary) {
   const slotLabel = slotSummary?.slotLabel ?? "Player 1";
@@ -59,25 +148,45 @@ export function renderOnboardingScreen(slotSummary) {
             `
             : `
               <div class="info-card onboarding-info-card" id="grade-preview-card">
-                <strong>About this grade</strong>
+                <strong>About this path</strong>
                 <p class="muted tiny" id="grade-preview">Kindergarten starts at SR 50 with picture counting and no reading required.</p>
               </div>
               <div class="field full">
-                <span>Choose a grade</span>
-                <div class="grade-grid onboarding-grade-grid">
-                  ${GRADE_CARDS.map(
-                    (grade) => `
-                      <button
-                        class="grade-card ${grade.value === currentGrade ? "active" : ""}"
-                        data-grade="${grade.value}"
-                        data-sr="${grade.sr}"
-                        data-note="${grade.note}"
-                        type="button"
-                      >
-                        <strong>${grade.label}</strong>
-                        <span>SR ${grade.sr}</span>
-                        <span>${grade.note}</span>
-                      </button>
+                <span>Choose a grade path</span>
+                <div class="onboarding-grade-buckets">
+                  ${GRADE_BUCKETS.map(
+                    (bucket) => `
+                      <section class="grade-bucket ${bucket.key === "6-8" ? "grade-bucket-disabled" : ""}">
+                        <div class="grade-bucket-head">
+                          <div>
+                            <p class="eyebrow eyebrow-pill">${bucket.label}</p>
+                            <h3>${bucket.title}</h3>
+                            <p class="muted tiny">${bucket.note}</p>
+                          </div>
+                          ${bucket.key === "6-8" ? '<span class="badge grade-bucket-badge">Cooling on the rack</span>' : ""}
+                        </div>
+                        <div class="grade-grid onboarding-grade-grid">
+                          ${bucket.grades
+                            .map(
+                              (grade) => `
+                                <button
+                                  class="grade-card ${grade.value === currentGrade ? "active" : ""} ${grade.available ? "" : "grade-card-disabled"}"
+                                  data-grade="${grade.value}"
+                                  data-sr="${grade.sr}"
+                                  data-note="${grade.note}"
+                                  data-preview="${grade.preview}"
+                                  type="button"
+                                  ${grade.available ? "" : 'disabled aria-disabled="true"'}
+                                >
+                                  <strong>${grade.label}</strong>
+                                  <span>SR ${grade.sr}</span>
+                                  <span>${grade.note}</span>
+                                </button>
+                              `,
+                            )
+                            .join("")}
+                        </div>
+                      </section>
                     `,
                   ).join("")}
                 </div>
