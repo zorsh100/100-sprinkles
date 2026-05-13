@@ -1264,7 +1264,7 @@ button[aria-disabled="true"] {
   position: relative;
   overflow: hidden;
   width: 60px;
-  aspect-ratio: 5 / 8;
+  aspect-ratio: 3 / 4;
   border-radius: 22px;
   background-color: rgba(255, 255, 255, 0.96);
   box-shadow: 0 14px 28px rgba(117, 74, 41, 0.12);
