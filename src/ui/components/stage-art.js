@@ -1,4 +1,4 @@
-const STAGE_ART_VERSION = "20260512-110200";
+const STAGE_ART_VERSION = "20260512-195400";
 
 const STAGE_ART_LIBRARY = {
   pantry: {
@@ -17,6 +17,14 @@ const STAGE_ART_LIBRARY = {
     imageSrc: `./assets/bakery-scenes/oven-cake.png?v=${STAGE_ART_VERSION}`,
     imageAlt: "Cake baking in a warm oven",
   },
+  finishing: {
+    imageSrc: `./assets/bakery-scenes/finishing-frosting.png?v=${STAGE_ART_VERSION}`,
+    imageAlt: "Cake being frosted and finished with bakery tools and sprinkles",
+  },
+  serving: {
+    imageSrc: `./assets/bakery-scenes/serving-desserts.png?v=${STAGE_ART_VERSION}`,
+    imageAlt: "Bakery dessert table filled with finished treats ready to serve",
+  },
 };
 
 export const STAGE_ART_META = {
@@ -31,23 +39,23 @@ export const STAGE_ART_META = {
     artKey: "mixer",
   },
   timing: {
-    title: "Oven Timer",
-    note: "Watch the minutes so the bake turns golden instead of rushed.",
-    artKey: "timer",
-  },
-  finishing: {
-    title: "Warm Oven",
-    note: "The tray rises here before the finishing touches go on top.",
+    title: "Baking",
+    note: "Watch the bake carefully while it rises in the oven.",
     artKey: "oven",
   },
+  finishing: {
+    title: "Finishing Touches",
+    note: "Frost, swirl, and decorate the bake before it heads to the counter.",
+    artKey: "finishing",
+  },
   serving: {
-    title: "Bakery Shelf",
-    note: "Fresh bakes head back to the front counter ready to serve.",
-    artKey: "pantry",
+    title: "Serving Table",
+    note: "Finished treats head to the dessert table ready for smiles and coins.",
+    artKey: "serving",
   },
 };
 
-export const STAGE_GALLERY_ORDER = ["prep", "mixing", "timing", "finishing"];
+export const STAGE_GALLERY_ORDER = ["prep", "mixing", "timing", "finishing", "serving"];
 
 export function getStageArtMeta(stage) {
   const stageMeta = STAGE_ART_META[stage] ?? STAGE_ART_META.prep;

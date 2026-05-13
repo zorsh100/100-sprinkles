@@ -1,8 +1,8 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260512-110200";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260512-110200";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-110200";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-110200";
-import { getStageArtMeta, renderStageArt, STAGE_GALLERY_ORDER } from "../components/stage-art.js?v=20260512-110200";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260512-195400";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260512-195400";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-195400";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-195400";
+import { getStageArtMeta, renderStageArt, STAGE_GALLERY_ORDER } from "../components/stage-art.js?v=20260512-195400";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260512-110200";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260512-110200";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260512-110200";
+} from "../../game/helpers.js?v=20260512-195400";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260512-195400";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260512-195400";
 
 const INGREDIENT_META = {
   flour: {

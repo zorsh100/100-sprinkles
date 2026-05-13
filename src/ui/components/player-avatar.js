@@ -1,17 +1,17 @@
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260512-110200";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260512-195400";
 
-const AVATAR_SHEET_VERSION = "20260512-110200";
+const AVATAR_SHEET_VERSION = "20260512-195400";
 const AVATAR_SHEET_SRC = `./assets/player-avatars/kid-bakers-sheet.png?v=${AVATAR_SHEET_VERSION}`;
 
 export const PLAYER_AVATAR_OPTIONS = [
-  { id: PLAYER_AVATAR_IDS[0], label: "Blue Shirt Baker", col: 0, row: 0 },
-  { id: PLAYER_AVATAR_IDS[1], label: "Pink Pigtails Baker", col: 1, row: 0 },
-  { id: PLAYER_AVATAR_IDS[2], label: "Green Shirt Baker", col: 2, row: 0 },
-  { id: PLAYER_AVATAR_IDS[3], label: "Yellow Clip Baker", col: 3, row: 0 },
-  { id: PLAYER_AVATAR_IDS[4], label: "Purple Bandana Baker", col: 0, row: 1 },
-  { id: PLAYER_AVATAR_IDS[5], label: "Teal Shirt Baker", col: 1, row: 1 },
-  { id: PLAYER_AVATAR_IDS[6], label: "Red Shirt Baker", col: 2, row: 1 },
-  { id: PLAYER_AVATAR_IDS[7], label: "Yellow Bow Baker", col: 3, row: 1 },
+  { id: PLAYER_AVATAR_IDS[0], label: "Teal Shirt Baker", col: 0, row: 0 },
+  { id: PLAYER_AVATAR_IDS[1], label: "Blonde Braids Baker", col: 1, row: 0 },
+  { id: PLAYER_AVATAR_IDS[2], label: "Blue Shirt Baker", col: 2, row: 0 },
+  { id: PLAYER_AVATAR_IDS[3], label: "Purple Shirt Baker", col: 3, row: 0 },
+  { id: PLAYER_AVATAR_IDS[4], label: "Yellow Shirt Baker", col: 0, row: 1 },
+  { id: PLAYER_AVATAR_IDS[5], label: "Green Shirt Baker", col: 1, row: 1 },
+  { id: PLAYER_AVATAR_IDS[6], label: "Pink Shirt Baker", col: 2, row: 1 },
+  { id: PLAYER_AVATAR_IDS[7], label: "Brown Hair Blue Shirt Baker", col: 3, row: 1 },
 ];
 
 export function getPlayerAvatarOption(avatarId) {

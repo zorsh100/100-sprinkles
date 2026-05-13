@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260512-110200";
+import { clamp } from "./math.js?v=20260512-195400";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -18,7 +18,7 @@ export const STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
 export const STAGE_META = {
   prep: { icon: "🥣", title: "Prep Station" },
   mixing: { icon: "🌀", title: "Mixing Bowl" },
-  timing: { icon: "⏲️", title: "Oven Timer" },
+  timing: { icon: "⏲️", title: "Baking" },
   finishing: { icon: "🍓", title: "Finishing Touches" },
   serving: { icon: "🧁", title: "Serving Counter" },
 };
