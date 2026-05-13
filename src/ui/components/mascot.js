@@ -1,4 +1,7 @@
-import { renderCoinIcon } from "./icons.js?v=20260512-103200";
+import { renderCoinIcon } from "./icons.js?v=20260512-110200";
+
+const CHEF_SPRINKLES_COACH_VERSION = "20260512-110200";
+const CHEF_SPRINKLES_COACH_SRC = `./assets/characters/chef-sprinkles-coach.png?v=${CHEF_SPRINKLES_COACH_VERSION}`;
 
 function escapeHtml(value) {
   return String(value)
@@ -13,17 +16,7 @@ export function renderMascot({ mood = "happy", message = "", compact = false } =
   return `
     <div class="mascot-card mascot-${mood} ${compact ? "compact" : ""}">
       <div class="mascot-avatar" aria-hidden="true">
-        <div class="mascot-hat">
-          <span class="mascot-hat-top"></span>
-          <span class="mascot-hat-band"></span>
-        </div>
-        <div class="mascot-face">
-          <span class="mascot-cheek mascot-cheek-left"></span>
-          <span class="mascot-cheek mascot-cheek-right"></span>
-          <span class="mascot-eye mascot-eye-left"></span>
-          <span class="mascot-eye mascot-eye-right"></span>
-          <span class="mascot-mouth mascot-mouth-${mood}"></span>
-        </div>
+        <img class="mascot-portrait" src="${CHEF_SPRINKLES_COACH_SRC}" alt="" loading="eager" decoding="async" />
       </div>
       ${message ? `<p class="mascot-message">${escapeHtml(message)}</p>` : ""}
     </div>
