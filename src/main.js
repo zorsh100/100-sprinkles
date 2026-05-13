@@ -1,6 +1,6 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260512-195400";
-import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260512-195400";
-import { renderApp } from "./ui/render.js?v=20260512-195400";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260512-202000";
+import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260512-202000";
+import { renderApp } from "./ui/render.js?v=20260512-202000";
 
 const appRoot = document.querySelector("#app");
 
@@ -105,6 +105,10 @@ function resolveRouteForGameState(currentGameState, requestedRoute = "title") {
     return requestedRoute === "profile" ? "profile" : "title";
   }
 
+  if (requestedRoute === "profile") {
+    return "profile";
+  }
+
   if (currentGameState.session.order || currentGameState.session.saleReady) {
     return "bake";
   }
@@ -115,10 +119,6 @@ function resolveRouteForGameState(currentGameState, requestedRoute = "title") {
 
   if (currentGameState.session.recentSale) {
     return requestedRoute === "stats" || requestedRoute === "recipe" ? requestedRoute : "stats";
-  }
-
-  if (requestedRoute === "profile") {
-    return "profile";
   }
 
   return "recipe";

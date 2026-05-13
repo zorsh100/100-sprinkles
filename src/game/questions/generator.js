@@ -1,6 +1,6 @@
-import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260512-195400";
-import { isVisualMode } from "../sr.js?v=20260512-195400";
-import { QUESTION_BANK } from "./bank.js?v=20260512-195400";
+import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260512-202000";
+import { isVisualMode } from "../sr.js?v=20260512-202000";
+import { QUESTION_BANK } from "./bank.js?v=20260512-202000";
 
 const TEMPLATE_META_BY_ID = new Map(QUESTION_BANK.map((template) => [template.id, template]));
 

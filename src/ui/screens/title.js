@@ -1,6 +1,5 @@
-import { renderCoinIcon } from "../components/icons.js?v=20260512-195400";
-import { renderMascot } from "../components/mascot.js?v=20260512-195400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-195400";
+import { renderMascot } from "../components/mascot.js?v=20260512-202000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-202000";
 
 export function renderTitleScreen(saveSummaries) {
   const filledSlots = saveSummaries.filter((summary) => !summary.empty);
@@ -12,18 +11,28 @@ export function renderTitleScreen(saveSummaries) {
         : "Two bakery notebooks are ready to go. Pick the chef you want to play as.";
 
   return `
-    <section class="title-screen title-screen-minimal title-scene-panel">
-      <div class="title-scene-art" aria-hidden="true">
-        <div class="store-awning"></div>
-        <div class="store-window window-left"></div>
-        <div class="store-window window-right"></div>
-        <div class="store-door"></div>
+    <section class="title-screen title-screen-minimal title-scene-stage">
+      <div class="title-storefront-band">
+        <div class="title-scene-art" aria-hidden="true">
+          <div class="store-awning"></div>
+          <div class="store-window window-left"></div>
+          <div class="store-window window-right"></div>
+          <div class="store-door"></div>
+        </div>
+        <img class="title-logo" src="./logo.png?v=20260512-202000" alt="100 Sprinkles logo" />
       </div>
-      <img class="title-logo" src="./logo.png?v=20260512-195400" alt="100 Sprinkles logo" />
-      ${renderMascot({ mood: "happy", message: mascotMessage })}
+      <div class="title-mascot-wrap">
+        ${renderMascot({ mood: "happy", message: mascotMessage, variant: "speech", className: "title-mascot-scene" })}
+      </div>
       <section class="title-save-grid" aria-label="Player save slots">
         ${saveSummaries.map((summary) => renderSaveSlot(summary)).join("")}
       </section>
+      <div class="bakery-counter-scene title-counter-strip" aria-hidden="true">
+        <div class="counter-item flour-sack"></div>
+        <div class="counter-item mixing-bowl"></div>
+        <div class="counter-item rolling-pin"></div>
+        <div class="counter-item cupcake-plate"></div>
+      </div>
     </section>
   `;
 }
@@ -32,12 +41,13 @@ function renderSaveSlot(summary) {
   if (summary.empty) {
     return `
       <article class="title-slot-card title-slot-card-empty">
-        <div class="save-slot-head">
-          <p class="eyebrow">${summary.slotLabel}</p>
-          <span class="save-slot-chip">Open notebook</span>
+        <div class="title-slot-summary title-slot-summary-empty">
+          <div class="title-slot-copy">
+            <p class="eyebrow">${summary.slotLabel}</p>
+            <h3>Open a new notebook</h3>
+            <p class="muted">Create another baker profile.</p>
+          </div>
         </div>
-        <h3>Start a new bakery</h3>
-        <p class="muted">This spot is ready for another chef name, grade, and bakery adventure.</p>
         <div class="slot-action-row">
           <button class="primary-button title-button" type="button" data-new-player-slot="${summary.slotId}">
             Create ${summary.slotLabel}
@@ -49,39 +59,23 @@ function renderSaveSlot(summary) {
 
   return `
     <article class="title-slot-card ${summary.isActive ? "active" : ""}">
-      <div class="save-slot-head">
-        <div class="save-slot-headline">
+      <div class="title-slot-summary">
+        <div class="title-slot-copy">
           ${renderPlayerAvatar(summary.avatarId, { size: "md", className: "save-slot-avatar", label: `${summary.username}'s baker portrait` })}
-          <div>
+          <div class="title-slot-text">
             <p class="eyebrow">${summary.slotLabel}</p>
             <h3>${escapeHtml(summary.username)}</h3>
+            <p class="muted title-slot-meta">${escapeHtml(summary.grade === "K" ? "Kindergarten" : `Grade ${summary.grade}`)} · SR ${summary.SR}</p>
           </div>
         </div>
-        ${summary.isActive ? '<span class="save-slot-chip save-slot-chip-active">Last used</span>' : '<span class="save-slot-chip">Saved</span>'}
-      </div>
-      <p class="muted">${escapeHtml(summary.grade === "K" ? "Kindergarten" : `Grade ${summary.grade}`)} baker, SR ${summary.SR}</p>
-      <div class="title-slot-stats">
-        <span class="badge">${renderCoinIcon("coin-icon-sm")} ${summary.coins} coins</span>
-        <span class="badge">Saved ${escapeHtml(formatSavedAt(summary.savedAt))}</span>
       </div>
       <div class="slot-action-row">
-        <button class="secondary-button title-button" type="button" data-open-save-slot="${summary.slotId}" data-go-route="recipe">
+        <button class="${summary.isActive ? "primary-button" : "secondary-button"} title-button" type="button" data-open-save-slot="${summary.slotId}" data-go-route="recipe">
           Play as ${escapeHtml(summary.username)}
         </button>
       </div>
     </article>
   `;
-}
-
-function formatSavedAt(savedAt) {
-  if (!savedAt) {
-    return "just now";
-  }
-
-  return new Date(savedAt).toLocaleDateString([], {
-    month: "short",
-    day: "numeric",
-  });
 }
 
 function escapeHtml(value) {

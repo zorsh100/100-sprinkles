@@ -1,6 +1,6 @@
-import { renderCoinIcon } from "./icons.js?v=20260512-195400";
+import { renderCoinIcon } from "./icons.js?v=20260512-202000";
 
-const CHEF_SPRINKLES_COACH_VERSION = "20260512-195400";
+const CHEF_SPRINKLES_COACH_VERSION = "20260512-202000";
 const CHEF_SPRINKLES_COACH_SRC = `./assets/characters/chef-sprinkles-coach.png?v=${CHEF_SPRINKLES_COACH_VERSION}`;
 
 function escapeHtml(value) {
@@ -12,9 +12,21 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-export function renderMascot({ mood = "happy", message = "", compact = false } = {}) {
+export function renderMascot({ mood = "happy", message = "", compact = false, variant = "card", className = "" } = {}) {
+  if (variant === "speech") {
+    const classes = ["mascot-scene", "mascot-scene-speech", `mascot-${mood}`, className].filter(Boolean).join(" ");
+    return `
+      <div class="${classes}">
+        <div class="mascot-avatar" aria-hidden="true">
+          <img class="mascot-portrait" src="${CHEF_SPRINKLES_COACH_SRC}" alt="" loading="eager" decoding="async" />
+        </div>
+        ${message ? `<div class="mascot-bubble"><p class="mascot-message">${escapeHtml(message)}</p></div>` : ""}
+      </div>
+    `;
+  }
+
   return `
-    <div class="mascot-card mascot-${mood} ${compact ? "compact" : ""}">
+    <div class="mascot-card mascot-${mood} ${compact ? "compact" : ""} ${className}">
       <div class="mascot-avatar" aria-hidden="true">
         <img class="mascot-portrait" src="${CHEF_SPRINKLES_COACH_SRC}" alt="" loading="eager" decoding="async" />
       </div>

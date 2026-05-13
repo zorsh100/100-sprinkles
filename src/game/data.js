@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260512-195400";
+import { clamp } from "./math.js?v=20260512-202000";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
