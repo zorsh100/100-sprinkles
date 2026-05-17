@@ -6,7 +6,7 @@ import {
   createInitialSession,
   getBakeStageByQuestionIndex,
   getBakeStageIndexByQuestionIndex,
-} from "./data.js?v=20260517-133300";
+} from "./data.js?v=20260517-134000";
 import {
   canAffordIngredients,
   clamp,
@@ -21,10 +21,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260517-133300";
-import { formatSignedValue } from "./math.js?v=20260517-133300";
-import { generateQuestion } from "./questions/generator.js?v=20260517-133300";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260517-133300";
+} from "./helpers.js?v=20260517-134000";
+import { formatSignedValue } from "./math.js?v=20260517-134000";
+import { generateQuestion } from "./questions/generator.js?v=20260517-134000";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260517-134000";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -231,7 +231,7 @@ export function submitAnswer(gameState, selectedAnswer) {
       ? [...session.order.completedStages, currentStage]
       : session.order.completedStages;
   const earnedFirstTrySprinkle = attemptNumber === 1 ? 1 : 0;
-  const earnedStreakSprinkle = attemptNumber === 1 && srResult.player.skill.currentStreak >= 5 ? 1 : 0;
+  const earnedStreakSprinkle = attemptNumber === 1 && srResult.player.skill.currentStreak >= 7 ? 1 : 0;
 
   const nextOrderTotals = {
     totalAttempts: (session.order.totalAttempts ?? 0) + 1,
@@ -296,7 +296,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}
   const totalPossibleItems = recipe.itemsPerBatch * session.order.batchCount;
   const itemsMade = Math.floor(totalPossibleItems * (accuracyPercent / 100));
   const saleRevenue = itemsMade * recipe.pricePerItem;
-  const streakBonus = updatedPlayer.skill.currentStreak >= 5
+  const streakBonus = updatedPlayer.skill.currentStreak >= 7
     ? Math.floor(saleRevenue * 0.10)
     : 0;
   const totalRevenue = saleRevenue + streakBonus;

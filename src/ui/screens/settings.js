@@ -1,6 +1,6 @@
-import { getSRMode } from "../../game/sr.js?v=20260517-133300";
-import { renderMascot } from "../components/mascot.js?v=20260517-133300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-133300";
+import { getSRMode } from "../../game/sr.js?v=20260517-134000";
+import { renderMascot } from "../components/mascot.js?v=20260517-134000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-134000";
 
 export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
   const hasActiveSave = Boolean(activeSaveSummary && player);
