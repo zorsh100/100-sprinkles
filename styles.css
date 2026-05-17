@@ -1489,7 +1489,8 @@ button[aria-disabled="true"] {
 .regular-answer-grid {
   gap: 16px;
   overflow: hidden;
-  padding: 4px 10px 8px 4px;
+  padding: 2px 4px 4px;
+  margin-top: auto;
 }
 
 .stage-art-image {
@@ -1886,6 +1887,13 @@ button[aria-disabled="true"] {
 .flow-screen {
   display: grid;
   gap: 18px;
+}
+
+.active-bake-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 180px);
+  gap: 12px;
 }
 
 .flow-steps {
@@ -2501,6 +2509,13 @@ body.title-route .app-shell {
   overflow: hidden;
 }
 
+.regular-bake-hero {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  flex: 0 0 auto;
+}
+
 .regular-status-row {
   gap: 10px;
 }
@@ -2530,6 +2545,94 @@ body.title-route .app-shell {
 
 .mode-status-pill {
   background: rgba(255, 107, 107, 0.16);
+}
+
+.regular-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+.regular-status-left,
+.regular-status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+.regular-status-name {
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.regular-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.compact-stage-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.compact-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(231, 191, 156, 0.96);
+  background: rgba(255, 249, 244, 0.9);
+  color: #8b6a58;
+  font-size: 0.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.compact-stage-pill-icon {
+  flex: 0 0 auto;
+  line-height: 1;
+}
+
+.compact-stage-pill-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compact-stage-pill.active {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  border-color: rgba(255, 107, 107, 0.72);
+  color: #fff;
+}
+
+.compact-stage-pill.done {
+  background: rgba(60, 167, 112, 0.14);
+  border-color: rgba(60, 167, 112, 0.32);
+  color: #2f8a5d;
+}
+
+.compact-stage-pill.upcoming {
+  background: rgba(255, 249, 244, 0.6);
+  color: rgba(107, 88, 77, 0.92);
 }
 
 .sale-report.celebration-panel {
@@ -2562,7 +2665,7 @@ body.title-route .app-shell {
 
 
 .story-problem-copy {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 1.02rem;
   line-height: 1.45;
 }
@@ -2570,6 +2673,15 @@ body.title-route .app-shell {
 .question-card.stage-panel {
   overflow: hidden;
   isolation: isolate;
+}
+
+.active-question-card {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 0;
+  padding: 16px;
 }
 
 .stage-panel::after {
@@ -2654,6 +2766,37 @@ body.title-route .app-shell {
 }
 
 @media (max-width: 720px) {
+  .active-bake-layout {
+    min-height: auto;
+  }
+
+  .regular-status-bar {
+    gap: 8px;
+  }
+
+  .regular-status-name {
+    max-width: 108px;
+  }
+
+  .regular-status-badge {
+    font-size: 0.72rem;
+    padding: 0 8px;
+  }
+
+  .compact-stage-strip {
+    gap: 6px;
+  }
+
+  .compact-stage-pill {
+    height: 30px;
+    padding: 0 7px;
+    font-size: 0.74rem;
+  }
+
+  .compact-stage-pill-label {
+    max-width: 64px;
+  }
+
   .story-scene-card {
     padding: 12px;
   }
@@ -2726,41 +2869,23 @@ body.title-route .app-shell {
 }
 
 .ingredient-mark {
-  display: inline-grid;
-  place-items: center;
-  min-width: 2.15rem;
-  height: 2.15rem;
-  padding: 0 0.42rem;
-  border-radius: 999px;
-  font-size: 0.72rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  color: #6a4a2d;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 235, 0.96));
-  border: 1px solid rgba(196, 156, 120, 0.36);
-  box-shadow: 0 8px 18px rgba(117, 74, 41, 0.12);
+  display: inline-block;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  border-radius: 16px;
+  background-color: transparent;
+  background-image: var(--ingredient-sheet);
+  background-repeat: no-repeat;
+  background-size: 300% 100%;
+  background-position: var(--ingredient-x) 50%;
 }
 
 .ingredient-mark-inline {
-  min-width: 1.7rem;
-  height: 1.7rem;
+  width: 1.9rem;
+  height: 1.9rem;
   margin-right: 0.38rem;
-  vertical-align: -0.28rem;
-}
-
-.ingredient-mark-flour {
-  color: #8f642f;
-  background: linear-gradient(180deg, #fff6df, #ffe8bd);
-}
-
-.ingredient-mark-sugar {
-  color: #a24b68;
-  background: linear-gradient(180deg, #fff1f6, #ffdce8);
-}
-
-.ingredient-mark-eggs {
-  color: #6b6522;
-  background: linear-gradient(180deg, #fbffe7, #edf5bf);
+  vertical-align: -0.42rem;
 }
 
 .utility-screen {
@@ -3077,9 +3202,8 @@ body.title-route .app-shell {
 }
 
 .ingredient-shop-stamp .ingredient-mark {
-  min-width: 2.5rem;
-  height: 2.5rem;
-  font-size: 0.8rem;
+  width: 3.35rem;
+  height: 3.35rem;
 }
 
 .pantry-shelf-stats {
@@ -3303,6 +3427,7 @@ body.title-route .app-shell {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  margin-bottom: 10px;
 }
 
 .story-ticket-pill {
@@ -3361,6 +3486,51 @@ body.title-route .app-shell {
   margin: 0;
   color: var(--muted);
   line-height: 1.4;
+}
+
+@media (max-height: 860px) {
+  .active-bake-layout {
+    gap: 10px;
+  }
+
+  .regular-bake-hero {
+    gap: 8px;
+    padding: 12px 14px;
+  }
+
+  .active-question-card {
+    padding: 14px;
+  }
+
+  .story-ticket-card,
+  .story-coach-card {
+    margin-bottom: 10px;
+    padding: 12px 14px;
+  }
+
+  .regular-answer-grid {
+    gap: 12px;
+  }
+}
+
+@media (max-height: 760px) {
+  .active-question-card {
+    padding: 12px;
+  }
+
+  .story-ticket-card,
+  .story-coach-card {
+    margin-bottom: 8px;
+    padding: 10px 12px;
+  }
+
+  .story-problem-copy {
+    margin-bottom: 8px;
+  }
+
+  .regular-answer-button {
+    min-height: 88px;
+  }
 }
 
 .story-scene-frame {

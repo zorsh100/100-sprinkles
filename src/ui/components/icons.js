@@ -3,14 +3,17 @@ export function renderCoinIcon(className = "") {
   return `<span class="coin-icon${suffix}" aria-hidden="true"></span>`;
 }
 
-const INGREDIENT_MARKS = {
-  flour: "FL",
-  sugar: "SU",
-  eggs: "EG",
+const INGREDIENT_SHEET_VERSION = "20260516-211500";
+const INGREDIENT_SHEET_SRC = `./assets/ingredients/flour-sugar-eggs-sheet.png?v=${INGREDIENT_SHEET_VERSION}`;
+
+const INGREDIENT_SPRITE_POSITIONS = {
+  flour: "0%",
+  sugar: "50%",
+  eggs: "100%",
 };
 
 export function renderIngredientIcon(ingredient, className = "") {
   const suffix = className ? ` ${className}` : "";
-  const label = INGREDIENT_MARKS[ingredient] ?? String(ingredient ?? "?").slice(0, 2).toUpperCase();
-  return `<span class="ingredient-mark ingredient-mark-${ingredient}${suffix}" aria-hidden="true">${label}</span>`;
+  const position = INGREDIENT_SPRITE_POSITIONS[ingredient] ?? "0%";
+  return `<span class="ingredient-mark ingredient-mark-${ingredient}${suffix}" aria-hidden="true" style="--ingredient-sheet:url('${INGREDIENT_SHEET_SRC}');--ingredient-x:${position};"></span>`;
 }

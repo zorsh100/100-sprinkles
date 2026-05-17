@@ -1,6 +1,6 @@
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-205400";
-import { renderMascot } from "../components/mascot.js?v=20260516-205400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-205400";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-211500";
+import { renderMascot } from "../components/mascot.js?v=20260516-211500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-211500";
 
 export function renderUnlockScreen(gameState) {
   const unlocks = gameState.session.pendingRecipeUnlocks ?? [];

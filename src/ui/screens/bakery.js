@@ -1,8 +1,8 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-205400";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-205400";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-205400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-205400";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-205400";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-211500";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-211500";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-211500";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-211500";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-211500";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-205400";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-205400";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-205400";
+} from "../../game/helpers.js?v=20260516-211500";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-211500";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-211500";
 
 const INGREDIENT_META = {
   flour: {
@@ -297,60 +297,34 @@ function renderIngredientToken(ingredient, amount) {
 
 function renderBakeScreen(gameState, currentStage) {
   const { player, session } = gameState;
-  const progress = session.saleReady ? 100 : session.order ? ((session.order.stageIndex + 1) / STAGES.length) * 100 : 0;
   const activeRecipe = session.order ? getRecipeById(session.order.recipeId) : null;
 
   return `
-    <section class="flow-screen">
+    <section class="flow-screen active-bake-layout">
       <section class="panel kinder-hero-panel regular-bake-hero">
-        <div class="section-head">
-          <div>
-            <h2>Keep the Bake Moving</h2>
-            <p class="muted">Each right answer helps the order roll from one bakery station to the next.</p>
-          </div>
-          <div class="badge">${activeRecipe ? `${activeRecipe.icon} ${escapeHtml(activeRecipe.name)}` : "Bake in progress"}</div>
-        </div>
-        <div class="pill-row regular-status-row">
-          <span class="pill regular-baker-pill">
+        <div class="regular-status-bar" aria-label="Bake status">
+          <div class="regular-status-left">
             ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "hud-baker-avatar", label: `${player.username}'s baker portrait` })}
-            <span>${escapeHtml(player.username)}</span>
-          </span>
-          <span class="pill mode-status-pill">${getSRMode(player.SR)}</span>
-          <span class="pill sr-status-pill">SR ${player.SR} • ${srToBand(player.SR)}</span>
-          <span class="pill streak-status-pill">Streak ${player.skill.currentStreak}</span>
-          <span class="pill accuracy-status-pill">Accuracy ${player.skill.totalAnswered ? Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100) : 0}%</span>
-        </div>
-        <div class="kinder-stage-banner-row">
-          <div class="kinder-stage-banner">
-            <span class="kinder-stage-banner-art">
-              ${renderStageArt(currentStage, { className: "stage-art-image-banner", altLabel: `${STAGE_META[currentStage].title} stage art` })}
-            </span>
-            <span>${STAGE_META[currentStage].title}</span>
+            <span class="regular-status-name">${escapeHtml(player.username)}</span>
           </div>
-          <div class="badge">${Math.round(progress)}% complete</div>
-        </div>
-        <div class="kinder-path-block">
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${progress}%"></div>
+          <div class="regular-status-right">
+            <span class="regular-status-badge streak-status-pill">Streak ${player.skill.currentStreak}</span>
+            <span class="regular-status-badge sr-status-pill">SR ${player.SR} • ${srToBand(player.SR)}</span>
           </div>
-          <div class="stage-grid">
-            ${STAGES.map((stage) => {
-              const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
-              const active = !session.saleReady && currentStage === stage && session.order;
-              const className = done ? "done" : active ? "active" : "";
-              const label = done ? `✓ ${stage}` : stage;
+        </div>
+        <div class="compact-stage-strip" aria-label="Bake progress">
+          ${STAGES.map((stage) => {
+            const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
+            const active = !session.saleReady && currentStage === stage && session.order;
+            const className = done ? "done" : active ? "active" : "upcoming";
 
-              return `
-                <div class="stage-chip stage-chip-${stage} ${className}">
-                  <div class="stage-chip-art-wrap">
-                    ${renderStageArt(stage, { className: "stage-art-image-chip", altLabel: `${STAGE_META[stage].title} stage icon` })}
-                    ${done ? '<span class="stage-chip-check">✓</span>' : ""}
-                  </div>
-                  <div>${label}</div>
-                </div>
-              `;
-            }).join("")}
-          </div>
+            return `
+              <div class="compact-stage-pill compact-stage-pill-${stage} ${className}">
+                <span class="compact-stage-pill-icon">${done ? "✓" : escapeHtml(STAGE_META[stage].icon)}</span>
+                <span class="compact-stage-pill-label">${escapeHtml(STAGE_META[stage].title)}</span>
+              </div>
+            `;
+          }).join("")}
         </div>
         ${
           player.SR >= 300
@@ -415,13 +389,7 @@ function renderQuestionPanel(gameState, currentStage) {
   }
 
   return `
-    <section class="panel question-card stage-panel stage-${currentStage}">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow">Math challenge</p>
-          <h2>${STAGE_META[currentStage].title}</h2>
-        </div>
-      </div>
+    <section class="panel question-card stage-panel active-question-card stage-${currentStage}">
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
       <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
