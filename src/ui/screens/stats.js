@@ -1,8 +1,8 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260516-231400";
-import { renderCoinIcon } from "../components/icons.js?v=20260516-231400";
-import { getSRMode } from "../../game/sr.js?v=20260516-231400";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-231400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-231400";
+import { formatOrderCount } from "../../game/helpers.js?v=20260517-105000";
+import { renderCoinIcon } from "../components/icons.js?v=20260517-105000";
+import { getSRMode } from "../../game/sr.js?v=20260517-105000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-105000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-105000";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
@@ -36,6 +36,7 @@ export function renderStatsScreen(gameState) {
               ${renderCelebrationBurst({ icon: sale.recipeIcon, label: `${sale.recipeName} sold!` })}
               <strong>${sale.recipeIcon} ${sale.recipeName}</strong>
               <span>${formatOrderCount(player.SR, sale.batchCount) ? `${formatOrderCount(player.SR, sale.batchCount)} sold` : "Sold and served"}</span>
+              <span>${sale.questionsPerBake ?? sale.correctAnswers ?? 10} bakery questions finished</span>
               <span>${renderCoinIcon("coin-icon-sm")} ${sale.revenue} of ${sale.baseRevenue ?? sale.revenue} coins earned</span>
               <span>Bake accuracy ${sale.accuracyPercent ?? 100}%</span>
               <span>${sale.sprinklesEarned} sprinkles earned</span>

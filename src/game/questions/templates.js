@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260516-231400";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260517-105000";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",

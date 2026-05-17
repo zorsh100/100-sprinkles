@@ -1,9 +1,10 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-231400";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-231400";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-231400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-231400";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-231400";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-105000";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-105000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-105000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-105000";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-105000";
 import {
+  canAffordIngredients,
   clampSprinkles,
   formatOrderCount,
   getMissingPantry,
@@ -16,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-231400";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-231400";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-231400";
+} from "../../game/helpers.js?v=20260517-105000";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-105000";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-105000";
 
 const INGREDIENT_META = {
   flour: {
@@ -58,7 +59,7 @@ export function renderBakeryScreen(gameState) {
     RECIPES[0];
   const orderCount = getOrderCount(player.SR, session.batchCount);
   const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, orderCount) : null;
-  const currentStage = session.order ? STAGES[session.order.stageIndex] : "prep";
+  const currentStage = session.order ? STAGES[session.order.stageIndex ?? 0] ?? "prep" : "prep";
 
   if (session.order || session.saleReady) {
     if (isVisualMode(player.SR)) {
@@ -79,6 +80,10 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
   const isReadyToBake = Object.keys(missingPantry).length === 0;
   const isBlockedByPantry = player.SR >= 300 && !isReadyToBake;
   const missingCost = getTotalShopCost(missingPantry);
+  const shouldShowPantryOverview =
+    player.SR >= 300 &&
+    pantryNeed &&
+    !canAffordIngredients(player, pantryNeed);
 
   return `
     <section class="flow-screen bakery-screen">
@@ -105,39 +110,45 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
         </div>
       </section>
 
-      <section class="panel pantry-overview-panel">
-        <div class="section-head bakery-head">
-          <div>
-            <p class="eyebrow eyebrow-pill">Pantry</p>
-            <h2>Check Your Shelves</h2>
-            <p class="muted bakery-subcopy">See what is already stocked and top off flour, sugar, or eggs before you choose the next bake.</p>
-          </div>
-        </div>
-
-        <div class="inventory-grid compact-pantry-grid ingredient-shop-grid pantry-overview-grid">
-          ${Object.entries(INGREDIENT_META)
-            .map(([ingredient, meta]) => {
-              const owned = Number(player.pantry?.[ingredient] || 0);
-              const needed = Number(pantryNeed?.[ingredient] || 0);
-              const canCoverNextBake = owned >= needed;
-              return `
-                <div class="inventory-card ingredient-shop-card pantry-overview-card ${meta.accentClass} ${canCoverNextBake ? "ready" : "missing"}">
-                  <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
-                  <strong>${meta.label}</strong>
-                  <span>Have ${owned}</span>
-                  <span>${selectedRecipe ? `Next ${selectedRecipe.name}: need ${needed}` : "Ready for sweet recipes"}</span>
-                  <details class="ingredient-note-details">
-                    <summary>Why this helps</summary>
-                    <span class="muted tiny">${meta.note}</span>
-                  </details>
-                  <button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
-                  <span class="muted tiny ingredient-restock-note">${canCoverNextBake ? "You already have enough for the next bake." : "A quick restock helps this ingredient catch up."}</span>
+      ${
+        shouldShowPantryOverview
+          ? `
+            <section class="panel pantry-overview-panel">
+              <div class="section-head bakery-head">
+                <div>
+                  <p class="eyebrow eyebrow-pill">Pantry</p>
+                  <h2>Check Your Shelves</h2>
+                  <p class="muted bakery-subcopy">See what is already stocked and top off flour, sugar, or eggs before you choose the next bake.</p>
                 </div>
-              `;
-            })
-            .join("")}
-        </div>
-      </section>
+              </div>
+
+              <div class="inventory-grid compact-pantry-grid ingredient-shop-grid pantry-overview-grid">
+                ${Object.entries(INGREDIENT_META)
+                  .map(([ingredient, meta]) => {
+                    const owned = Number(player.pantry?.[ingredient] || 0);
+                    const needed = Number(pantryNeed?.[ingredient] || 0);
+                    const canCoverNextBake = owned >= needed;
+                    return `
+                      <div class="inventory-card ingredient-shop-card pantry-overview-card ${meta.accentClass} ${canCoverNextBake ? "ready" : "missing"}">
+                        <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
+                        <strong>${meta.label}</strong>
+                        <span>Have ${owned}</span>
+                        <span>${selectedRecipe ? `Next ${selectedRecipe.name}: need ${needed}` : "Ready for sweet recipes"}</span>
+                        <details class="ingredient-note-details">
+                          <summary>Why this helps</summary>
+                          <span class="muted tiny">${meta.note}</span>
+                        </details>
+                        <button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
+                        <span class="muted tiny ingredient-restock-note">${canCoverNextBake ? "You already have enough for the next bake." : "A quick restock helps this ingredient catch up."}</span>
+                      </div>
+                    `;
+                  })
+                  .join("")}
+              </div>
+            </section>
+          `
+          : ""
+      }
 
       <section class="panel flow-screen recipe-selection-panel">
         <div class="section-head bakery-head">
@@ -166,9 +177,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                   <div class="recipe-details-grid recipe-details-stack">
                     <div class="recipe-info-chip">
                       <div class="recipe-icon-row recipe-ingredient-list">
-                        <span>${renderRecipeIngredientStat("flour", recipe.ingredients.flour)}</span>
-                        <span>${renderRecipeIngredientStat("sugar", recipe.ingredients.sugar)}</span>
-                        <span>${renderRecipeIngredientStat("eggs", recipe.ingredients.eggs)}</span>
+                        <span>${renderRecipeIngredientLine(recipe.ingredients)}</span>
                       </div>
                     </div>
                     <div class="recipe-info-chip">
@@ -200,7 +209,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
               : ""
           }
 
-          ${renderStartBakeNote(player, isReadyToBake) ? `<p class="visual-mode-note muted tiny">${renderStartBakeNote(player, isReadyToBake)}</p>` : ""}
+          ${renderStartBakeNote(player) ? `<p class="visual-mode-note muted tiny">${renderStartBakeNote(player)}</p>` : ""}
 
           ${
             supportsRecipeSets(player.SR)
@@ -221,36 +230,43 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           ${
             player.SR >= 300 && pantryNeed
               ? `
-                <div class="inventory-grid compact-pantry-grid ingredient-shop-grid">
-                  ${Object.entries(pantryNeed)
-                    .map(([ingredient, amount]) => {
-                      const owned = player.pantry[ingredient];
-                      const missing = Math.max(0, amount - owned);
-                      const meta =
-                        INGREDIENT_META[ingredient] ??
-                        { label: ingredient, accentClass: "ingredient-generic", note: "Needed for the next bake.", buyAmount: 1, buyLabel: "1", buyCost: getShopCost(ingredient, 1) };
-                      const canCoverMissing = owned + meta.buyAmount >= amount;
-                      return `
-                        <div class="inventory-card ingredient-shop-card ${meta.accentClass} ${missing ? "missing" : "ready"}">
-                          <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
-                          <strong>${meta.label}</strong>
-                          <span>Need ${amount}</span>
-                          <span>Have ${owned}</span>
-                          <details class="ingredient-note-details">
-                            <summary>Why this helps</summary>
-                            <span class="muted tiny">${meta.note}</span>
-                          </details>
-                          ${
-                            missing
-                              ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
-                                 <span class="muted tiny ingredient-restock-note">${canCoverMissing ? "One restock covers this bake." : "You may need more than one restock."}</span>`
-                              : `<span class="inventory-status">Ready for the bake</span>`
-                          }
-                        </div>
-                      `;
-                    })
-                    .join("")}
-                </div>
+                ${
+                  isReadyToBake
+                    ? `<p class="pantry-ready">✓ Pantry stocked — ready to bake</p>`
+                    : `
+                      <div class="inventory-grid compact-pantry-grid ingredient-shop-grid">
+                        ${Object.entries(pantryNeed)
+                          .map(([ingredient, amount]) => {
+                            const owned = player.pantry[ingredient];
+                            const missing = Math.max(0, amount - owned);
+                            const meta =
+                              INGREDIENT_META[ingredient] ??
+                              { label: ingredient, accentClass: "ingredient-generic", note: "Needed for the next bake.", buyAmount: 1, buyLabel: "1", buyCost: getShopCost(ingredient, 1) };
+                            const canCoverMissing = owned + meta.buyAmount >= amount;
+                            return `
+                              <div class="inventory-card ingredient-shop-card ${meta.accentClass} ${missing ? "missing" : "ready"}">
+                                <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
+                                <strong>${meta.label}</strong>
+                                <span>Need ${amount}</span>
+                                <span>Have ${owned}</span>
+                                <details class="ingredient-note-details">
+                                  <summary>Why this helps</summary>
+                                  <span class="muted tiny">${meta.note}</span>
+                                </details>
+                                ${
+                                  missing
+                                    ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
+                                       <span class="muted tiny ingredient-restock-note">${canCoverMissing ? "One restock covers this bake." : "You may need more than one restock."}</span>`
+                                    : ""
+                                }
+                              </div>
+                            `;
+                          })
+                          .filter(Boolean)
+                          .join("")}
+                      </div>
+                    `
+                }
               `
               : ""
           }
@@ -300,42 +316,28 @@ function renderRecipeAction(recipe, isSelected, isUnlocked) {
   `;
 }
 
-function renderStartBakeNote(player, isReadyToBake) {
-  if (player.SR >= 300 && !isReadyToBake) {
-    return "";
-  }
-
+function renderStartBakeNote(player) {
   if (isVisualMode(player.SR)) {
     return "Picture-first math is on for this bake.";
   }
 
-  if (!supportsRecipeSets(player.SR)) {
-    return "Single-recipe bakes for now, with story prompts tied to each station.";
-  }
-
-  if (player.SR < 300) {
-    return "Ingredients are auto-stocked right now while you learn the flow.";
-  }
-
-  return "Pantry is stocked and the next order is ready for a math-powered bake.";
+  return "";
 }
 
 function formatRecipeCountBadge(count) {
   return `Menu ${count} recipe${count === 1 ? "" : "s"} ready`;
 }
 
-function renderIngredientToken(ingredient, amount) {
-  const meta = INGREDIENT_META[ingredient] ?? { label: ingredient };
-  return `${renderIngredientIcon(ingredient, "ingredient-mark-inline")} ${meta.label} ×${amount}`;
-}
-
-function renderRecipeIngredientStat(ingredient, amount) {
-  return `${renderIngredientIcon(ingredient, "ingredient-mark-recipe")} ${amount}`;
+function renderRecipeIngredientLine(ingredients) {
+  return `🌾 ×${ingredients.flour}  🍬 ×${ingredients.sugar}  🥚 ×${ingredients.eggs}`;
 }
 
 function renderBakeScreen(gameState, currentStage) {
   const { player, session } = gameState;
-  const activeRecipe = session.order ? getRecipeById(session.order.recipeId) : null;
+  const currentQuestionIndex = session.order?.questionIndex ?? ((session.order?.stageIndex ?? 0) * 2);
+  const activeQuestionNumber = session.saleReady
+    ? QUESTIONS_PER_BAKE
+    : Math.min(currentQuestionIndex + 1, session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE);
 
   return `
     <section class="flow-screen active-bake-layout">
@@ -347,6 +349,7 @@ function renderBakeScreen(gameState, currentStage) {
           </div>
           <div class="regular-status-right">
             <span class="regular-status-badge streak-status-pill">Streak ${player.skill.currentStreak}</span>
+            <span class="regular-status-badge">Question ${activeQuestionNumber}/${session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE}</span>
             <span class="regular-status-badge sr-status-pill">SR ${player.SR} • ${srToBand(player.SR)}</span>
           </div>
         </div>
@@ -396,12 +399,13 @@ function renderQuestionPanel(gameState, currentStage) {
             <h2>${session.saleReady.recipeIcon} Fresh ${session.saleReady.recipeName}</h2>
             <p class="muted">The baking is done. Serve the order to see your stats.</p>
           </div>
-          <div class="badge">${formatOrderCount(player.SR, session.saleReady.batchCount) || "Ready to serve"}</div>
+          <div class="badge">${session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE} questions baked</div>
         </div>
         ${renderMascot({ mood: "celebrate", compact: true, message: `You did it! These ${session.saleReady.recipeName.toLowerCase()} are ready to wow your customers.` })}
         <div class="receipt-card">
           <span>Sale value: ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue} of ${session.saleReady.baseRevenue ?? session.saleReady.revenue}</span>
           <span>Bake accuracy: ${session.saleReady.accuracyPercent ?? 100}%</span>
+          <span>Questions solved: ${session.saleReady.correctAnswers ?? session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE}/${session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE}</span>
           <span>Sprinkles earned: ${session.saleReady.sprinklesEarned}/${Math.min(activeRecipe?.sprinkleReward ?? 5, 5)}</span>
         </div>
         <div class="flow-actions">
@@ -519,9 +523,10 @@ function renderSprinkleHud(player) {
 
 function renderStoryTicket(question, currentStage, activeRecipe, batchCount) {
   return `
-    <div class="story-ticket-card">
+      <div class="story-ticket-card">
       <div class="story-ticket-row">
         <span class="story-ticket-pill">Order Ticket</span>
+        <span class="story-ticket-pill story-ticket-pill-soft">Question ${(question.orderQuestionIndex ?? 0) + 1}/${question.questionsPerBake ?? QUESTIONS_PER_BAKE}</span>
         <span class="story-ticket-pill story-ticket-pill-soft">${escapeHtml(question.type === "cost" ? "Coin Job" : question.type === "fraction" ? "Fair Share" : question.type === "business" ? "Bakery Business" : "Story Math")}</span>
       </div>
       <div class="story-ticket-grid">

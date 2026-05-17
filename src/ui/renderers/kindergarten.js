@@ -1,9 +1,14 @@
-import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260516-231400";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-231400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-231400";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-231400";
+import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-105000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-105000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-105000";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-105000";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
+  const currentQuestionIndex = session.order?.questionIndex ?? ((session.order?.stageIndex ?? 0) * 2);
+  const activeQuestionNumber = session.saleReady
+    ? QUESTIONS_PER_BAKE
+    : Math.min(currentQuestionIndex + 1, session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE);
+
   return `
     <section class="kinder-layout">
       <section class="panel kinder-hero-panel">
@@ -39,7 +44,7 @@ export function renderKindergartenBakery({ player, session, currentStage, select
             </span>
             <span>${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</span>
           </div>
-          <div class="badge">SR ${player.SR}</div>
+          <div class="badge">Q ${activeQuestionNumber}/${session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE} • SR ${player.SR}</div>
         </div>
         <div class="kinder-path-block">
           <p class="muted tiny">Bakery Path</p>
@@ -69,6 +74,7 @@ function renderKindergartenSale(saleReady) {
         <h2>All baked!</h2>
         <p class="muted">Tap the big button to serve your treats.</p>
         ${renderMascot({ mood: 'celebrate', compact: true, message: `Hooray! These treats are ready to earn ${saleReady.revenue} coins at ${saleReady.accuracyPercent ?? 100}% accuracy.` })}
+        <p class="muted tiny">${saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE} bakery questions finished</p>
         <p class="muted tiny">Accuracy bonus: ${saleReady.revenue} of ${saleReady.baseRevenue ?? saleReady.revenue} coins</p>
         <button class="primary-button kinder-start-button" data-sell-order type="button">
           Serve for ${saleReady.revenue} coins
@@ -95,6 +101,7 @@ function renderKindergartenQuestion({ session, currentStage }) {
           <h2>${promptLabel}</h2>
           <p class="muted kinder-question-prompt">${escapeHtml(question.prompt ?? "")}</p>
         </div>
+        <div class="badge">Question ${(question.orderQuestionIndex ?? 0) + 1}/${question.questionsPerBake ?? QUESTIONS_PER_BAKE}</div>
       </div>
       <div class="kinder-equation-row">
         ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(formatKinderEquation(question.promptSecondary))}</div>` : ""}

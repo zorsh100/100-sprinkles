@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260516-231400";
+import { clamp } from "./math.js?v=20260517-105000";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -14,6 +14,11 @@ export const GRADE_TO_SR = {
 };
 
 export const STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
+export const QUESTIONS_PER_BAKE = 10;
+export const MAX_SR_GAIN_PER_BAKE = 10;
+export const BAKE_STAGE_SEQUENCE = STAGES.flatMap((stage) => [stage, stage]);
+
+const GRADE_SEQUENCE = ["K", "1", "2", "3", "4", "5", "6", "7", "8"];
 
 export const STAGE_META = {
   prep: { icon: "🥣", title: "Prep Station" },
@@ -188,6 +193,38 @@ export const DEFAULT_PLAYER = {
   createdAt: 0,
 };
 
+export function getGradeRank(grade) {
+  const rank = GRADE_SEQUENCE.indexOf(String(grade ?? "K"));
+  return rank >= 0 ? rank : 0;
+}
+
+export function getGradeForSR(sr) {
+  const normalizedSR = clamp(Number(sr) || DEFAULT_PLAYER.SR, 0, 1000);
+  let resolvedGrade = "K";
+
+  for (const grade of GRADE_SEQUENCE) {
+    if (normalizedSR >= GRADE_TO_SR[grade]) {
+      resolvedGrade = grade;
+    }
+  }
+
+  return resolvedGrade;
+}
+
+export function getPromotedGrade(currentGrade, sr) {
+  const srGrade = getGradeForSR(sr);
+  return getGradeRank(srGrade) > getGradeRank(currentGrade) ? srGrade : String(currentGrade ?? "K");
+}
+
+export function getBakeStageByQuestionIndex(questionIndex) {
+  const normalizedIndex = clamp(Number(questionIndex) || 0, 0, BAKE_STAGE_SEQUENCE.length - 1);
+  return BAKE_STAGE_SEQUENCE[normalizedIndex] ?? STAGES[0];
+}
+
+export function getBakeStageIndexByQuestionIndex(questionIndex) {
+  return STAGES.indexOf(getBakeStageByQuestionIndex(questionIndex));
+}
+
 export function normalizePlayer(player = {}) {
   const {
     knownRecipes: savedKnownRecipes,
@@ -208,10 +245,14 @@ export function normalizePlayer(player = {}) {
   const normalizedKnownRecipes = RECIPES
     .map((recipe) => recipe.id)
     .filter((recipeId) => allowedKnownRecipeIds.has(recipeId));
+  const normalizedSR = clamp(Number(playerData.SR ?? DEFAULT_PLAYER.SR) || DEFAULT_PLAYER.SR, 0, 1000);
+  const normalizedGrade = getPromotedGrade(playerData.grade ?? DEFAULT_PLAYER.grade, normalizedSR);
 
   return {
     ...DEFAULT_PLAYER,
     ...playerData,
+    grade: normalizedGrade,
+    SR: normalizedSR,
     avatarId: PLAYER_AVATAR_IDS.includes(playerData.avatarId) ? playerData.avatarId : DEFAULT_PLAYER.avatarId,
     sprinkles: normalizedSprinkles,
     pantry: {

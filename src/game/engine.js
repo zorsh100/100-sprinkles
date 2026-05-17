@@ -1,4 +1,12 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260516-231400";
+import {
+  MAX_SR_GAIN_PER_BAKE,
+  QUESTIONS_PER_BAKE,
+  STAGES,
+  STAGE_META,
+  createInitialSession,
+  getBakeStageByQuestionIndex,
+  getBakeStageIndexByQuestionIndex,
+} from "./data.js?v=20260517-105000";
 import {
   canAffordIngredients,
   clamp,
@@ -13,10 +21,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260516-231400";
-import { formatSignedValue } from "./math.js?v=20260516-231400";
-import { generateQuestion } from "./questions/generator.js?v=20260516-231400";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260516-231400";
+} from "./helpers.js?v=20260517-105000";
+import { formatSignedValue } from "./math.js?v=20260517-105000";
+import { generateQuestion } from "./questions/generator.js?v=20260517-105000";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260517-105000";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -115,10 +123,13 @@ export function startOrder(gameState) {
 
   const pantryNeed = getPantryNeed(recipe, orderCount);
   const estimatedRevenue = getOrderRevenue(recipe, orderCount, player.SR);
+  const firstStage = getBakeStageByQuestionIndex(0);
   const order = {
     recipeId: recipe.id,
     batchCount: orderCount,
-    stageIndex: 0,
+    questionIndex: 0,
+    questionsPerBake: QUESTIONS_PER_BAKE,
+    stageIndex: getBakeStageIndexByQuestionIndex(0),
     completedStages: [],
     pantryNeed,
     estimatedRevenue,
@@ -126,12 +137,13 @@ export function startOrder(gameState) {
     correctAnswers: 0,
     firstTryCorrectAnswers: 0,
     streakBonusSprinkles: 0,
+    srGainThisBake: 0,
     status: "baking",
     startedAt: Date.now(),
   };
   const nextQuestion = generateQuestion({
     SR: player.SR,
-    stage: STAGES[0],
+    stage: firstStage,
     context: {
       recipeId: recipe.id,
       recipeName: recipe.name,
@@ -139,6 +151,8 @@ export function startOrder(gameState) {
     },
     recentTemplates: session.recentTemplates,
   });
+  nextQuestion.orderQuestionIndex = 0;
+  nextQuestion.questionsPerBake = QUESTIONS_PER_BAKE;
 
   return {
     ...gameState,
@@ -154,8 +168,8 @@ export function startOrder(gameState) {
       kind: "success",
       text:
         isVisualMode(player.SR)
-          ? "Tap the right number to finish the treat tray."
-          : `The ${recipe.name.toLowerCase()} order is rolling into prep.`,
+          ? `Tap the right number to start this ${QUESTIONS_PER_BAKE}-question bakery job.`
+          : `The ${recipe.name.toLowerCase()} order is rolling into prep for a ${QUESTIONS_PER_BAKE}-question bake.`,
     },
   };
 }
@@ -177,6 +191,7 @@ export function submitAnswer(gameState, selectedAnswer) {
     question,
     correct,
     attemptNumber,
+    maxPositiveDelta: MAX_SR_GAIN_PER_BAKE - (session.order.srGainThisBake ?? 0),
   });
 
   if (!correct) {
@@ -207,8 +222,14 @@ export function submitAnswer(gameState, selectedAnswer) {
     };
   }
 
-  const nextStageIndex = session.order.stageIndex + 1;
-  const completedStages = [...session.order.completedStages, question.stage];
+  const currentQuestionIndex = session.order.questionIndex ?? ((session.order.stageIndex ?? 0) * 2);
+  const nextQuestionIndex = currentQuestionIndex + 1;
+  const currentStage = getBakeStageByQuestionIndex(currentQuestionIndex);
+  const nextStage = nextQuestionIndex < QUESTIONS_PER_BAKE ? getBakeStageByQuestionIndex(nextQuestionIndex) : null;
+  const completedStages =
+    !session.order.completedStages.includes(currentStage) && currentStage !== nextStage
+      ? [...session.order.completedStages, currentStage]
+      : session.order.completedStages;
   const earnedFirstTrySprinkle = attemptNumber === 1 ? 1 : 0;
   const earnedStreakSprinkle = attemptNumber === 1 && srResult.player.skill.currentStreak >= 5 ? 1 : 0;
 
@@ -217,16 +238,19 @@ export function submitAnswer(gameState, selectedAnswer) {
     correctAnswers: (session.order.correctAnswers ?? 0) + 1,
     firstTryCorrectAnswers: (session.order.firstTryCorrectAnswers ?? 0) + earnedFirstTrySprinkle,
     streakBonusSprinkles: (session.order.streakBonusSprinkles ?? 0) + earnedStreakSprinkle,
+    questionIndex: nextQuestionIndex,
+    stageIndex: nextQuestionIndex < QUESTIONS_PER_BAKE ? getBakeStageIndexByQuestionIndex(nextQuestionIndex) : session.order.stageIndex,
+    srGainThisBake: (session.order.srGainThisBake ?? 0) + Math.max(0, srResult.delta),
   };
 
-  if (nextStageIndex >= STAGES.length) {
+  if (nextQuestionIndex >= QUESTIONS_PER_BAKE) {
     return finishOrder(gameState, srResult.player, completedStages, nextOrderTotals);
   }
 
   const recipe = getRecipeById(session.order.recipeId);
   const nextQuestion = generateQuestion({
     SR: srResult.nextSR,
-    stage: STAGES[nextStageIndex],
+    stage: nextStage,
     context: {
       recipeId: session.order.recipeId,
       recipeName: recipe?.name,
@@ -234,6 +258,8 @@ export function submitAnswer(gameState, selectedAnswer) {
     },
     recentTemplates: session.recentTemplates,
   });
+  nextQuestion.orderQuestionIndex = nextQuestionIndex;
+  nextQuestion.questionsPerBake = QUESTIONS_PER_BAKE;
 
   return {
     ...gameState,
@@ -242,7 +268,6 @@ export function submitAnswer(gameState, selectedAnswer) {
       ...session,
       order: {
         ...session.order,
-        stageIndex: nextStageIndex,
         completedStages,
         ...nextOrderTotals,
       },
@@ -252,7 +277,10 @@ export function submitAnswer(gameState, selectedAnswer) {
     },
     flash: {
       kind: "success",
-      text: `${question.stage} is complete. On to ${STAGES[nextStageIndex]}. SR ${formatSignedValue(srResult.delta)}.`,
+      text:
+        currentStage !== nextStage
+          ? `${STAGE_META[currentStage].title} is done. Next stop: ${STAGE_META[nextStage].title}. SR ${formatSignedValue(srResult.delta)}.`
+          : `${STAGE_META[currentStage].title} keeps rolling. Question ${nextQuestionIndex + 1} of ${QUESTIONS_PER_BAKE}. SR ${formatSignedValue(srResult.delta)}.`,
     },
   };
 }
@@ -309,6 +337,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}
         revenue: adjustedRevenue,
         baseRevenue,
         accuracyPercent,
+        questionsPerBake: session.order.questionsPerBake ?? QUESTIONS_PER_BAKE,
         totalAttempts,
         correctAnswers,
         firstTryCorrectAnswers,

@@ -1,6 +1,6 @@
-import { renderMascot } from "../components/mascot.js?v=20260516-231400";
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260516-231400";
-import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260516-231400";
+import { renderMascot } from "../components/mascot.js?v=20260517-105000";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260517-105000";
+import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260517-105000";
 
 const GRADE_BUCKETS = [
   {
@@ -102,6 +102,7 @@ const GRADE_BUCKETS = [
 ];
 
 const GRADE_CARDS = GRADE_BUCKETS.flatMap((bucket) => bucket.grades);
+const VISIBLE_GRADE_BUCKETS = GRADE_BUCKETS.filter((bucket) => bucket.key !== "6-8");
 
 export function renderOnboardingScreen(slotSummary) {
   const slotLabel = slotSummary?.slotLabel ?? "Player 1";
@@ -173,16 +174,15 @@ export function renderOnboardingScreen(slotSummary) {
               <div class="field full">
                 <span>Choose a grade path</span>
                 <div class="onboarding-grade-buckets">
-                  ${GRADE_BUCKETS.map(
+                  ${VISIBLE_GRADE_BUCKETS.map(
                     (bucket) => `
-                      <section class="grade-bucket ${bucket.key === "6-8" ? "grade-bucket-disabled" : ""}">
+                      <section class="grade-bucket">
                         <div class="grade-bucket-head">
                           <div>
                             <p class="eyebrow eyebrow-pill">${bucket.label}</p>
                             <h3>${bucket.title}</h3>
                             <p class="muted tiny">${bucket.note}</p>
                           </div>
-                          ${bucket.key === "6-8" ? '<span class="badge grade-bucket-badge">Cooling on the rack</span>' : ""}
                         </div>
                         <div class="grade-grid onboarding-grade-grid">
                           ${bucket.grades

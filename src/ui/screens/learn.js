@@ -1,6 +1,6 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260516-231400";
-import { renderMascot } from "../components/mascot.js?v=20260516-231400";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-231400";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20260517-105000";
+import { renderMascot } from "../components/mascot.js?v=20260517-105000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-105000";
 
 const QUESTION_LABELS = {
   arithmetic_visual: "Picture counting",

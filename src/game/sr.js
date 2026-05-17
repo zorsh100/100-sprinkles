@@ -1,4 +1,5 @@
-import { clamp } from "./math.js?v=20260516-231400";
+import { clamp } from "./math.js?v=20260517-105000";
+import { getPromotedGrade } from "./data.js?v=20260517-105000";
 
 export const VISUAL_MODE_END_SR = 110;
 export const VISUAL_BRIDGE_START_SR = 80;
@@ -48,54 +49,37 @@ export function getAccuracy(player) {
   return Math.round((player.skill.correctAnswered / player.skill.totalAnswered) * 100);
 }
 
-export function applySRResult({ player, question, correct, attemptNumber }) {
+export function applySRResult({ player, question, correct, attemptNumber, maxPositiveDelta = Infinity }) {
   const skill = player.skill;
-  const challengeOffset = (question.difficulty ?? player.SR) - player.SR;
   let delta = 0;
 
   if (correct) {
-    delta += 8;
-    delta += Math.round(clamp(challengeOffset / 35, -1, 5));
-    delta += Math.min(skill.currentStreak, 4);
-    delta += attemptNumber === 1 ? 2 : 0;
-    delta -= attemptNumber > 1 ? Math.min(attemptNumber - 1, 3) : 0;
-    delta = clamp(delta, 5, 18);
-
-    if (attemptNumber === 2) {
+    if (attemptNumber === 1) {
+      delta = 1;
+    } else if (attemptNumber === 2) {
       delta = 0;
-    } else if (attemptNumber >= 3) {
-      delta = -clamp(attemptNumber - 2, 1, 4);
+    } else {
+      delta = -1;
     }
   } else {
-    let penalty = 5;
-    penalty += Math.round(clamp((player.SR - (question.difficulty ?? player.SR)) / 40, -1, 4));
-    penalty += Math.min(Math.max(0, attemptNumber - 1), 2);
-    delta = -clamp(penalty, 3, 11);
+    delta = -1;
   }
 
-  if (player.SR < VISUAL_MODE_END_SR) {
-    if (correct) {
-      if (attemptNumber === 1) {
-        delta = clamp(Math.round(delta * 0.65), 3, 8);
-      } else if (attemptNumber === 2) {
-        delta = 0;
-      } else {
-        delta = -clamp(Math.round(Math.abs(delta) * 0.6), 1, 3);
-      }
-    } else {
-      delta = -clamp(Math.round(Math.abs(delta) * 0.6), 2, 6);
-    }
+  if (delta > 0) {
+    delta = Math.min(delta, Math.max(0, Number(maxPositiveDelta) || 0));
   }
 
   const nextSR = clamp(player.SR + delta, 0, 1000);
   const nextStreak = correct ? skill.currentStreak + 1 : 0;
   const recentResults = [...skill.recentResults, correct ? 1 : 0].slice(-8);
+  const nextGrade = getPromotedGrade(player.grade, nextSR);
 
   return {
     delta,
     nextSR,
     player: {
       ...player,
+      grade: nextGrade,
       SR: nextSR,
       skill: {
         ...skill,
