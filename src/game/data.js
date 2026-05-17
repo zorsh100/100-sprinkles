@@ -1,4 +1,4 @@
-import { clamp } from "./math.js?v=20260516-214700";
+import { clamp } from "./math.js?v=20260516-215300";
 
 export const GRADE_TO_SR = {
   // Keep kindergarten aligned with the spec so the visual-only ramp starts halfway in.
@@ -24,15 +24,15 @@ export const STAGE_META = {
 };
 
 export const INGREDIENT_COSTS = {
-  flour: 10 / 17,
-  sugar: 15 / 11,
-  eggs: 1,
+  flour: 5 / 17,
+  sugar: 8 / 11,
+  eggs: 10 / 12,
 };
 
 export const INGREDIENT_BULK_BUYS = {
-  flour: { amount: 17, label: "5 lbs", cost: 10 },
-  sugar: { amount: 11, label: "5 lbs", cost: 15 },
-  eggs: { amount: 12, label: "1 dozen", cost: 12 },
+  flour: { amount: 17, label: "5 lbs", cost: 5 },
+  sugar: { amount: 11, label: "5 lbs", cost: 8 },
+  eggs: { amount: 12, label: "1 dozen", cost: 10 },
 };
 
 export const MAX_SPRINKLES = 100;
