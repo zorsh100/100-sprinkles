@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-222300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-222300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-222300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-222300";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-222300";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-224000";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-224000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-224000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-224000";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-224000";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-222300";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-222300";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-222300";
+} from "../../game/helpers.js?v=20260516-224000";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-224000";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-224000";
 
 const INGREDIENT_META = {
   flour: {
@@ -330,15 +330,7 @@ function renderIngredientToken(ingredient, amount) {
 }
 
 function renderRecipeIngredientStat(ingredient, amount) {
-  return `${getRecipeIngredientEmoji(ingredient)} ${amount}`;
-}
-
-function getRecipeIngredientEmoji(ingredient) {
-  return {
-    flour: "🌾",
-    sugar: "🍬",
-    eggs: "🥚",
-  }[ingredient] ?? "🧁";
+  return `${renderIngredientIcon(ingredient, "ingredient-mark-recipe")} ${amount}`;
 }
 
 function renderBakeScreen(gameState, currentStage) {
@@ -439,13 +431,7 @@ function renderQuestionPanel(gameState, currentStage) {
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
       <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      <details class="story-coach-card story-coach-details">
-        <summary class="story-coach-summary">
-          <span class="story-coach-label">Baker Tip</span>
-          <span class="story-coach-toggle">Show Tip</span>
-        </summary>
-        <p>${escapeHtml(question.hint)}</p>
-      </details>
+      ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
       <div class="answer-grid regular-answer-grid">
         ${question.choices
           .map((choice, index) => {
@@ -518,12 +504,36 @@ function renderStoryTicket(question, currentStage, activeRecipe, batchCount) {
             <span>${escapeHtml(STAGE_META[currentStage].title)}</span>
           </strong>
         </div>
-        <div>
-          <span class="story-ticket-label">Mission</span>
-          <strong>${escapeHtml(question.mission ?? getQuestionMission(question, batchCount))}</strong>
-        </div>
       </div>
     </div>
+  `;
+}
+
+function renderStoryHelp(question, batchCount) {
+  const mission = question.mission ?? getQuestionMission(question, batchCount);
+  const strongHint = question.hint;
+
+  return `
+    <details class="story-coach-card story-coach-details">
+      <summary class="story-coach-summary">
+        <span class="story-coach-label">Baker Tip</span>
+        <span class="story-coach-toggle">Show Tip</span>
+      </summary>
+      <p>${escapeHtml(mission)}</p>
+      ${
+        strongHint
+          ? `
+            <details class="story-coach-subdetails">
+              <summary class="story-coach-summary story-coach-subsummary">
+                <span class="story-coach-label">More Help</span>
+                <span class="story-coach-toggle">Show More</span>
+              </summary>
+              <p>${escapeHtml(strongHint)}</p>
+            </details>
+          `
+          : ""
+      }
+    </details>
   `;
 }
 

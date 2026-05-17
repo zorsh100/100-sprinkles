@@ -2991,6 +2991,13 @@ body.title-route .app-shell {
   vertical-align: -0.42rem;
 }
 
+.ingredient-mark-recipe {
+  width: 1.65rem;
+  height: 1.65rem;
+  margin-right: 0.18rem;
+  vertical-align: -0.32rem;
+}
+
 .utility-screen {
   gap: 18px;
 }
@@ -3594,7 +3601,7 @@ body.title-route .app-shell {
 .story-ticket-grid {
   display: grid;
   gap: 12px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .story-ticket-grid strong {
@@ -3632,6 +3639,16 @@ body.title-route .app-shell {
 }
 
 .story-coach-details p {
+  margin-top: 10px;
+}
+
+.story-coach-subdetails {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(232, 213, 192, 0.92);
+}
+
+.story-coach-subdetails p {
   margin-top: 10px;
 }
 
