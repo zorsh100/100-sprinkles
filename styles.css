@@ -205,6 +205,39 @@ button[aria-disabled="true"] {
   backdrop-filter: blur(12px);
 }
 
+.answer-splash {
+  position: fixed;
+  top: 18px;
+  left: 50%;
+  z-index: 60;
+  transform: translate(-50%, -18px);
+  min-width: min(320px, calc(100vw - 32px));
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-align: center;
+  color: #fff;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease, transform 180ms ease;
+  box-shadow: 0 18px 36px rgba(117, 74, 41, 0.26);
+}
+
+.answer-splash.visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.answer-splash-success {
+  background: linear-gradient(135deg, #ff7f72, #ff9b7f);
+}
+
+.answer-splash-error {
+  background: linear-gradient(135deg, #f08a5d, #f7a86d);
+}
+
 .grid {
   display: grid;
   gap: 18px;

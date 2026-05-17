@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260517-105000";
+import { navigate } from "../app/router.js?v=20260517-110000";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,21 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260517-105000";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260517-105000";
-import { renderShell } from "./shell.js?v=20260517-105000";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260517-105000";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260517-105000";
-import { renderLearnScreen } from "./screens/learn.js?v=20260517-105000";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260517-105000";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260517-105000";
-import { renderShopScreen } from "./screens/shop.js?v=20260517-105000";
-import { renderStatsScreen } from "./screens/stats.js?v=20260517-105000";
-import { renderTitleScreen } from "./screens/title.js?v=20260517-105000";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260517-105000";
+} from "../game/engine.js?v=20260517-110000";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260517-110000";
+import { renderShell } from "./shell.js?v=20260517-110000";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260517-110000";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260517-110000";
+import { renderLearnScreen } from "./screens/learn.js?v=20260517-110000";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260517-110000";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260517-110000";
+import { renderShopScreen } from "./screens/shop.js?v=20260517-110000";
+import { renderStatsScreen } from "./screens/stats.js?v=20260517-110000";
+import { renderTitleScreen } from "./screens/title.js?v=20260517-110000";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260517-110000";
+
+const ANSWER_SPLASH_DURATION_MS = 1000;
+let pendingAnswerAdvance = null;
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -269,20 +272,42 @@ function attachShopEvents(root, gameState, dispatch) {
 function attachQuestionEvents(root, gameState, dispatch) {
   root.querySelectorAll("[data-answer]").forEach((button) => {
     button.addEventListener("click", () => {
+      if (pendingAnswerAdvance) {
+        return;
+      }
+
       let updated = gameState;
 
       if (gameState.session.questionResult) {
         updated = clearQuestionResult(gameState);
       }
 
-      updated = submitAnswer(updated, button.dataset.answer);
+      const selectedAnswer = button.dataset.answer;
+      const wasCorrect = isCorrectAnswer(updated.session.currentQuestion, selectedAnswer);
+      updated = submitAnswer(updated, selectedAnswer);
+
+      if (wasCorrect) {
+        showAnswerSplash("Correct!", "success");
+        pendingAnswerAdvance = window.setTimeout(() => {
+          pendingAnswerAdvance = null;
+          dispatch({ type: "UPDATE_GAME", payload: updated });
+        }, ANSWER_SPLASH_DURATION_MS);
+        return;
+      }
+
       dispatch({ type: "UPDATE_GAME", payload: updated });
+      showAnswerSplash("Try Again", "error");
     });
   });
 
   root.querySelectorAll("[data-answer-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
+
+      if (pendingAnswerAdvance) {
+        return;
+      }
+
       const formData = new FormData(event.currentTarget);
       const answer = String(formData.get("answer") ?? "").trim();
 
@@ -296,10 +321,52 @@ function attachQuestionEvents(root, gameState, dispatch) {
         updated = clearQuestionResult(gameState);
       }
 
+      const wasCorrect = isCorrectAnswer(updated.session.currentQuestion, answer);
       updated = submitAnswer(updated, answer);
+
+      if (wasCorrect) {
+        showAnswerSplash("Correct!", "success");
+        pendingAnswerAdvance = window.setTimeout(() => {
+          pendingAnswerAdvance = null;
+          dispatch({ type: "UPDATE_GAME", payload: updated });
+        }, ANSWER_SPLASH_DURATION_MS);
+        return;
+      }
+
       dispatch({ type: "UPDATE_GAME", payload: updated });
+      showAnswerSplash("Try Again", "error");
     });
   });
+}
+
+function isCorrectAnswer(question, selectedAnswer) {
+  if (!question) {
+    return false;
+  }
+
+  return String(selectedAnswer) === String(question.answer);
+}
+
+function showAnswerSplash(message, kind = "success") {
+  const existing = document.querySelector(".answer-splash");
+
+  if (existing) {
+    existing.remove();
+  }
+
+  const splash = document.createElement("div");
+  splash.className = `answer-splash answer-splash-${kind}`;
+  splash.textContent = message;
+  document.body.appendChild(splash);
+
+  window.setTimeout(() => {
+    splash.classList.add("visible");
+  }, 10);
+
+  window.setTimeout(() => {
+    splash.classList.remove("visible");
+    window.setTimeout(() => splash.remove(), 220);
+  }, ANSWER_SPLASH_DURATION_MS);
 }
 
 function attachPageEvents(root, gameState, dispatch) {
