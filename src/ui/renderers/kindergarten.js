@@ -1,8 +1,8 @@
-import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-130800";
-import { renderCoinIcon } from "../components/icons.js?v=20260517-130800";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-130800";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-130800";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-130800";
+import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-133300";
+import { renderCoinIcon } from "../components/icons.js?v=20260517-133300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-133300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-133300";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-133300";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -22,7 +22,8 @@ export function renderKindergartenBakery({ player, session, currentStage, select
             ${renderStageArt(currentStage, { className: "stage-art-image-kinder-focus", altLabel: `${STAGE_META[currentStage].title} stage art` })}
           </span>
           <div class="kinder-stage-focus-copy">
-            <strong>${escapeHtml(STAGE_META[currentStage].title)} · ${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</strong>
+            <strong>Recipe: ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")} ${selectedRecipe?.icon ?? "🧁"}</strong>
+            <span>Step: ${escapeHtml(STAGE_META[currentStage].title)}</span>
           </div>
         </div>
       </section>
@@ -75,7 +76,7 @@ function renderKindergartenQuestion({ session, currentStage }) {
           <p class="kinder-question-prompt">${escapeHtml(question.prompt ?? "")}</p>
         </div>
       </div>
-      ${renderKinderVisuals(question.visuals)}
+      ${renderKinderVisuals(question.visuals, question.subtype)}
       <div class="kinder-equation-row">
         ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(formatKinderEquation(question.promptSecondary))}</div>` : ""}
       </div>
@@ -121,10 +122,12 @@ function formatKinderEquation(value) {
   return `${equation} =`;
 }
 
-function renderKinderVisuals(visuals) {
+function renderKinderVisuals(visuals, subtype = "") {
   if (!visuals || !Array.isArray(visuals.left) || !Array.isArray(visuals.right)) {
     return "";
   }
+
+  const useContrastTray = subtype === "compare_groups" || subtype === "take_away";
 
   return `
     <div class="kinder-tray-grid">
@@ -132,7 +135,7 @@ function renderKinderVisuals(visuals) {
         <div class="kinder-tray-label">${escapeHtml(visuals.leftLabel ?? "First tray")}</div>
         ${visuals.left.map((token) => `<span class="kinder-token">${escapeHtml(token)}</span>`).join("")}
       </div>
-      <div class="kinder-tray tray-soft">
+      <div class="kinder-tray tray-soft ${useContrastTray ? "tray-contrast" : ""}">
         <div class="kinder-tray-label">${escapeHtml(visuals.rightLabel ?? "Second tray")}</div>
         ${visuals.right.map((token) => `<span class="kinder-token">${escapeHtml(token)}</span>`).join("")}
       </div>

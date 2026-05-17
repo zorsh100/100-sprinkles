@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-130800";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-130800";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-130800";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-130800";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-130800";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-133300";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-133300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-133300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-133300";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-133300";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-130800";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-130800";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-130800";
+} from "../../game/helpers.js?v=20260517-133300";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-133300";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-133300";
 
 const INGREDIENT_META = {
   flour: {
@@ -172,20 +172,14 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                       <h3>${recipe.name}</h3>
                       <p class="recipe-label">${isSelected ? "Today's star bake" : isUnlocked ? "Ready for a fresh batch" : `Collect ✨ ${recipe.unlockSprinkles} sprinkles to unlock this treat`}</p>
                     </div>
-                    ${renderRecipeStatusBadge(recipe, isSelected, isUnlocked)}
+                    ${isSelected ? '<span class="recipe-status-badge recipe-status-selected">Selected</span>' : ""}
                   </div>
-                  <div class="recipe-details-grid recipe-details-stack">
-                    <div class="recipe-info-chip">
-                      <div class="recipe-icon-row recipe-ingredient-list">
-                        <span>${renderRecipeIngredientLine(recipe.ingredients)}</span>
-                      </div>
-                    </div>
-                    <div class="recipe-info-chip">
-                      <div class="recipe-icon-row recipe-reward-list">
-                        <span>${renderCoinIcon("coin-icon-sm")} ${recipe.baseReward}</span>
-                        <span>✨ up to ${Math.min(recipe.sprinkleReward, 5)}</span>
-                      </div>
-                    </div>
+                  <div class="recipe-details-flat">
+                    <p class="recipe-ingredient-line">${renderRecipeIngredientLine(recipe.ingredients)}</p>
+                    <p class="recipe-reward-line">
+                      <span>${renderCoinIcon("coin-icon-sm")} ${recipe.pricePerItem * recipe.itemsPerBatch}</span>
+                      <span>✨ up to 5</span>
+                    </p>
                   </div>
                   ${renderRecipeAction(recipe, isSelected, isUnlocked)}
                 </article>
@@ -280,18 +274,6 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
   `;
 }
 
-function renderRecipeStatusBadge(recipe, isSelected, isUnlocked) {
-  if (isSelected) {
-    return '<span class="recipe-status-badge recipe-status-selected">Selected</span>';
-  }
-
-  if (isUnlocked) {
-    return '<span class="recipe-status-badge recipe-status-unlocked">Unlocked</span>';
-  }
-
-  return `<span class="recipe-status-badge recipe-status-locked">✨ ${recipe.unlockSprinkles}</span>`;
-}
-
 function renderRecipeAction(recipe, isSelected, isUnlocked) {
   if (isSelected) {
     return "";
@@ -329,7 +311,7 @@ function formatRecipeCountBadge(count) {
 }
 
 function renderRecipeIngredientLine(ingredients) {
-  return `🌾 ×${ingredients.flour}  🍬 ×${ingredients.sugar}  🥚 ×${ingredients.eggs}`;
+  return `<span class="recipe-ingredient-emoji">🌾</span>×${ingredients.flour} <span class="recipe-ingredient-emoji">🍬</span>×${ingredients.sugar} <span class="recipe-ingredient-emoji">🥚</span>×${ingredients.eggs}`;
 }
 
 function renderBakeScreen(gameState, currentStage) {
