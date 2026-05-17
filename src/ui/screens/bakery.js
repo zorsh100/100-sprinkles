@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-163900";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-163900";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-163900";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-163900";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-163900";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-171000";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-171000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-171000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-171000";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-171000";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-163900";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-163900";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-163900";
+} from "../../game/helpers.js?v=20260517-171000";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-171000";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-171000";
 
 const INGREDIENT_META = {
   flour: {
@@ -372,17 +372,6 @@ function renderBakeScreen(gameState, currentStage) {
             `;
           }).join("")}
         </div>
-        ${
-          player.SR >= 300
-            ? `
-              <div class="pill-row flow-panel-spacer regular-bake-pantry">
-                <span class="pill pantry-pill">${renderIngredientToken("flour", player.pantry.flour)}</span>
-                <span class="pill pantry-pill">${renderIngredientToken("sugar", player.pantry.sugar)}</span>
-                <span class="pill pantry-pill">${renderIngredientToken("eggs", player.pantry.eggs)}</span>
-              </div>
-            `
-            : ""
-        }
       </section>
       ${renderQuestionPanel(gameState, currentStage)}
     </section>
@@ -433,36 +422,40 @@ function renderQuestionPanel(gameState, currentStage) {
   return `
     <section class="panel question-card stage-panel active-question-card stage-${currentStage}">
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
-      <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
-      ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      ${
-        question.answerMode === "open"
-          ? `
-            ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
-            ${renderOpenAnswerPanel(question, session.questionResult)}
-          `
-          : `
-            ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
-            <div class="answer-grid regular-answer-grid">
-              ${question.choices
-                .map((choice, index) => {
-                  const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
-                  const label =
-                    question.choiceLabels?.[choice] ??
-                    (question.type === "optimization" && choice === question.answer && question.answerLabel
-                      ? question.answerLabel
-                      : String(choice));
+      <div class="story-question-flow">
+        <div class="story-question-content">
+          <p class="story-problem-copy">${escapeHtml(question.prompt)}</p>
+          ${question.scene ? renderStoryScene(question.scene) : ""}
+          ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
+        </div>
+        <div class="story-answer-block">
+          ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
+          ${
+            question.answerMode === "open"
+              ? renderOpenAnswerPanel(question, session.questionResult)
+              : `
+                <div class="answer-grid regular-answer-grid">
+                  ${question.choices
+                    .map((choice) => {
+                      const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
+                      const label =
+                        question.choiceLabels?.[choice] ??
+                        (question.type === "optimization" && choice === question.answer && question.answerLabel
+                          ? question.answerLabel
+                          : String(choice));
 
-                  return `
-                    <button class="choice-button regular-answer-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
-                      <span class="regular-answer-number">${escapeHtml(label)}</span>
-                    </button>
-                  `;
-                })
-                .join("")}
-            </div>
-          `
-      }
+                      return `
+                        <button class="choice-button regular-answer-button ${resultClass}" type="button" data-answer="${choice}">
+                          <span class="regular-answer-number">${escapeHtml(label)}</span>
+                        </button>
+                      `;
+                    })
+                    .join("")}
+                </div>
+              `
+          }
+        </div>
+      </div>
     </section>
   `;
 }
@@ -595,22 +588,18 @@ function renderStoryTicket(question, currentStage, activeRecipe, batchCount) {
       <div class="story-ticket-row">
         <span class="story-ticket-pill">Order Ticket</span>
         <span class="story-ticket-pill story-ticket-pill-soft">Question ${(question.orderQuestionIndex ?? 0) + 1}/${question.questionsPerBake ?? QUESTIONS_PER_BAKE}</span>
-        <span class="story-ticket-pill story-ticket-pill-soft">${escapeHtml(question.type === "cost" ? "Coin Job" : question.type === "fraction" ? "Fair Share" : question.type === "business" ? "Bakery Business" : "Story Math")}</span>
       </div>
-      <div class="story-ticket-grid">
-        <div>
-          <span class="story-ticket-label">Recipe</span>
-          <strong>${activeRecipe ? `${activeRecipe.icon} ${escapeHtml(activeRecipe.name)}` : "Bakery order"}</strong>
-        </div>
-        <div>
-          <span class="story-ticket-label">Station</span>
-          <strong class="story-ticket-stage">
+      <div class="story-ticket-inline-row">
+        <strong class="story-ticket-inline">
+          <span>${activeRecipe ? `${activeRecipe.icon} ${escapeHtml(activeRecipe.name)}` : "Bakery order"}</span>
+          <span class="story-ticket-inline-dot" aria-hidden="true">·</span>
+          <span class="story-ticket-stage">
             <span class="story-ticket-stage-art">
               ${renderStageArt(currentStage, { className: "stage-art-image-ticket", altLabel: `${STAGE_META[currentStage].title} stage art` })}
             </span>
             <span>${escapeHtml(STAGE_META[currentStage].title)}</span>
-          </strong>
-        </div>
+          </span>
+        </strong>
       </div>
     </div>
   `;
@@ -623,23 +612,28 @@ function renderStoryHelp(question, batchCount) {
   return `
     <details class="story-coach-card story-coach-details">
       <summary class="story-coach-summary">
-        <span class="story-coach-label">Baker Tip</span>
+        <span class="story-coach-link">
+          <span class="story-coach-link-icon" aria-hidden="true">💡</span>
+          <span class="story-coach-label">Baker Tip</span>
+        </span>
         <span class="story-coach-toggle">Show Tip</span>
       </summary>
-      <p>${escapeHtml(mission)}</p>
-      ${
-        strongHint
-          ? `
-            <details class="story-coach-subdetails">
-              <summary class="story-coach-summary story-coach-subsummary">
-                <span class="story-coach-label">More Help</span>
-                <span class="story-coach-toggle">Show More</span>
-              </summary>
-              <p>${escapeHtml(strongHint)}</p>
-            </details>
-          `
-          : ""
-      }
+      <div class="story-coach-expanded">
+        <p>${escapeHtml(mission)}</p>
+        ${
+          strongHint
+            ? `
+              <details class="story-coach-subdetails">
+                <summary class="story-coach-summary story-coach-subsummary">
+                  <span class="story-coach-label">More Help</span>
+                  <span class="story-coach-toggle">Show More</span>
+                </summary>
+                <p>${escapeHtml(strongHint)}</p>
+              </details>
+            `
+            : ""
+        }
+      </div>
     </details>
   `;
 }
