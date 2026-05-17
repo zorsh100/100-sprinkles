@@ -231,7 +231,9 @@ button[aria-disabled="true"] {
 }
 
 .answer-splash-success {
-  background: linear-gradient(135deg, #ff7f72, #ff9b7f);
+  background: linear-gradient(135deg, #51c878, #2fa85f);
+  font-size: clamp(2.8rem, 4.8vw, 3.8rem);
+  box-shadow: 0 22px 40px rgba(47, 168, 95, 0.32);
 }
 
 .answer-splash-error {
@@ -419,7 +421,7 @@ button[aria-disabled="true"] {
   border: 0;
   background: linear-gradient(135deg, #ff8a7d, #ff6b6b);
   color: #fff;
-  box-shadow: 0 14px 24px rgba(255, 107, 107, 0.24);
+  box-shadow: none;
 }
 
 .kinder-choice-number {
@@ -1386,6 +1388,7 @@ button[aria-disabled="true"] {
   padding: 14px 16px;
   color: var(--accent-4);
   font-weight: 800;
+  box-shadow: none;
 }
 
 .player-avatar {
@@ -1683,7 +1686,7 @@ button[aria-disabled="true"] {
   min-height: 80px;
   padding: 12px 16px;
   border: 2px solid rgba(255, 255, 255, 0.55);
-  box-shadow: 0 16px 28px rgba(117, 74, 41, 0.16);
+  box-shadow: none;
 }
 
 .regular-answer-number {
@@ -3957,22 +3960,18 @@ body.title-route .app-shell {
 
 .choice-button.answer-color-0 {
   background: linear-gradient(135deg, #ff8a7d, #ff6b6b);
-  box-shadow: 0 18px 30px rgba(255, 107, 107, 0.28);
 }
 
 .choice-button.answer-color-1 {
   background: linear-gradient(135deg, #ffc86b, #ffb347);
-  box-shadow: 0 18px 30px rgba(255, 179, 71, 0.28);
 }
 
 .choice-button.answer-color-2 {
   background: linear-gradient(135deg, #67ddd5, #4ecdc4);
-  box-shadow: 0 18px 30px rgba(78, 205, 196, 0.28);
 }
 
 .choice-button.answer-color-3 {
   background: linear-gradient(135deg, #b59cff, #a78bfa);
-  box-shadow: 0 18px 30px rgba(167, 139, 250, 0.28);
 }
 
 .choice-button.answer-color-0:hover,
@@ -3991,19 +3990,19 @@ body.title-route .app-shell {
 .choice-button.answer-color-1:active,
 .choice-button.answer-color-2:active,
 .choice-button.answer-color-3:active {
-  box-shadow: 0 22px 38px rgba(117, 74, 41, 0.2);
+  box-shadow: none;
 }
 
 .choice-button.correct {
   background: linear-gradient(135deg, #6fd38e, #3ca770) !important;
   color: #ffffff !important;
-  box-shadow: 0 18px 30px rgba(60, 167, 112, 0.32) !important;
+  box-shadow: none !important;
 }
 
 .choice-button.wrong {
   background: linear-gradient(135deg, #ff9a9a, #d85757) !important;
   color: #ffffff !important;
-  box-shadow: 0 18px 30px rgba(216, 87, 87, 0.28) !important;
+  box-shadow: none !important;
 }
 
 .app-shell {

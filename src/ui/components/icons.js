@@ -3,7 +3,7 @@ export function renderCoinIcon(className = "") {
   return `<span class="coin-icon${suffix}" aria-hidden="true"></span>`;
 }
 
-const INGREDIENT_SHEET_VERSION = "20260517-125400";
+const INGREDIENT_SHEET_VERSION = "20260517-130800";
 const INGREDIENT_SHEET_SRC = `./assets/ingredients/flour-sugar-eggs-sheet.png?v=${INGREDIENT_SHEET_VERSION}`;
 
 const INGREDIENT_SPRITE_POSITIONS = {
