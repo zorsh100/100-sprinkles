@@ -360,7 +360,7 @@ Ingredient costs and rewards for unlockable recipes (Brownies onward) are TBD an
 - Coins are earned by selling completed bakes
 - Coins are spent in the ingredient shop
 - Revenue formula: `recipe.baseReward × batchCount + floor(SR / 80) + recipe.difficultyBonus`
-- Starting bank: 0 coins (25 coins if SR ≥ 300 at onboarding)
+- Starting bank: 0 coins (35 coins if SR ≥ 300 at onboarding)
 - Coins have no cap
 
 ---
