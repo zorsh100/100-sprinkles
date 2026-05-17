@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260517-124800";
+import { navigate } from "../app/router.js?v=20260517-125400";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,18 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260517-124800";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260517-124800";
-import { renderShell } from "./shell.js?v=20260517-124800";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260517-124800";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260517-124800";
-import { renderLearnScreen } from "./screens/learn.js?v=20260517-124800";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260517-124800";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260517-124800";
-import { renderShopScreen } from "./screens/shop.js?v=20260517-124800";
-import { renderStatsScreen } from "./screens/stats.js?v=20260517-124800";
-import { renderTitleScreen } from "./screens/title.js?v=20260517-124800";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260517-124800";
+} from "../game/engine.js?v=20260517-125400";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260517-125400";
+import { renderShell } from "./shell.js?v=20260517-125400";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260517-125400";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260517-125400";
+import { renderLearnScreen } from "./screens/learn.js?v=20260517-125400";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260517-125400";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260517-125400";
+import { renderShopScreen } from "./screens/shop.js?v=20260517-125400";
+import { renderStatsScreen } from "./screens/stats.js?v=20260517-125400";
+import { renderTitleScreen } from "./screens/title.js?v=20260517-125400";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260517-125400";
 
 const ANSWER_SPLASH_DURATION_MS = 1000;
 let pendingAnswerAdvance = null;
