@@ -436,18 +436,6 @@ function renderQuestionPanel(gameState, currentStage) {
     `;
   }
 
-  const visuals = question.visuals
-    ? `
-      <div class="visual-group">
-        ${question.visuals.left.map((token) => `<div class="visual-token">${token}</div>`).join("")}
-      </div>
-      <div class="visual-group">
-        ${question.visuals.right.map((token) => `<div class="visual-token">${token}</div>`).join("")}
-      </div>
-    `
-    : "";
-  const sceneMarkup = question.scene ? renderStoryScene(question.scene) : "";
-
   return `
     <section class="panel question-card stage-panel stage-${currentStage}">
       <div class="section-head">
@@ -457,10 +445,8 @@ function renderQuestionPanel(gameState, currentStage) {
         </div>
       </div>
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
-      ${sceneMarkup}
       <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      ${visuals}
       <div class="story-coach-card">
         <span class="story-coach-label">Baker Tip</span>
         <p>${escapeHtml(question.hint)}</p>

@@ -10,10 +10,10 @@ export function renderKindergartenBakery({ player, session, currentStage, select
         <div class="section-head">
           <div>
             <p class="eyebrow">Start Bake</p>
-            <h2>Count the Treats</h2>
-            <p class="muted">Kindergarten path. Tap the number that matches the treats you see.</p>
+            <h2>Bakery Math</h2>
+            <p class="muted">Kindergarten path. Read the bakery problem and tap the number that solves it.</p>
           </div>
-          <div class="badge">Picture mode</div>
+          <div class="badge">Early Math</div>
         </div>
         <div class="kinder-summary kinder-hud-strip">
           <div class="kinder-summary-card kinder-summary-baker">
@@ -86,7 +86,6 @@ function renderKindergartenQuestion({ session, currentStage }) {
       : question.subtype === "take_away"
         ? "How many are left?"
         : "Count them all";
-  const groupOperator = question.subtype === "compare_groups" || question.subtype === "take_away" ? "−" : "+";
 
   return `
     <section class="panel kinder-question-panel stage-panel stage-${currentStage}">
@@ -99,17 +98,6 @@ function renderKindergartenQuestion({ session, currentStage }) {
       </div>
       <div class="kinder-equation-row">
         ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      </div>
-      <div class="kinder-tray-grid grouped-tray-grid">
-        <div class="kinder-tray">
-          ${question.visuals.leftLabel ? `<div class="kinder-tray-label">${escapeHtml(question.visuals.leftLabel)}</div>` : ""}
-          ${question.visuals.left.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
-        </div>
-        <div class="kinder-operator-bubble" aria-hidden="true">${groupOperator}</div>
-        <div class="kinder-tray tray-soft">
-          ${question.visuals.rightLabel ? `<div class="kinder-tray-label">${escapeHtml(question.visuals.rightLabel)}</div>` : ""}
-          ${question.visuals.right.map((token) => `<div class="kinder-token">${token}</div>`).join("")}
-        </div>
       </div>
       <div class="kinder-answer-grid colorful-answer-grid">
         ${question.choices
@@ -132,8 +120,8 @@ function renderKindergartenStart() {
     <section class="panel kinder-question-panel">
       <div class="empty-state kinder-empty">
         <div class="kinder-empty-art">🧁 🍩 🍪</div>
-        <h2>Ready to count?</h2>
-        <p class="muted">Press <strong>Start Order</strong> to begin the treat game.</p>
+        <h2>Ready for bakery math?</h2>
+        <p class="muted">Press <strong>Start Order</strong> to begin a new bakery problem.</p>
       </div>
     </section>
   `;
