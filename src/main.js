@@ -1,6 +1,6 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260517-141300";
-import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260517-141300";
-import { renderApp } from "./ui/render.js?v=20260517-141300";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260517-143100";
+import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260517-143100";
+import { renderApp } from "./ui/render.js?v=20260517-143100";
 
 const appRoot = document.querySelector("#app");
 
@@ -9,6 +9,19 @@ let uiState = {
   route: resolveRouteForGameState(gameState, getRouteFromHash()),
   pendingSaveSlotId: gameState.activeSaveSlot,
 };
+
+function hasActiveOrder(session) {
+  return Boolean(session?.order?.recipeId && session?.currentQuestion);
+}
+
+function hasValidSaleReady(session) {
+  return Boolean(
+    session?.saleReady &&
+      session.saleReady.recipeName &&
+      session.saleReady.recipeIcon &&
+      Number.isFinite(Number(session.saleReady.revenue)),
+  );
+}
 
 function syncAndRender(requestedRoute = uiState.route) {
   const resolvedRoute = resolveRouteForGameState(gameState, requestedRoute);
@@ -117,7 +130,7 @@ function resolveRouteForGameState(currentGameState, requestedRoute = "title") {
     return "profile";
   }
 
-  if (currentGameState.session.order || currentGameState.session.saleReady) {
+  if (hasActiveOrder(currentGameState.session) || hasValidSaleReady(currentGameState.session)) {
     return "bake";
   }
 

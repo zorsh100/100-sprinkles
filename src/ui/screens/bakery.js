@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-141300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-141300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-141300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-141300";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-141300";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-143100";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-143100";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-143100";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-143100";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-143100";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-141300";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-141300";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-141300";
+} from "../../game/helpers.js?v=20260517-143100";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-143100";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-143100";
 
 const INGREDIENT_META = {
   flour: {
@@ -52,6 +52,13 @@ export function renderBakeryScreen(gameState) {
   const { player, session } = gameState;
   const knownRecipes = RECIPES.filter((recipe) => player.knownRecipes.includes(recipe.id));
   const unlockedRecipes = getUnlockedRecipes(player);
+  const hasRenderableOrder = Boolean(session.order?.recipeId && session.currentQuestion);
+  const hasRenderableSaleReady = Boolean(
+    session.saleReady &&
+      session.saleReady.recipeName &&
+      session.saleReady.recipeIcon &&
+      Number.isFinite(Number(session.saleReady.revenue)),
+  );
   const selectedRecipe =
     knownRecipes.find((recipe) => recipe.id === session.selectedRecipeId && player.sprinkles >= recipe.unlockSprinkles) ??
     unlockedRecipes[0] ??
@@ -61,7 +68,7 @@ export function renderBakeryScreen(gameState) {
   const pantryNeed = selectedRecipe ? getPantryNeed(selectedRecipe, orderCount) : null;
   const currentStage = session.order ? STAGES[session.order.stageIndex ?? 0] ?? "prep" : "prep";
 
-  if (session.order || session.saleReady) {
+  if (hasRenderableOrder || hasRenderableSaleReady) {
     if (isVisualMode(player.SR)) {
       return renderKindergartenBakery({ player, session, currentStage, selectedRecipe });
     }
