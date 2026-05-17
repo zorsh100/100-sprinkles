@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-224000";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-224000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-224000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-224000";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-224000";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-225800";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-225800";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-225800";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-225800";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-225800";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-224000";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-224000";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-224000";
+} from "../../game/helpers.js?v=20260516-225800";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-225800";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-225800";
 
 const INGREDIENT_META = {
   flour: {
@@ -431,26 +431,60 @@ function renderQuestionPanel(gameState, currentStage) {
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
       <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
-      <div class="answer-grid regular-answer-grid">
-        ${question.choices
-          .map((choice, index) => {
-            const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
-            const label =
-              question.choiceLabels?.[choice] ??
-              (question.type === "optimization" && choice === question.answer && question.answerLabel
-                ? question.answerLabel
-                : String(choice));
+      ${
+        question.answerMode === "open"
+          ? `
+            ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
+            ${renderOpenAnswerPanel(question, session.questionResult)}
+          `
+          : `
+            ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
+            <div class="answer-grid regular-answer-grid">
+              ${question.choices
+                .map((choice, index) => {
+                  const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
+                  const label =
+                    question.choiceLabels?.[choice] ??
+                    (question.type === "optimization" && choice === question.answer && question.answerLabel
+                      ? question.answerLabel
+                      : String(choice));
 
-            return `
-              <button class="choice-button regular-answer-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
-                <span class="regular-answer-number">${escapeHtml(label)}</span>
-              </button>
-            `;
-          })
-          .join("")}
-      </div>
+                  return `
+                    <button class="choice-button regular-answer-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
+                      <span class="regular-answer-number">${escapeHtml(label)}</span>
+                    </button>
+                  `;
+                })
+                .join("")}
+            </div>
+          `
+      }
     </section>
+  `;
+}
+
+function renderOpenAnswerPanel(question, questionResult) {
+  const previousAnswer = questionResult?.correct ? "" : String(questionResult?.selectedAnswer ?? "");
+  const inputStateClass = questionResult?.correct ? "correct" : questionResult ? "wrong" : "";
+
+  return `
+    <form class="open-answer-form" data-answer-form>
+      <label class="open-answer-label" for="open-answer-input">Type your answer</label>
+      <div class="open-answer-row">
+        <input
+          class="open-answer-input ${inputStateClass}"
+          id="open-answer-input"
+          name="answer"
+          type="number"
+          inputmode="numeric"
+          autocomplete="off"
+          spellcheck="false"
+          value="${escapeHtml(previousAnswer)}"
+          placeholder="Enter a number"
+        />
+        <button class="primary-button open-answer-submit" type="submit">Check Answer</button>
+      </div>
+    </form>
   `;
 }
 

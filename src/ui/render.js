@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260516-224000";
+import { navigate } from "../app/router.js?v=20260516-225800";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,18 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260516-224000";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260516-224000";
-import { renderShell } from "./shell.js?v=20260516-224000";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260516-224000";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260516-224000";
-import { renderLearnScreen } from "./screens/learn.js?v=20260516-224000";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260516-224000";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260516-224000";
-import { renderShopScreen } from "./screens/shop.js?v=20260516-224000";
-import { renderStatsScreen } from "./screens/stats.js?v=20260516-224000";
-import { renderTitleScreen } from "./screens/title.js?v=20260516-224000";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260516-224000";
+} from "../game/engine.js?v=20260516-225800";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260516-225800";
+import { renderShell } from "./shell.js?v=20260516-225800";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260516-225800";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20260516-225800";
+import { renderLearnScreen } from "./screens/learn.js?v=20260516-225800";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260516-225800";
+import { renderSettingsScreen } from "./screens/settings.js?v=20260516-225800";
+import { renderShopScreen } from "./screens/shop.js?v=20260516-225800";
+import { renderStatsScreen } from "./screens/stats.js?v=20260516-225800";
+import { renderTitleScreen } from "./screens/title.js?v=20260516-225800";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20260516-225800";
 
 export function renderApp(root, gameState, uiState, dispatch) {
   const saveSummary = getSaveSummary(gameState);
@@ -276,6 +276,27 @@ function attachQuestionEvents(root, gameState, dispatch) {
       }
 
       updated = submitAnswer(updated, button.dataset.answer);
+      dispatch({ type: "UPDATE_GAME", payload: updated });
+    });
+  });
+
+  root.querySelectorAll("[data-answer-form]").forEach((form) => {
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.currentTarget);
+      const answer = String(formData.get("answer") ?? "").trim();
+
+      if (!answer) {
+        return;
+      }
+
+      let updated = gameState;
+
+      if (gameState.session.questionResult) {
+        updated = clearQuestionResult(gameState);
+      }
+
+      updated = submitAnswer(updated, answer);
       dispatch({ type: "UPDATE_GAME", payload: updated });
     });
   });

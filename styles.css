@@ -1594,6 +1594,55 @@ button[aria-disabled="true"] {
   margin-top: auto;
 }
 
+.open-answer-form {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.open-answer-label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: rgba(69, 49, 39, 0.72);
+}
+
+.open-answer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+}
+
+.open-answer-input {
+  width: 100%;
+  min-height: 64px;
+  border: 2px solid rgba(232, 213, 192, 0.95);
+  background: rgba(255, 252, 247, 0.98);
+  border-radius: 20px;
+  padding: 14px 18px;
+  font-family: "Baloo 2", cursive;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.open-answer-input:focus {
+  outline: none;
+  border-color: rgba(255, 107, 107, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.12);
+}
+
+.open-answer-input.wrong {
+  border-color: rgba(216, 87, 87, 0.5);
+  background: rgba(255, 242, 242, 0.96);
+}
+
+.open-answer-submit {
+  min-height: 64px;
+  padding: 0 22px;
+  white-space: nowrap;
+}
+
 .stage-art-image {
   display: block;
   width: 100%;
@@ -3679,6 +3728,14 @@ body.title-route .app-shell {
   .story-problem-copy {
     font-size: 1.18rem;
   }
+
+  .open-answer-row {
+    grid-template-columns: 1fr;
+  }
+
+  .open-answer-submit {
+    width: 100%;
+  }
 }
 
 @media (max-height: 760px) {
@@ -3702,6 +3759,11 @@ body.title-route .app-shell {
 
   .regular-answer-number {
     font-size: 1.5rem;
+  }
+
+  .open-answer-input,
+  .open-answer-submit {
+    min-height: 58px;
   }
 }
 

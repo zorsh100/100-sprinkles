@@ -1,6 +1,6 @@
-import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260516-224000";
-import { isVisualMode } from "../sr.js?v=20260516-224000";
-import { QUESTION_BANK } from "./bank.js?v=20260516-224000";
+import { allowedTypes, clamp, randomInt, weightedPick } from "../helpers.js?v=20260516-225800";
+import { isVisualMode } from "../sr.js?v=20260516-225800";
+import { QUESTION_BANK } from "./bank.js?v=20260516-225800";
 
 const TEMPLATE_META_BY_ID = new Map(QUESTION_BANK.map((template) => [template.id, template]));
 
@@ -92,6 +92,11 @@ export function generateQuestion({ SR, stage, context = {}, recentTemplates = []
     context,
     targetDifficulty: clamp(targetDifficulty, 0, 1000),
   });
+  const shouldUseOpenAnswer =
+    !isVisualMode(SR) &&
+    recentTemplates.length % 2 === 0 &&
+    selectedTemplate.type !== "optimization" &&
+    Number.isFinite(Number(question.answer));
   const difficulty = clamp(
     Math.round((selectedTemplate.difficulty + clamp(targetDifficulty, 0, 1000)) / 2),
     0,
@@ -108,5 +113,6 @@ export function generateQuestion({ SR, stage, context = {}, recentTemplates = []
     difficulty,
     targetDifficulty: clamp(targetDifficulty, 0, 1000),
     attemptCount: 0,
+    answerMode: shouldUseOpenAnswer ? "open" : "choice",
   };
 }
