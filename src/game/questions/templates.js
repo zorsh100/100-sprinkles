@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260516-215300";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260516-222300";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -393,7 +393,7 @@ export function arithmeticMultiplicationGroups({ targetDifficulty, stage, contex
   const answer = groups * each;
   const promptByStage = {
     prep: `The baker lines up ${groups} prep pans with ${each} ${meta.unitPlural} in each pan. How many ${meta.unitPlural} are ready?`,
-    mixing: `${groups} mixing bowls each need ${each} ${meta.unitPlural}. How many ${meta.unitPlural} go into the mixing station?`,
+    mixing: `${groups} mixing bowls each need ${each} ${meta.unitPlural}. How many ${meta.unitPlural} do the bowls need altogether?`,
     timing: `${groups} oven trays each hold ${each} ${meta.unitPlural}. How many ${meta.unitPlural} go into the oven?`,
     finishing: `${groups} cooling trays each have ${each} ${meta.unitPlural} waiting for toppings. How many ${meta.unitPlural} are on the rack?`,
     serving: `${groups} bakery boxes each hold ${each} ${meta.unitPlural}. How many ${meta.unitPlural} are ready for customers?`,

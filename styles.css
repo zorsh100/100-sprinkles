@@ -1588,7 +1588,7 @@ button[aria-disabled="true"] {
 }
 
 .regular-answer-grid {
-  gap: 16px;
+  gap: 14px;
   overflow: hidden;
   padding: 2px 4px 4px;
   margin-top: auto;
@@ -1602,14 +1602,15 @@ button[aria-disabled="true"] {
 }
 
 .regular-answer-button {
-  min-height: 96px;
+  min-height: 80px;
+  padding: 12px 16px;
   border: 2px solid rgba(255, 255, 255, 0.55);
   box-shadow: 0 16px 28px rgba(117, 74, 41, 0.16);
 }
 
 .regular-answer-number {
   font-family: "Baloo 2", cursive;
-  font-size: 2rem;
+  font-size: 1.65rem;
   line-height: 1;
 }
 
@@ -2767,8 +2768,9 @@ body.title-route .app-shell {
 
 .story-problem-copy {
   margin: 0 0 10px;
-  font-size: 1.02rem;
-  line-height: 1.45;
+  font-size: 1.28rem;
+  line-height: 1.55;
+  color: #5a463c;
 }
 
 .question-card.stage-panel {
@@ -2978,8 +2980,8 @@ body.title-route .app-shell {
   background-color: transparent;
   background-image: var(--ingredient-sheet);
   background-repeat: no-repeat;
-  background-size: 300% 100%;
-  background-position: var(--ingredient-x) 50%;
+  background-size: 300% 200%;
+  background-position: var(--ingredient-x) 20%;
 }
 
 .ingredient-mark-inline {
@@ -3524,6 +3526,46 @@ body.title-route .app-shell {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
+.story-coach-details {
+  gap: 0;
+}
+
+.story-coach-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.story-coach-summary::-webkit-details-marker {
+  display: none;
+}
+
+.story-coach-toggle {
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #c56358;
+  white-space: nowrap;
+}
+
+.story-coach-details[open] .story-coach-toggle {
+  color: #9a6f52;
+}
+
+.story-coach-details[open] .story-coach-toggle::after {
+  content: "Hide Tip";
+}
+
+.story-coach-details[open] .story-coach-toggle {
+  font-size: 0;
+}
+
+.story-coach-details[open] .story-coach-toggle::after {
+  font-size: 0.82rem;
+}
+
 .story-ticket-row {
   display: flex;
   flex-wrap: wrap;
@@ -3589,6 +3631,10 @@ body.title-route .app-shell {
   line-height: 1.4;
 }
 
+.story-coach-details p {
+  margin-top: 10px;
+}
+
 @media (max-height: 860px) {
   .active-bake-layout {
     gap: 10px;
@@ -3612,6 +3658,10 @@ body.title-route .app-shell {
   .regular-answer-grid {
     gap: 12px;
   }
+
+  .story-problem-copy {
+    font-size: 1.18rem;
+  }
 }
 
 @media (max-height: 760px) {
@@ -3630,7 +3680,11 @@ body.title-route .app-shell {
   }
 
   .regular-answer-button {
-    min-height: 88px;
+    min-height: 74px;
+  }
+
+  .regular-answer-number {
+    font-size: 1.5rem;
   }
 }
 

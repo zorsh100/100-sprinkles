@@ -1,6 +1,6 @@
-import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260516-215300";
-import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260516-215300";
-import { renderApp } from "./ui/render.js?v=20260516-215300";
+import { getRouteFromHash, navigate, subscribeToRouteChanges } from "./app/router.js?v=20260516-222300";
+import { activateSaveSlot, createNewPlayer, loadGame, resetGame, saveGame, updatePlayerProfile } from "./state.js?v=20260516-222300";
+import { renderApp } from "./ui/render.js?v=20260516-222300";
 
 const appRoot = document.querySelector("#app");
 

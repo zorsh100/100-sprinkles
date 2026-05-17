@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-215300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-215300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-215300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-215300";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-215300";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-222300";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-222300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-222300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-222300";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-222300";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-215300";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-215300";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-215300";
+} from "../../game/helpers.js?v=20260516-222300";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-222300";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-222300";
 
 const INGREDIENT_META = {
   flour: {
@@ -439,10 +439,13 @@ function renderQuestionPanel(gameState, currentStage) {
       ${renderStoryTicket(question, currentStage, activeRecipe, session.order?.batchCount ?? 1)}
       <p class="muted story-problem-copy">${escapeHtml(question.prompt)}</p>
       ${question.promptSecondary ? `<div class="question-secondary-chip">${escapeHtml(question.promptSecondary)}</div>` : ""}
-      <div class="story-coach-card">
-        <span class="story-coach-label">Baker Tip</span>
+      <details class="story-coach-card story-coach-details">
+        <summary class="story-coach-summary">
+          <span class="story-coach-label">Baker Tip</span>
+          <span class="story-coach-toggle">Show Tip</span>
+        </summary>
         <p>${escapeHtml(question.hint)}</p>
-      </div>
+      </details>
       <div class="answer-grid regular-answer-grid">
         ${question.choices
           .map((choice, index) => {
