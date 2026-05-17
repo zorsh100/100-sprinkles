@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-140300";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-140300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-140300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-140300";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-140300";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-141300";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-141300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-141300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-141300";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-141300";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-140300";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-140300";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-140300";
+} from "../../game/helpers.js?v=20260517-141300";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-141300";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-141300";
 
 const INGREDIENT_META = {
   flour: {
@@ -80,10 +80,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
   const isReadyToBake = Object.keys(missingPantry).length === 0;
   const isBlockedByPantry = player.SR >= 300 && !isReadyToBake;
   const missingCost = getTotalShopCost(missingPantry);
-  const shouldShowPantryOverview =
-    player.SR >= 300 &&
-    pantryNeed &&
-    !canAffordIngredients(player, pantryNeed);
+  const shouldShowPantryOverview = player.SR >= 300 && pantryNeed;
 
   return `
     <section class="flow-screen bakery-screen">
@@ -118,7 +115,11 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                 <div>
                   <p class="eyebrow eyebrow-pill">Pantry</p>
                   <h2>Check Your Shelves</h2>
-                  <p class="muted bakery-subcopy">See what is already stocked and top off flour, sugar, or eggs before you choose the next bake.</p>
+                  <p class="muted bakery-subcopy">${
+                    isReadyToBake
+                      ? "Everything for this bake is stocked. You are ready to head to the mixing bowl."
+                      : "See what is already stocked and top off flour, sugar, or eggs before you choose the next bake."
+                  }</p>
                 </div>
               </div>
 

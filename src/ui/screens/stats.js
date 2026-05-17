@@ -1,8 +1,8 @@
-import { formatOrderCount } from "../../game/helpers.js?v=20260517-140300";
-import { renderCoinIcon } from "../components/icons.js?v=20260517-140300";
-import { getSRMode } from "../../game/sr.js?v=20260517-140300";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-140300";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-140300";
+import { formatOrderCount } from "../../game/helpers.js?v=20260517-141300";
+import { renderCoinIcon } from "../components/icons.js?v=20260517-141300";
+import { getSRMode } from "../../game/sr.js?v=20260517-141300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-141300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-141300";
 
 export function renderStatsScreen(gameState) {
   const { player, session } = gameState;
