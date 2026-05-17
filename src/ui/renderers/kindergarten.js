@@ -1,7 +1,7 @@
-import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260516-225800";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-225800";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-225800";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-225800";
+import { MAX_SPRINKLES, STAGE_META } from "../../game/data.js?v=20260516-231400";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-231400";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-231400";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-231400";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `
@@ -97,7 +97,7 @@ function renderKindergartenQuestion({ session, currentStage }) {
         </div>
       </div>
       <div class="kinder-equation-row">
-        ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(question.promptSecondary)}</div>` : ""}
+        ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(formatKinderEquation(question.promptSecondary))}</div>` : ""}
       </div>
       <div class="kinder-answer-grid colorful-answer-grid">
         ${question.choices
@@ -125,6 +125,20 @@ function renderKindergartenStart() {
       </div>
     </section>
   `;
+}
+
+function formatKinderEquation(value) {
+  const equation = String(value ?? "").trim();
+
+  if (!equation) {
+    return "";
+  }
+
+  if (equation.includes("=")) {
+    return equation;
+  }
+
+  return `${equation} =`;
 }
 
 function renderKindergartenStageTrack(session, currentStage) {

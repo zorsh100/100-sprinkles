@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260516-225800";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20260516-231400";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -337,14 +337,16 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
   const b = randomInt(3, maxValue);
   const answer = a + b;
   const supply = getStageBatchMeta(stage, context);
+  const useNumericPrompt = targetDifficulty < 200;
   const easyPrompt = `Your ${supply.place} already has ${a} ${supply.unitPlural}. You add ${b} more for the ${getRecipeLabel(context)}. How many ${supply.unitPlural} are there now?`;
   const standardPrompt = `At the ${supply.place}, the baker starts with ${a} ${supply.unitPlural}. Then ${b} more join the station. How many ${supply.unitPlural} are there now?`;
+  const numericPrompt = `${a} + ${b} = ?`;
 
   return {
-    prompt: targetDifficulty < 180 ? easyPrompt : standardPrompt,
+    prompt: useNumericPrompt ? numericPrompt : targetDifficulty < 180 ? easyPrompt : standardPrompt,
     answer,
     choices: makeChoices(answer, getChoiceSpread(targetDifficulty, 10, 6)),
-    mission: `Find the new total of ${supply.unitPlural} at the ${supply.place}.`,
+    mission: useNumericPrompt ? "Add the two numbers." : `Find the new total of ${supply.unitPlural} at the ${supply.place}.`,
     scene: {
       kind: "groups",
       label: supply.collectionLabel,
@@ -355,7 +357,7 @@ export function arithmeticAdditionStory({ targetDifficulty, stage, context }) {
         withSceneCountLabel({ tokenText: supply.tokenText, variant: supply.variant, count: b, frame: "Added" }, supply.unitPlural),
       ],
     },
-    hint: `Add the ${supply.unitPlural} you started with and the ${supply.unitPlural} you added.`,
+    hint: useNumericPrompt ? `Start with ${a}, then add ${b}.` : `Add the ${supply.unitPlural} you started with and the ${supply.unitPlural} you added.`,
   };
 }
 

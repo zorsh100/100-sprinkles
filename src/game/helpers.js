@@ -1,8 +1,8 @@
-import { clamp } from "./math.js?v=20260516-225800";
-import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260516-225800";
-import { getAllowedQuestionTypes } from "./sr.js?v=20260516-225800";
+import { clamp } from "./math.js?v=20260516-231400";
+import { INGREDIENT_COSTS, MAX_SPRINKLES, RECIPES } from "./data.js?v=20260516-231400";
+import { getAllowedQuestionTypes } from "./sr.js?v=20260516-231400";
 
-export { clamp } from "./math.js?v=20260516-225800";
+export { clamp } from "./math.js?v=20260516-231400";
 
 export function randomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -133,7 +133,10 @@ export function getMissingPantry(player, need) {
 }
 
 export function getOrderRevenue(recipe, batchCount, sr) {
-  return recipe.baseReward * batchCount + Math.floor(sr / 80) + recipe.difficultyBonus;
+  const baseTotal = recipe.baseReward * batchCount;
+  const srBonus = Math.floor(sr / 80);
+  const cappedBonus = Math.min(srBonus, Math.max(1, Math.round(baseTotal * 0.1)));
+  return baseTotal + cappedBonus;
 }
 
 export function getBakeAccuracy(correctAnswers = 0, totalAttempts = 0) {
