@@ -6,7 +6,7 @@ import {
   createInitialSession,
   getBakeStageByQuestionIndex,
   getBakeStageIndexByQuestionIndex,
-} from "./data.js?v=20260517-143100";
+} from "./data.js?v=20260517-155100";
 import {
   canAffordIngredients,
   clamp,
@@ -18,13 +18,14 @@ import {
   getOrderRevenue,
   getPantryNeed,
   getRecipeById,
+  getUnlockedRecipes,
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260517-143100";
-import { formatSignedValue } from "./math.js?v=20260517-143100";
-import { generateQuestion } from "./questions/generator.js?v=20260517-143100";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260517-143100";
+} from "./helpers.js?v=20260517-155100";
+import { formatSignedValue } from "./math.js?v=20260517-155100";
+import { generateQuestion } from "./questions/generator.js?v=20260517-155100";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260517-155100";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -93,7 +94,10 @@ export function buyIngredient(gameState, ingredient, amount = 1) {
 
 export function startOrder(gameState) {
   const { player, session } = gameState;
-  const recipe = getRecipeById(session.selectedRecipeId);
+  const recipe =
+    getRecipeById(session.selectedRecipeId) ??
+    getUnlockedRecipes(player)[0] ??
+    getRecipeById(player.knownRecipes?.[0]);
 
   if (!recipe) {
     return setFlash(gameState, "error", "Pick a recipe first.");
@@ -158,6 +162,7 @@ export function startOrder(gameState) {
     ...gameState,
     session: {
       ...session,
+      selectedRecipeId: recipe.id,
       order,
       saleReady: null,
       questionResult: null,

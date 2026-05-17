@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-143100";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-143100";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-143100";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-143100";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-143100";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-155100";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-155100";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-155100";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-155100";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-155100";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-143100";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-143100";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-143100";
+} from "../../game/helpers.js?v=20260517-155100";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-155100";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-155100";
 
 const INGREDIENT_META = {
   flour: {
@@ -138,6 +138,11 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                     const canCoverNextBake = owned >= needed;
                     return `
                       <div class="inventory-card ingredient-shop-card pantry-overview-card ${meta.accentClass} ${canCoverNextBake ? "ready" : "missing"}">
+                        ${
+                          canCoverNextBake
+                            ? `<div class="ingredient-ready-check" aria-label="${meta.label} is stocked for the selected recipe">✓</div>`
+                            : ""
+                        }
                         <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
                         <strong>${meta.label}</strong>
                         <span>Have ${owned}</span>
@@ -247,6 +252,11 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                             const canCoverMissing = owned + meta.buyAmount >= amount;
                             return `
                               <div class="inventory-card ingredient-shop-card ${meta.accentClass} ${missing ? "missing" : "ready"}">
+                                ${
+                                  !missing
+                                    ? `<div class="ingredient-ready-check" aria-label="${meta.label} is stocked for the selected recipe">✓</div>`
+                                    : ""
+                                }
                                 <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
                                 <strong>${meta.label}</strong>
                                 <span>Need ${amount}</span>
