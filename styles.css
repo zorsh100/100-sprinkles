@@ -738,7 +738,7 @@ button[aria-disabled="true"] {
 
 
 .bakery-screen {
-  gap: 14px;
+  gap: 12px;
 }
 
 .bakery-hero-panel,
@@ -764,13 +764,14 @@ button[aria-disabled="true"] {
 }
 
 .recipe-info-title {
-  white-space: nowrap;
+  display: none;
 }
 
 .recipe-ingredient-list,
 .recipe-reward-list {
-  display: grid;
-  gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .recipe-ingredient-list span,
@@ -905,15 +906,15 @@ button[aria-disabled="true"] {
 }
 
 .ingredient-flour {
-  background: linear-gradient(180deg, rgba(255, 247, 231, 0.96), rgba(255, 239, 210, 0.96));
+  background: #fff8e1;
 }
 
 .ingredient-sugar {
-  background: linear-gradient(180deg, rgba(255, 238, 246, 0.96), rgba(255, 229, 239, 0.96));
+  background: #fff0f5;
 }
 
 .ingredient-eggs {
-  background: linear-gradient(180deg, rgba(245, 255, 232, 0.96), rgba(235, 248, 214, 0.96));
+  background: #fff3e0;
 }
 
 .ingredient-buy-button {
@@ -982,6 +983,39 @@ button[aria-disabled="true"] {
 .sprinkle-pill { background: rgba(255, 224, 236, 0.92); }
 .mode-pill { background: rgba(219, 242, 239, 0.92); }
 .baker-pill { background: rgba(255, 243, 226, 0.96); }
+
+.compact-bakery-hud {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding: 10px 12px;
+  border-radius: 22px;
+}
+
+.compact-hud-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 10px 12px;
+  border-radius: 18px;
+  white-space: nowrap;
+}
+
+.compact-hud-baker {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.compact-hud-baker-row {
+  min-width: 0;
+}
+
+.compact-hud-value {
+  font-family: "Baloo 2", cursive;
+  font-size: 1.08rem;
+  line-height: 1;
+}
 
 .hud-baker-row {
   display: flex;
@@ -1055,8 +1089,17 @@ button[aria-disabled="true"] {
   align-content: start;
 }
 
+.bakery-recipe-card.selected {
+  background: #fff0ee;
+}
+
 .bakery-recipe-card.locked {
   opacity: 0.9;
+}
+
+.recipe-card-hero {
+  font-size: 3.3rem;
+  line-height: 1;
 }
 
 .recipe-card-head {
@@ -1090,13 +1133,16 @@ button[aria-disabled="true"] {
 .recipe-details-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .recipe-info-chip {
-  display: grid;
-  gap: 8px;
-  padding: 12px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  min-height: 64px;
+  padding: 12px 14px;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.72);
 }
@@ -1115,6 +1161,27 @@ button[aria-disabled="true"] {
   gap: 8px 12px;
   color: var(--ink);
   font-weight: 800;
+}
+
+.recipe-ingredient-list,
+.recipe-reward-list {
+  align-items: center;
+}
+
+.recipe-ingredient-list span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.recipe-reward-list {
+  gap: 8px;
+}
+
+.recipe-reward-list span {
+  white-space: nowrap;
 }
 
 .recipe-card-footer {
@@ -1150,9 +1217,9 @@ button[aria-disabled="true"] {
 }
 
 .recipe-button-choose {
-  background: linear-gradient(135deg, #ffd166, #ffb347);
-  color: #553116;
-  box-shadow: 0 16px 28px rgba(255, 177, 71, 0.24);
+  background: linear-gradient(135deg, var(--accent), #ff8e72);
+  color: #fff;
+  box-shadow: 0 16px 28px rgba(255, 107, 107, 0.24);
 }
 
 .start-bake-panel {
@@ -1166,6 +1233,40 @@ button[aria-disabled="true"] {
 .visual-mode-note {
   margin: 0 0 8px;
   font-size: 0.85rem;
+}
+
+.restock-alert-banner-strong {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #ff8f7a, #ff6b6b);
+  color: #fff;
+  box-shadow: none;
+}
+
+.restock-alert-banner-strong .coin-icon {
+  margin-right: 0.28rem;
+}
+
+.ingredient-note-details {
+  width: 100%;
+}
+
+.ingredient-note-details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: rgba(69, 49, 39, 0.72);
+}
+
+.ingredient-note-details .muted {
+  display: block;
+  margin-top: 6px;
+}
+
+.ingredient-restock-note {
+  margin-top: -2px;
 }
 
 .start-bake-field {

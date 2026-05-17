@@ -1,7 +1,7 @@
-import { INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260516-211500";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-211500";
-import { renderMascot } from "../components/mascot.js?v=20260516-211500";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-211500";
+import { INGREDIENT_BULK_BUYS, INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20260516-212800";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-212800";
+import { renderMascot } from "../components/mascot.js?v=20260516-212800";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-212800";
 
 const INGREDIENT_META = {
   flour: {
@@ -9,27 +9,36 @@ const INGREDIENT_META = {
     note: "For batter, dough, and anything that needs a bakery base.",
     accentClass: "ingredient-flour",
     shelfLabel: "Main baking base",
+    buyAmount: INGREDIENT_BULK_BUYS.flour.amount,
+    buyLabel: INGREDIENT_BULK_BUYS.flour.label,
+    buyCost: INGREDIENT_BULK_BUYS.flour.cost,
   },
   sugar: {
     label: "Sugar",
     note: "Sweetens batters and powers your finishing sparkle.",
     accentClass: "ingredient-sugar",
     shelfLabel: "Sweet finishing helper",
+    buyAmount: INGREDIENT_BULK_BUYS.sugar.amount,
+    buyLabel: INGREDIENT_BULK_BUYS.sugar.label,
+    buyCost: INGREDIENT_BULK_BUYS.sugar.cost,
   },
   eggs: {
     label: "Eggs",
     note: "Helps cakes and cookies hold together through the oven.",
     accentClass: "ingredient-eggs",
     shelfLabel: "Structure booster",
+    buyAmount: INGREDIENT_BULK_BUYS.eggs.amount,
+    buyLabel: INGREDIENT_BULK_BUYS.eggs.label,
+    buyCost: INGREDIENT_BULK_BUYS.eggs.cost,
   },
 };
 
-const PANTRY_SCENE_VERSION = "20260516-211500";
+const PANTRY_SCENE_VERSION = "20260516-212800";
 const PANTRY_SCENE_SRC = `./assets/bakery-scenes/pantry-cupboard.png?v=${PANTRY_SCENE_VERSION}`;
 
 export function renderShopScreen(player) {
   const pantryTotal = Object.values(player.pantry).reduce((sum, amount) => sum + Number(amount || 0), 0);
-  const hasLowCoins = player.bank < Math.min(...Object.values(INGREDIENT_COSTS));
+  const hasLowCoins = player.bank < Math.min(...Object.values(INGREDIENT_META).map((meta) => meta.buyCost));
 
   return `
     <section class="panel flow-screen utility-screen shop-screen">
@@ -106,8 +115,8 @@ export function renderShopScreen(player) {
       </section>
 
       <div class="shop-grid pantry-shop-grid">
-        ${Object.entries(INGREDIENT_COSTS)
-          .map(([ingredient, cost]) => {
+        ${Object.keys(INGREDIENT_COSTS)
+          .map((ingredient) => {
             const meta = INGREDIENT_META[ingredient];
             const recipeTags = getRecipesForIngredient(ingredient);
             return `
@@ -121,7 +130,7 @@ export function renderShopScreen(player) {
                   </div>
                 </div>
                 <div class="ingredient-list pantry-shelf-stats">
-                  <span>Cost ${renderCoinIcon("coin-icon-sm")} ${cost} each</span>
+                  <span>Bulk buy ${meta.buyLabel} for ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</span>
                   <span>Owned ${player.pantry[ingredient]}</span>
                   <span>Shelf mood: ${getShelfStatus(player.pantry[ingredient])}</span>
                 </div>
@@ -129,9 +138,7 @@ export function renderShopScreen(player) {
                   ${recipeTags.map((tag) => `<span class="shop-tag">${escapeHtml(tag)}</span>`).join("")}
                 </div>
                 <div class="shop-buy-grid" aria-label="Buy ${meta.label}">
-                  ${renderBuyButton({ ingredient, label: meta.label, amount: 1, cost: cost * 1, playerCoins: player.bank })}
-                  ${renderBuyButton({ ingredient, label: meta.label, amount: 3, cost: cost * 3, playerCoins: player.bank })}
-                  ${renderBuyButton({ ingredient, label: meta.label, amount: 5, cost: cost * 5, playerCoins: player.bank })}
+                  ${renderBuyButton({ ingredient, label: meta.label, amount: meta.buyAmount, buyLabel: meta.buyLabel, cost: meta.buyCost, playerCoins: player.bank })}
                 </div>
               </article>
             `;
@@ -147,7 +154,7 @@ export function renderShopScreen(player) {
   `;
 }
 
-function renderBuyButton({ ingredient, label, amount, cost, playerCoins }) {
+function renderBuyButton({ ingredient, label, amount, buyLabel, cost, playerCoins }) {
   const affordable = playerCoins >= cost;
 
   return `
@@ -158,7 +165,7 @@ function renderBuyButton({ ingredient, label, amount, cost, playerCoins }) {
       data-buy-amount="${amount}"
       ${affordable ? "" : "disabled"}
     >
-      <span>Buy ${amount}</span>
+      <span>Buy ${buyLabel}</span>
       <span>${renderCoinIcon("coin-icon-sm")} ${cost}</span>
       <span class="tiny">${affordable ? `${label} restock` : "Need more coins"}</span>
     </button>

@@ -1,4 +1,4 @@
-import { createInitialSession, STAGES } from "./data.js?v=20260516-211500";
+import { createInitialSession, STAGES } from "./data.js?v=20260516-212800";
 import {
   canAffordIngredients,
   clamp,
@@ -13,10 +13,10 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260516-211500";
-import { formatSignedValue } from "./math.js?v=20260516-211500";
-import { generateQuestion } from "./questions/generator.js?v=20260516-211500";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260516-211500";
+} from "./helpers.js?v=20260516-212800";
+import { formatSignedValue } from "./math.js?v=20260516-212800";
+import { generateQuestion } from "./questions/generator.js?v=20260516-212800";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260516-212800";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -59,7 +59,7 @@ export function setBatchCount(gameState, batchCount) {
 
 export function buyIngredient(gameState, ingredient, amount = 1) {
   const player = gameState.player;
-  const units = clamp(Number(amount) || 1, 1, 12);
+  const units = clamp(Number(amount) || 1, 1, 24);
   const cost = getShopCost(ingredient, units);
 
   if (player.bank < cost) {
