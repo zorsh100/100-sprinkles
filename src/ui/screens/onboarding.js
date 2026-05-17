@@ -1,6 +1,6 @@
-import { renderMascot } from "../components/mascot.js?v=20260517-135700";
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260517-135700";
-import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260517-135700";
+import { renderMascot } from "../components/mascot.js?v=20260517-140300";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260517-140300";
+import { getPlayerAvatarOption, renderPlayerAvatar, renderPlayerAvatarPicker } from "../components/player-avatar.js?v=20260517-140300";
 
 const GRADE_BUCKETS = [
   {

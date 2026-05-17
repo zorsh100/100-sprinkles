@@ -1,9 +1,10 @@
-import { getSRMode } from "../../game/sr.js?v=20260517-135700";
-import { renderMascot } from "../components/mascot.js?v=20260517-135700";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-135700";
+import { getSRMode } from "../../game/sr.js?v=20260517-140300";
+import { renderMascot } from "../components/mascot.js?v=20260517-140300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-140300";
 
 export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
   const hasActiveSave = Boolean(activeSaveSummary && player);
+  const otherSaveSummaries = saveSummaries.filter((summary) => !summary.isActive);
 
   return `
     <section class="panel flow-screen settings-screen utility-screen">
@@ -41,9 +42,28 @@ export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
           hasActiveSave
             ? `
               <div class="slot-action-row settings-current-actions">
+                <button class="primary-button" type="button" data-go-route="recipe">
+                  Back To Baking
+                </button>
                 <button class="secondary-button" type="button" data-edit-player-slot="${activeSaveSummary.slotId}">
                   Edit Baker Profile
                 </button>
+              </div>
+              <div class="save-slot-danger-zone settings-current-danger">
+                <button class="ghost-button danger-button" type="button" data-reset-save-prompt="${activeSaveSummary.slotId}" aria-expanded="false">
+                  Clear ${escapeHtml(activeSaveSummary.slotLabel)}
+                </button>
+              </div>
+              <div class="reset-confirmation" data-reset-confirm-slot="${activeSaveSummary.slotId}" hidden>
+                <p><strong>This will erase all of ${escapeHtml(activeSaveSummary.username)}'s progress.</strong> Are you sure?</p>
+                <div class="reset-confirm-actions">
+                  <button class="ghost-button" type="button" data-cancel-reset-save="${activeSaveSummary.slotId}">
+                    Cancel
+                  </button>
+                  <button class="primary-button danger-confirm-button" type="button" data-reset-save="${activeSaveSummary.slotId}">
+                    Yes, clear it
+                  </button>
+                </div>
               </div>
             `
             : ""
@@ -52,7 +72,7 @@ export function renderSettingsScreen(saveSummaries, activeSaveSummary, player) {
       </section>
 
       <section class="utility-save-slots">
-        ${saveSummaries.map((summary) => renderSaveSlotCard(summary)).join("")}
+        ${otherSaveSummaries.map((summary) => renderSaveSlotCard(summary)).join("")}
       </section>
 
       <div class="flow-actions settings-actions">
@@ -102,8 +122,8 @@ function renderSaveSlotCard(summary) {
       <p class="muted tiny settings-saved-line">${savedLine}</p>
 
       <div class="slot-action-row">
-        <button class="secondary-button" type="button" data-open-save-slot="${summary.slotId}" data-go-route="settings" ${summary.isActive ? "disabled" : ""}>
-          ${summary.isActive ? "Current Baker" : `Switch To ${bakerName}`}
+        <button class="primary-button" type="button" data-open-save-slot="${summary.slotId}" data-go-route="recipe">
+          Play As ${bakerName}
         </button>
       </div>
 
