@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-110000";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-110000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-110000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-110000";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-110000";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-124800";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-124800";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-124800";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-124800";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-124800";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-110000";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-110000";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-110000";
+} from "../../game/helpers.js?v=20260517-124800";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-124800";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-124800";
 
 const INGREDIENT_META = {
   flour: {
@@ -402,14 +402,9 @@ function renderQuestionPanel(gameState, currentStage) {
           <div class="badge">${session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE} questions baked</div>
         </div>
         ${renderMascot({ mood: "celebrate", compact: true, message: `You did it! These ${session.saleReady.recipeName.toLowerCase()} are ready to wow your customers.` })}
-        <div class="receipt-card">
-          <span>Sale value: ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue} of ${session.saleReady.baseRevenue ?? session.saleReady.revenue}</span>
-          <span>Bake accuracy: ${session.saleReady.accuracyPercent ?? 100}%</span>
-          <span>Questions solved: ${session.saleReady.correctAnswers ?? session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE}/${session.saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE}</span>
-          <span>Sprinkles earned: ${session.saleReady.sprinklesEarned}/${Math.min(activeRecipe?.sprinkleReward ?? 5, 5)}</span>
-        </div>
+        ${renderBakeSaleReceipt(session.saleReady)}
         <div class="flow-actions">
-          <button class="primary-button" data-sell-order type="button">Serve & Sell</button>
+          <button class="primary-button" data-sell-order type="button">Serve & Sell — ${renderCoinIcon("coin-icon-sm")} ${session.saleReady.revenue}</button>
         </div>
       </section>
     `;
@@ -490,6 +485,74 @@ function renderOpenAnswerPanel(question, questionResult) {
       </div>
     </form>
   `;
+}
+
+function renderBakeSaleReceipt(saleReady) {
+  const recipeLabel = saleReady.recipeName.toLowerCase();
+  const singularLabel = getRecipeSingularLabel(saleReady.recipeName);
+  const imperfectBake = saleReady.itemsMade < saleReady.totalPossibleItems;
+
+  return `
+    <div class="receipt-card bake-sale-receipt">
+      <strong class="bake-sale-receipt-title">${saleReady.recipeIcon} Fresh ${escapeHtml(saleReady.recipeName)}</strong>
+      <div class="bake-sale-receipt-lines">
+        <div class="bake-sale-receipt-line">
+          <span>Baked:</span>
+          <span>${saleReady.itemsMade} of ${saleReady.totalPossibleItems} ${escapeHtml(recipeLabel)}</span>
+        </div>
+        <div class="bake-sale-receipt-line">
+          <span>Price:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.pricePerItem} per ${escapeHtml(singularLabel)}</span>
+        </div>
+        <div class="bake-sale-receipt-line">
+          <span>Subtotal:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.saleRevenue}</span>
+        </div>
+        ${
+          saleReady.streakBonus > 0
+            ? `
+              <div class="bake-sale-receipt-line">
+                <span>Streak bonus:</span>
+                <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.streakBonus}</span>
+              </div>
+            `
+            : ""
+        }
+        <div class="bake-sale-receipt-rule" aria-hidden="true"></div>
+        <div class="bake-sale-receipt-line bake-sale-receipt-total">
+          <span>Total:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.revenue}</span>
+        </div>
+      </div>
+      <p class="bake-sale-sprinkles">✨ ${saleReady.sprinklesEarned} sprinkles earned</p>
+      <p class="${imperfectBake ? "bake-sale-note bake-sale-note-warning" : "bake-sale-note bake-sale-note-success"}">
+        ${
+          imperfectBake
+            ? "Some treats didn't make it — more right answers next time means a fuller tray."
+            : "⭐ Perfect bake! Every treat made it to the counter."
+        }
+      </p>
+    </div>
+  `;
+}
+
+function getRecipeSingularLabel(recipeName) {
+  const singularMap = {
+    Cupcakes: "cupcake",
+    Cookies: "cookie",
+    Donuts: "donut",
+    Muffins: "muffin",
+    Brownies: "brownie",
+    "Sugar Cookies": "sugar cookie",
+    Cake: "cake",
+    "Cinnamon Rolls": "cinnamon roll",
+    Macarons: "macaron",
+    "Ice Cream Sandwiches": "ice cream sandwich",
+    "Cheesecake Slices": "cheesecake slice",
+    Pies: "pie",
+  };
+
+  return singularMap[recipeName] ?? recipeName.toLowerCase();
 }
 
 function renderSprinkleHud(player) {

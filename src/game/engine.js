@@ -6,25 +6,24 @@ import {
   createInitialSession,
   getBakeStageByQuestionIndex,
   getBakeStageIndexByQuestionIndex,
-} from "./data.js?v=20260517-110000";
+} from "./data.js?v=20260517-124800";
 import {
   canAffordIngredients,
   clamp,
   clampSprinkles,
-  getAccuracyAdjustedRevenue,
+  getBakeAccuracy,
   getMissingPantry,
   getNewlyUnlockedRecipes,
   getOrderCount,
-  getOrderRevenue,
   getPantryNeed,
   getRecipeById,
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260517-110000";
-import { formatSignedValue } from "./math.js?v=20260517-110000";
-import { generateQuestion } from "./questions/generator.js?v=20260517-110000";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260517-110000";
+} from "./helpers.js?v=20260517-124800";
+import { formatSignedValue } from "./math.js?v=20260517-124800";
+import { generateQuestion } from "./questions/generator.js?v=20260517-124800";
+import { applySRResult, isVisualMode } from "./sr.js?v=20260517-124800";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -288,16 +287,18 @@ export function submitAnswer(gameState, selectedAnswer) {
 function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}) {
   const { session } = gameState;
   const recipe = getRecipeById(session.order.recipeId);
-  const baseRevenue = getOrderRevenue(recipe, session.order.batchCount, updatedPlayer.SR);
   const totalAttempts = orderTotals.totalAttempts ?? session.order.totalAttempts ?? completedStages.length;
   const correctAnswers = orderTotals.correctAnswers ?? session.order.correctAnswers ?? completedStages.length;
   const firstTryCorrectAnswers = orderTotals.firstTryCorrectAnswers ?? session.order.firstTryCorrectAnswers ?? 0;
   const streakBonusSprinkles = orderTotals.streakBonusSprinkles ?? session.order.streakBonusSprinkles ?? 0;
-  const { accuracyPercent, adjustedRevenue } = getAccuracyAdjustedRevenue(
-    baseRevenue,
-    correctAnswers,
-    totalAttempts,
-  );
+  const accuracyPercent = getBakeAccuracy(correctAnswers, totalAttempts);
+  const totalPossibleItems = recipe.itemsPerBatch * session.order.batchCount;
+  const itemsMade = Math.floor(totalPossibleItems * (accuracyPercent / 100));
+  const saleRevenue = itemsMade * recipe.pricePerItem;
+  const streakBonus = updatedPlayer.skill.currentStreak >= 5
+    ? Math.floor(saleRevenue * 0.10)
+    : 0;
+  const totalRevenue = saleRevenue + streakBonus;
   const sprinklesEarned = getBakeProgressSprinkles({
     recipe,
     firstTryCorrectAnswers,
@@ -334,8 +335,12 @@ function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}
         recipeIcon: recipe.icon,
         batchCount: session.order.batchCount,
         completedStages,
-        revenue: adjustedRevenue,
-        baseRevenue,
+        totalPossibleItems,
+        itemsMade,
+        pricePerItem: recipe.pricePerItem,
+        saleRevenue,
+        streakBonus,
+        revenue: totalRevenue,
         accuracyPercent,
         questionsPerBake: session.order.questionsPerBake ?? QUESTIONS_PER_BAKE,
         totalAttempts,
@@ -349,7 +354,7 @@ function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}
     },
     flash: {
       kind: "success",
-      text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${adjustedRevenue} coins at ${accuracyPercent}% bake accuracy.`,
+      text: `Fresh ${recipe.name.toLowerCase()} are ready. Serve them to earn ${totalRevenue} coins at ${accuracyPercent}% bake accuracy.`,
     },
   };
 }

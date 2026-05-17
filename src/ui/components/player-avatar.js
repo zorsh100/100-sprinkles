@@ -1,6 +1,6 @@
-import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260517-110000";
+import { PLAYER_AVATAR_IDS } from "../../game/data.js?v=20260517-124800";
 
-const AVATAR_SHEET_VERSION = "20260517-110000";
+const AVATAR_SHEET_VERSION = "20260517-124800";
 const AVATAR_SHEET_SRC = `./assets/player-avatars/kid-bakers-sheet.png?v=${AVATAR_SHEET_VERSION}`;
 
 export const PLAYER_AVATAR_OPTIONS = [

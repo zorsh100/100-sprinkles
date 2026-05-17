@@ -1,55 +1,28 @@
-import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-110000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-110000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-110000";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-110000";
+import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-124800";
+import { renderCoinIcon } from "../components/icons.js?v=20260517-124800";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-124800";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-124800";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-124800";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
-  const currentQuestionIndex = session.order?.questionIndex ?? ((session.order?.stageIndex ?? 0) * 2);
-  const activeQuestionNumber = session.saleReady
-    ? QUESTIONS_PER_BAKE
-    : Math.min(currentQuestionIndex + 1, session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE);
-
   return `
     <section class="kinder-layout">
       <section class="panel kinder-hero-panel">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Start Bake</p>
-            <h2>Bakery Math</h2>
-            <p class="muted">Kindergarten path. Read the bakery problem and tap the number that solves it.</p>
+        <div class="kinder-compact-hud">
+          <div class="kinder-baker-row">
+            ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "kinder-baker-avatar", label: `${player.username}'s baker portrait` })}
+            <strong>${escapeHtml(player.username)}</strong>
           </div>
-          <div class="badge">Early Math</div>
+          <span>✨ ${player.sprinkles >= MAX_SPRINKLES ? "100/100" : `${player.sprinkles}/${MAX_SPRINKLES}`}</span>
+          <span>🔥 Streak ${player.skill.currentStreak}</span>
+          <span>SR ${player.SR}</span>
         </div>
-        <div class="kinder-summary kinder-hud-strip">
-          <div class="kinder-summary-card kinder-summary-baker">
-            <span class="muted tiny">Baker</span>
-            <div class="kinder-baker-row">
-              ${renderPlayerAvatar(player.avatarId, { size: "sm", className: "kinder-baker-avatar", label: `${player.username}'s baker portrait` })}
-              <strong>${escapeHtml(player.username)}</strong>
-            </div>
-          </div>
-          <div class="kinder-summary-card kinder-summary-sprinkles">
-            <span class="muted tiny">Sprinkles</span>
-            <strong>${player.sprinkles >= MAX_SPRINKLES ? "Expert Baker" : `${player.sprinkles}/${MAX_SPRINKLES}`}</strong>
-          </div>
-          <div class="kinder-summary-card kinder-summary-streak">
-            <span class="muted tiny">Streak</span>
-            <strong>${player.skill.currentStreak}</strong>
-          </div>
-        </div>
-        <div class="kinder-stage-banner-row">
-          <div class="kinder-stage-banner">
-            <span class="kinder-stage-banner-art">
-              ${renderStageArt(currentStage, { className: "stage-art-image-banner", altLabel: `${STAGE_META[currentStage].title} stage art` })}
-            </span>
-            <span>${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</span>
-          </div>
-          <div class="badge">Q ${activeQuestionNumber}/${session.order?.questionsPerBake ?? QUESTIONS_PER_BAKE} • SR ${player.SR}</div>
-        </div>
-        <div class="kinder-path-block">
-          <p class="muted tiny">Bakery Path</p>
-          <div class="kinder-stage-track">
-            ${renderKindergartenStageTrack(session, currentStage)}
+        <div class="kinder-stage-focus">
+          <span class="kinder-stage-focus-art">
+            ${renderStageArt(currentStage, { className: "stage-art-image-kinder-focus", altLabel: `${STAGE_META[currentStage].title} stage art` })}
+          </span>
+          <div class="kinder-stage-focus-copy">
+            <strong>${escapeHtml(STAGE_META[currentStage].title)} · ${selectedRecipe?.icon ?? "🧁"} ${escapeHtml(selectedRecipe?.name ?? "Cupcakes")}</strong>
           </div>
         </div>
       </section>
@@ -74,10 +47,9 @@ function renderKindergartenSale(saleReady) {
         <h2>All baked!</h2>
         <p class="muted">Tap the big button to serve your treats.</p>
         ${renderMascot({ mood: 'celebrate', compact: true, message: `Hooray! These treats are ready to earn ${saleReady.revenue} coins at ${saleReady.accuracyPercent ?? 100}% accuracy.` })}
-        <p class="muted tiny">${saleReady.questionsPerBake ?? QUESTIONS_PER_BAKE} bakery questions finished</p>
-        <p class="muted tiny">Accuracy bonus: ${saleReady.revenue} of ${saleReady.baseRevenue ?? saleReady.revenue} coins</p>
+        ${renderBakeSaleReceipt(saleReady)}
         <button class="primary-button kinder-start-button" data-sell-order type="button">
-          Serve for ${saleReady.revenue} coins
+          Serve & Sell — ${renderCoinIcon("coin-icon-sm")} ${saleReady.revenue}
         </button>
       </div>
     </section>
@@ -86,6 +58,7 @@ function renderKindergartenSale(saleReady) {
 
 function renderKindergartenQuestion({ session, currentStage }) {
   const question = session.currentQuestion;
+  const activeQuestionNumber = Math.min((question.orderQuestionIndex ?? 0) + 1, question.questionsPerBake ?? QUESTIONS_PER_BAKE);
   const promptLabel =
     question.subtype === "compare_groups"
       ? "How many more?"
@@ -95,23 +68,23 @@ function renderKindergartenQuestion({ session, currentStage }) {
 
   return `
     <section class="panel kinder-question-panel stage-panel stage-${currentStage}">
-      <div class="section-head kinder-head">
+      <div class="kinder-head">
         <div>
-          <p class="eyebrow">Math time</p>
+          <p class="eyebrow">Math Time · Question ${activeQuestionNumber}/${question.questionsPerBake ?? QUESTIONS_PER_BAKE}</p>
           <h2>${promptLabel}</h2>
-          <p class="muted kinder-question-prompt">${escapeHtml(question.prompt ?? "")}</p>
+          <p class="kinder-question-prompt">${escapeHtml(question.prompt ?? "")}</p>
         </div>
-        <div class="badge">Question ${(question.orderQuestionIndex ?? 0) + 1}/${question.questionsPerBake ?? QUESTIONS_PER_BAKE}</div>
       </div>
+      ${renderKinderVisuals(question.visuals)}
       <div class="kinder-equation-row">
         ${question.promptSecondary ? `<div class="kinder-equation-bubble">${escapeHtml(formatKinderEquation(question.promptSecondary))}</div>` : ""}
       </div>
-      <div class="kinder-answer-grid colorful-answer-grid">
+      <div class="kinder-answer-grid">
         ${question.choices
-          .map((choice, index) => {
+          .map((choice) => {
             const resultClass = getChoiceClass(session.questionResult, choice, question.answer);
             return `
-              <button class="choice-button kinder-choice-button answer-color-${index % 4} ${resultClass}" type="button" data-answer="${choice}">
+              <button class="choice-button kinder-choice-button ${resultClass}" type="button" data-answer="${choice}">
                 <span class="kinder-choice-number">${choice}</span>
               </button>
             `;
@@ -148,25 +121,90 @@ function formatKinderEquation(value) {
   return `${equation} =`;
 }
 
-function renderKindergartenStageTrack(session, currentStage) {
-  const steps = ["prep", "mixing", "timing", "finishing", "serving"];
+function renderKinderVisuals(visuals) {
+  if (!visuals || !Array.isArray(visuals.left) || !Array.isArray(visuals.right)) {
+    return "";
+  }
 
-  return steps
-    .map((stage) => {
-      const done = session.saleReady || (session.order && session.order.completedStages.includes(stage));
-      const active = !session.saleReady && session.order && stage === currentStage;
-      const className = done ? "done" : active ? "active" : "";
-      return `
-        <div class="kinder-stage-stop ${className}">
-          <div class="kinder-stage-icon">
-            ${renderStageArt(stage, { className: "stage-art-image-track", altLabel: `${STAGE_META[stage].title} stage icon` })}
-            ${done ? '<span class="stage-chip-check">✓</span>' : ""}
-          </div>
-          <div class="kinder-stage-label">${stage}</div>
+  return `
+    <div class="kinder-tray-grid">
+      <div class="kinder-tray tray-soft">
+        <div class="kinder-tray-label">${escapeHtml(visuals.leftLabel ?? "First tray")}</div>
+        ${visuals.left.map((token) => `<span class="kinder-token">${escapeHtml(token)}</span>`).join("")}
+      </div>
+      <div class="kinder-tray tray-soft">
+        <div class="kinder-tray-label">${escapeHtml(visuals.rightLabel ?? "Second tray")}</div>
+        ${visuals.right.map((token) => `<span class="kinder-token">${escapeHtml(token)}</span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderBakeSaleReceipt(saleReady) {
+  const imperfectBake = saleReady.itemsMade < saleReady.totalPossibleItems;
+  const singularLabel = getRecipeSingularLabel(saleReady.recipeName);
+
+  return `
+    <div class="receipt-card bake-sale-receipt">
+      <strong class="bake-sale-receipt-title">${saleReady.recipeIcon} Fresh ${escapeHtml(saleReady.recipeName)}</strong>
+      <div class="bake-sale-receipt-lines">
+        <div class="bake-sale-receipt-line">
+          <span>Baked:</span>
+          <span>${saleReady.itemsMade} of ${saleReady.totalPossibleItems} ${escapeHtml(saleReady.recipeName.toLowerCase())}</span>
         </div>
-      `;
-    })
-    .join("");
+        <div class="bake-sale-receipt-line">
+          <span>Price:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.pricePerItem} per ${escapeHtml(singularLabel)}</span>
+        </div>
+        <div class="bake-sale-receipt-line">
+          <span>Subtotal:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.saleRevenue}</span>
+        </div>
+        ${
+          saleReady.streakBonus > 0
+            ? `
+              <div class="bake-sale-receipt-line">
+                <span>Streak bonus:</span>
+                <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.streakBonus}</span>
+              </div>
+            `
+            : ""
+        }
+        <div class="bake-sale-receipt-rule" aria-hidden="true"></div>
+        <div class="bake-sale-receipt-line bake-sale-receipt-total">
+          <span>Total:</span>
+          <span>${renderCoinIcon("coin-icon-sm")} ${saleReady.revenue}</span>
+        </div>
+      </div>
+      <p class="bake-sale-sprinkles">✨ ${saleReady.sprinklesEarned} sprinkles earned</p>
+      <p class="${imperfectBake ? "bake-sale-note bake-sale-note-warning" : "bake-sale-note bake-sale-note-success"}">
+        ${
+          imperfectBake
+            ? "Some treats didn't make it — more right answers next time means a fuller tray."
+            : "⭐ Perfect bake! Every treat made it to the counter."
+        }
+      </p>
+    </div>
+  `;
+}
+
+function getRecipeSingularLabel(recipeName) {
+  const singularMap = {
+    Cupcakes: "cupcake",
+    Cookies: "cookie",
+    Donuts: "donut",
+    Muffins: "muffin",
+    Brownies: "brownie",
+    "Sugar Cookies": "sugar cookie",
+    Cake: "cake",
+    "Cinnamon Rolls": "cinnamon roll",
+    Macarons: "macaron",
+    "Ice Cream Sandwiches": "ice cream sandwich",
+    "Cheesecake Slices": "cheesecake slice",
+    Pies: "pie",
+  };
+
+  return singularMap[recipeName] ?? recipeName.toLowerCase();
 }
 
 function getChoiceClass(result, choice, answer) {

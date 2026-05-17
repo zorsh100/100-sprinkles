@@ -1,6 +1,6 @@
-import { renderCoinIcon } from "./icons.js?v=20260517-110000";
+import { renderCoinIcon } from "./icons.js?v=20260517-124800";
 
-const CHEF_SPRINKLES_COACH_VERSION = "20260517-110000";
+const CHEF_SPRINKLES_COACH_VERSION = "20260517-124800";
 const CHEF_SPRINKLES_COACH_SRC = `./assets/characters/chef-sprinkles-coach.png?v=${CHEF_SPRINKLES_COACH_VERSION}`;
 
 function escapeHtml(value) {
