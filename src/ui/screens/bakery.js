@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-212800";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-212800";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-212800";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-212800";
-import { renderStageArt } from "../components/stage-art.js?v=20260516-212800";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-214100";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-214100";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-214100";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-214100";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-214100";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260516-212800";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-212800";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-212800";
+} from "../../game/helpers.js?v=20260516-214100";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-214100";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-214100";
 
 const INGREDIENT_META = {
   flour: {
@@ -105,6 +105,40 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
         </div>
       </section>
 
+      <section class="panel pantry-overview-panel">
+        <div class="section-head bakery-head">
+          <div>
+            <p class="eyebrow eyebrow-pill">Pantry</p>
+            <h2>Check Your Shelves</h2>
+            <p class="muted bakery-subcopy">See what is already stocked and top off flour, sugar, or eggs before you choose the next bake.</p>
+          </div>
+        </div>
+
+        <div class="inventory-grid compact-pantry-grid ingredient-shop-grid pantry-overview-grid">
+          ${Object.entries(INGREDIENT_META)
+            .map(([ingredient, meta]) => {
+              const owned = Number(player.pantry?.[ingredient] || 0);
+              const needed = Number(pantryNeed?.[ingredient] || 0);
+              const canCoverNextBake = owned >= needed;
+              return `
+                <div class="inventory-card ingredient-shop-card pantry-overview-card ${meta.accentClass} ${canCoverNextBake ? "ready" : "missing"}">
+                  <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
+                  <strong>${meta.label}</strong>
+                  <span>Have ${owned}</span>
+                  <span>${selectedRecipe ? `Next ${selectedRecipe.name}: need ${needed}` : "Ready for sweet recipes"}</span>
+                  <details class="ingredient-note-details">
+                    <summary>Why this helps</summary>
+                    <span class="muted tiny">${meta.note}</span>
+                  </details>
+                  <button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
+                  <span class="muted tiny ingredient-restock-note">${canCoverNextBake ? "You already have enough for the next bake." : "A quick restock helps this ingredient catch up."}</span>
+                </div>
+              `;
+            })
+            .join("")}
+        </div>
+      </section>
+
       <section class="panel flow-screen recipe-selection-panel">
         <div class="section-head bakery-head">
           <div>
@@ -139,7 +173,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                     </div>
                     <div class="recipe-info-chip">
                       <div class="recipe-icon-row recipe-reward-list">
-                        <span>🪙 ${recipe.baseReward}</span>
+                        <span>${renderCoinIcon("coin-icon-sm")} ${recipe.baseReward}</span>
                         <span>✨ up to ${Math.min(recipe.sprinkleReward, 5)}</span>
                       </div>
                     </div>
@@ -208,7 +242,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                           </details>
                           ${
                             missing
-                              ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — 🪙${meta.buyCost}</button>
+                              ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
                                  <span class="muted tiny ingredient-restock-note">${canCoverMissing ? "One restock covers this bake." : "You may need more than one restock."}</span>`
                               : `<span class="inventory-status">Ready for the bake</span>`
                           }
