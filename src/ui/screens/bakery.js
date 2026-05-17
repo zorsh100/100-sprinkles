@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-161200";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-161200";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-161200";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-161200";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-161200";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-163900";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-163900";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-163900";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-163900";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-163900";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -17,9 +17,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-161200";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-161200";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-161200";
+} from "../../game/helpers.js?v=20260517-163900";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-163900";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-163900";
 
 const INGREDIENT_META = {
   flour: {
@@ -330,6 +330,11 @@ function formatRecipeCountBadge(count) {
 
 function renderRecipeIngredientLine(ingredients) {
   return `<span class="recipe-ingredient-emoji">🌾</span>×${ingredients.flour} <span class="recipe-ingredient-emoji">🍬</span>×${ingredients.sugar} <span class="recipe-ingredient-emoji">🥚</span>×${ingredients.eggs}`;
+}
+
+function renderIngredientToken(ingredient, amount) {
+  const label = INGREDIENT_META[ingredient]?.label ?? ingredient;
+  return `${renderIngredientIcon(ingredient)} ${escapeHtml(label)} ×${Number(amount) || 0}`;
 }
 
 function renderBakeScreen(gameState, currentStage) {

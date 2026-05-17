@@ -1,5 +1,5 @@
-import { renderMascot } from "../components/mascot.js?v=20260517-161200";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-161200";
+import { renderMascot } from "../components/mascot.js?v=20260517-163900";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-163900";
 
 export function renderTitleScreen(saveSummaries) {
   const filledSlots = saveSummaries.filter((summary) => !summary.empty);
@@ -19,7 +19,7 @@ export function renderTitleScreen(saveSummaries) {
           <div class="store-window window-right"></div>
           <div class="store-door"></div>
         </div>
-        <img class="title-logo" src="./logo.png?v=20260517-161200" alt="100 Sprinkles logo" />
+        <img class="title-logo" src="./logo.png?v=20260517-163900" alt="100 Sprinkles logo" />
       </div>
       <div class="title-mascot-wrap">
         ${renderMascot({ mood: "happy", message: mascotMessage, variant: "speech", className: "title-mascot-scene" })}
