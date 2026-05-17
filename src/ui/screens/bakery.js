@@ -1,8 +1,8 @@
-import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260512-202600";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260512-202600";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260512-202600";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260512-202600";
-import { getStageArtMeta, renderStageArt, STAGE_GALLERY_ORDER } from "../components/stage-art.js?v=20260512-202600";
+import { MAX_SPRINKLES, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260516-205400";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260516-205400";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260516-205400";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260516-205400";
+import { renderStageArt } from "../components/stage-art.js?v=20260516-205400";
 import {
   clampSprinkles,
   formatOrderCount,
@@ -16,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260512-202600";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260512-202600";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260512-202600";
+} from "../../game/helpers.js?v=20260516-205400";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260516-205400";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260516-205400";
 
 const INGREDIENT_META = {
   flour: {
@@ -173,7 +173,6 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
           }
 
           <p class="visual-mode-note muted tiny">${renderStartBakeNote(player, isReadyToBake)}</p>
-          ${renderBakeStationGallery()}
 
           ${
             supportsRecipeSets(player.SR)
@@ -294,27 +293,6 @@ function formatRecipeCountBadge(count) {
 function renderIngredientToken(ingredient, amount) {
   const meta = INGREDIENT_META[ingredient] ?? { label: ingredient };
   return `${renderIngredientIcon(ingredient, "ingredient-mark-inline")} ${meta.label} ×${amount}`;
-}
-
-function renderBakeStationGallery() {
-  return `
-    <section class="bakery-station-gallery" aria-label="Bakery stations">
-      ${STAGE_GALLERY_ORDER.map((stage) => {
-        const station = getStageArtMeta(stage);
-        return `
-          <article class="bakery-station-card">
-            <div class="bakery-station-art-frame">
-              ${renderStageArt(stage, { className: "bakery-station-art", altLabel: station.imageAlt })}
-            </div>
-            <div class="bakery-station-copy">
-              <p class="eyebrow">${escapeHtml(station.title)}</p>
-              <p class="muted bakery-station-note">${escapeHtml(station.note)}</p>
-            </div>
-          </article>
-        `;
-      }).join("")}
-    </section>
-  `;
 }
 
 function renderBakeScreen(gameState, currentStage) {
