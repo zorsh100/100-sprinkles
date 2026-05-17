@@ -1,8 +1,8 @@
-import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-155100";
-import { renderCoinIcon } from "../components/icons.js?v=20260517-155100";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-155100";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-155100";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-155100";
+import { MAX_SPRINKLES, QUESTIONS_PER_BAKE, STAGE_META } from "../../game/data.js?v=20260517-161200";
+import { renderCoinIcon } from "../components/icons.js?v=20260517-161200";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-161200";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-161200";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-161200";
 
 export function renderKindergartenBakery({ player, session, currentStage, selectedRecipe }) {
   return `

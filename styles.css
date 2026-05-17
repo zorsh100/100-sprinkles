@@ -3320,6 +3320,10 @@ body.title-route .app-shell {
   border: 1px solid rgba(216, 87, 87, 0.24);
 }
 
+.reset-confirmation[hidden] {
+  display: none;
+}
+
 .reset-confirmation p {
   margin: 0;
   color: #6b3d3d;
