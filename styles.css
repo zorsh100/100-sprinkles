@@ -1621,13 +1621,13 @@ button[aria-disabled="true"] {
 }
 
 .choice-button.correct {
-  background: linear-gradient(135deg, rgba(255, 182, 193, 0.9), rgba(255, 232, 196, 0.92));
-  color: var(--ink);
+  background: linear-gradient(135deg, #ff8a7d, #ff6b6b);
+  color: #ffffff;
 }
 
 .choice-button.wrong {
-  background: rgba(216, 87, 87, 0.18);
-  color: var(--danger);
+  background: linear-gradient(135deg, #e46a6a, #d85757);
+  color: #ffffff;
 }
 
 .regular-answer-grid {
@@ -4037,13 +4037,13 @@ body.title-route .app-shell {
 }
 
 .choice-button.correct {
-  background: linear-gradient(135deg, #6fd38e, #3ca770) !important;
+  background: linear-gradient(135deg, #ff8a7d, #ff6b6b) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 
 .choice-button.wrong {
-  background: linear-gradient(135deg, #ff9a9a, #d85757) !important;
+  background: linear-gradient(135deg, #e46a6a, #d85757) !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
