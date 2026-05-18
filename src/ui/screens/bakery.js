@@ -1,8 +1,8 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-171000";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-171000";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-171000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-171000";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-171000";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-172300";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-172300";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-172300";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-172300";
+import { renderStageArt } from "../components/stage-art.js?v=20260517-172300";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -12,14 +12,12 @@ import {
   getPantryNeed,
   getRecipeById,
   getSprinklePercent,
-  getShopCost,
-  getTotalShopCost,
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-171000";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-171000";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-171000";
+} from "../../game/helpers.js?v=20260517-172300";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-172300";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-172300";
 
 const INGREDIENT_META = {
   flour: {
@@ -86,7 +84,6 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
   const missingPantry = player.SR >= 300 && pantryNeed ? getMissingPantry(player, pantryNeed) : {};
   const isReadyToBake = Object.keys(missingPantry).length === 0;
   const isBlockedByPantry = player.SR >= 300 && !isReadyToBake;
-  const missingCost = getTotalShopCost(missingPantry);
   const shouldShowPantryOverview = player.SR >= 300 && pantryNeed;
 
   return `
@@ -212,7 +209,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
 
           ${
             isBlockedByPantry
-              ? `<div class="restock-alert-banner restock-alert-banner-strong" role="alert">${renderCoinIcon()} Need ${missingCost} coins to restock before baking.</div>`
+              ? `<p class="pantry-check-message">Check your pantry for ${escapeHtml(formatMissingIngredientList(missingPantry))}.</p>`
               : ""
           }
 
@@ -240,44 +237,7 @@ function renderRecipeScreen(gameState, knownRecipes, unlockedRecipes, selectedRe
                 ${
                   isReadyToBake
                     ? `<p class="pantry-ready">✓ Pantry stocked — ready to bake</p>`
-                    : `
-                      <div class="inventory-grid compact-pantry-grid ingredient-shop-grid">
-                        ${Object.entries(pantryNeed)
-                          .map(([ingredient, amount]) => {
-                            const owned = player.pantry[ingredient];
-                            const missing = Math.max(0, amount - owned);
-                            const meta =
-                              INGREDIENT_META[ingredient] ??
-                              { label: ingredient, accentClass: "ingredient-generic", note: "Needed for the next bake.", buyAmount: 1, buyLabel: "1", buyCost: getShopCost(ingredient, 1) };
-                            const canCoverMissing = owned + meta.buyAmount >= amount;
-                            return `
-                              <div class="inventory-card ingredient-shop-card ${meta.accentClass} ${missing ? "missing" : "ready"}">
-                                ${
-                                  !missing
-                                    ? `<div class="ingredient-ready-check" aria-label="${meta.label} is stocked for the selected recipe">✓</div>`
-                                    : ""
-                                }
-                                <div class="ingredient-shop-icon ingredient-shop-stamp">${renderIngredientIcon(ingredient)}</div>
-                                <strong>${meta.label}</strong>
-                                <span>Need ${amount}</span>
-                                <span>Have ${owned}</span>
-                                <details class="ingredient-note-details">
-                                  <summary>Why this helps</summary>
-                                  <span class="muted tiny">${meta.note}</span>
-                                </details>
-                                ${
-                                  missing
-                                    ? `<button class="quick-buy-button ingredient-buy-button" type="button" data-buy="${ingredient}" data-buy-amount="${meta.buyAmount}">Buy ${meta.buyLabel} — ${renderCoinIcon("coin-icon-sm")} ${meta.buyCost}</button>
-                                       <span class="muted tiny ingredient-restock-note">${canCoverMissing ? "One restock covers this bake." : "You may need more than one restock."}</span>`
-                                    : ""
-                                }
-                              </div>
-                            `;
-                          })
-                          .filter(Boolean)
-                          .join("")}
-                      </div>
-                    `
+                    : ""
                 }
               `
               : ""
@@ -322,6 +282,22 @@ function renderStartBakeNote(player) {
   }
 
   return "";
+}
+
+function formatMissingIngredientList(missingPantry) {
+  const labels = Object.keys(missingPantry)
+    .filter((ingredient) => Number(missingPantry[ingredient]) > 0)
+    .map((ingredient) => INGREDIENT_META[ingredient]?.label?.toLowerCase() ?? String(ingredient));
+
+  if (labels.length <= 1) {
+    return labels[0] ?? "ingredients";
+  }
+
+  if (labels.length === 2) {
+    return `${labels[0]} and ${labels[1]}`;
+  }
+
+  return `${labels.slice(0, -1).join(", ")}, and ${labels.at(-1)}`;
 }
 
 function formatRecipeCountBadge(count) {
