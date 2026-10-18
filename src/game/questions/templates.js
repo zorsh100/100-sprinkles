@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20261017-160000";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20261017-201000";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -794,7 +794,7 @@ export function algebraicMissingAdd({ context, stage }) {
     answer: x,
     choices: makeChoices(x, 6),
     mission: `Find the mystery number of ${item} that started on the ${getStagePlace(stage)}.`,
-    hint: "Move the added amount to the other side to undo the adding.",
+    hint: "Take the added amount away from both sides to undo the adding.",
     equation: {
       left: [
         { kind: "term", coefficient: 1, variable: "x" },
@@ -816,7 +816,7 @@ export function algebraicMissingSubtract({ context, stage }) {
     answer: x,
     choices: makeChoices(x, 6),
     mission: `Work backward to find how many ${item} you started with.`,
-    hint: "Move the sold amount to the other side to undo the taking away.",
+    hint: "Add the sold amount to both sides to undo the taking away.",
     equation: {
       left: [
         { kind: "term", coefficient: 1, variable: "x" },
@@ -839,7 +839,7 @@ export function algebraicBoxesPlusExtra({ context, targetDifficulty, stage }) {
     answer: x,
     choices: makeChoices(x, 4),
     mission: `Find how many ${item} fit in each box.`,
-    hint: "Move the extras first, then split what is left into equal boxes.",
+    hint: "Take the extras away from both sides, then divide by the number of boxes.",
     equation: {
       left: [
         { kind: "term", coefficient: boxes, variable: "x" },
@@ -862,7 +862,7 @@ export function algebraicTraysMinusEaten({ context, targetDifficulty, stage }) {
     answer: x,
     choices: makeChoices(x, 4),
     mission: `Figure out how many ${item} fit on each tray.`,
-    hint: "Undo the taste-test first, then share the total across the trays.",
+    hint: "Add the tasted ones back to both sides, then divide by the number of trays.",
     equation: {
       left: [
         { kind: "term", coefficient: trays, variable: "x" },

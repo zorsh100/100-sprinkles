@@ -1,7 +1,7 @@
-import { INGREDIENT_BULK_BUYS, INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20261017-160000";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20261017-160000";
-import { renderMascot } from "../components/mascot.js?v=20261017-160000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-160000";
+import { INGREDIENT_BULK_BUYS, INGREDIENT_COSTS, RECIPES } from "../../game/data.js?v=20261017-201000";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20261017-201000";
+import { renderMascot } from "../components/mascot.js?v=20261017-201000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-201000";
 
 const INGREDIENT_META = {
   flour: {

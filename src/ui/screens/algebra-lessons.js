@@ -1,6 +1,6 @@
-import { ALGEBRA_LESSONS, getAlgebraLesson, getLessonSolvedCount } from "../../game/algebra-lessons.js?v=20261017-160000";
-import { renderAlgebraGame } from "../components/algebra-game.js?v=20261017-160000";
-import { renderMascot } from "../components/mascot.js?v=20261017-160000";
+import { ALGEBRA_LESSONS, getAlgebraLesson, getLessonSolvedCount } from "../../game/algebra-lessons.js?v=20261017-201000";
+import { markDivide, renderAlgebraGame } from "../components/algebra-game.js?v=20261017-201000";
+import { renderMascot } from "../components/mascot.js?v=20261017-201000";
 
 export function renderAlgebraLessonsScreen(practice) {
   const lesson = getAlgebraLesson(practice.lessonId);
@@ -45,10 +45,10 @@ export function renderAlgebraLessonsScreen(practice) {
         <div>
           <p class="eyebrow">How it works</p>
           <h3>${escapeHtml(lesson.title)}</h3>
-          <p>${escapeHtml(lesson.explain)}</p>
+          <p>${markDivide(escapeHtml(lesson.explain))}</p>
         </div>
         <ol class="algebra-example" aria-label="Worked example">
-          ${lesson.example.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}
+          ${lesson.example.map((line) => `<li>${markDivide(escapeHtml(line))}</li>`).join("")}
         </ol>
       </section>
 

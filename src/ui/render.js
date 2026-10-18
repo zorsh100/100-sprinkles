@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20261017-160000";
+import { navigate } from "../app/router.js?v=20261017-201000";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,19 +8,19 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20261017-160000";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20261017-160000";
-import { renderShell } from "./shell.js?v=20261017-160000";
-import { attachAlgebraEvents } from "./components/algebra-game.js?v=20261017-160000";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20261017-160000";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20261017-160000";
-import { renderLearnScreen } from "./screens/learn.js?v=20261017-160000";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20261017-160000";
-import { renderSettingsScreen } from "./screens/settings.js?v=20261017-160000";
-import { renderShopScreen } from "./screens/shop.js?v=20261017-160000";
-import { renderStatsScreen } from "./screens/stats.js?v=20261017-160000";
-import { renderTitleScreen } from "./screens/title.js?v=20261017-160000";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20261017-160000";
+} from "../game/engine.js?v=20261017-201000";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20261017-201000";
+import { renderShell } from "./shell.js?v=20261017-201000";
+import { attachAlgebraEvents } from "./components/algebra-game.js?v=20261017-201000";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20261017-201000";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20261017-201000";
+import { renderLearnScreen } from "./screens/learn.js?v=20261017-201000";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20261017-201000";
+import { renderSettingsScreen } from "./screens/settings.js?v=20261017-201000";
+import { renderShopScreen } from "./screens/shop.js?v=20261017-201000";
+import { renderStatsScreen } from "./screens/stats.js?v=20261017-201000";
+import { renderTitleScreen } from "./screens/title.js?v=20261017-201000";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20261017-201000";
 
 const ANSWER_SPLASH_DURATION_MS = 1000;
 let pendingAnswerAdvance = null;

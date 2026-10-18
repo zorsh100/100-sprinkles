@@ -3,10 +3,10 @@ import {
   startAlgebraLesson,
   submitAlgebraPractice,
   updateAlgebraPracticeState,
-} from "./game/algebra-lessons.js?v=20261017-160000";
-import { loadAlgebraPractice, saveAlgebraPractice } from "./state.js?v=20261017-160000";
-import { attachAlgebraEvents } from "./ui/components/algebra-game.js?v=20261017-160000";
-import { renderAlgebraLessonsScreen } from "./ui/screens/algebra-lessons.js?v=20261017-160000";
+} from "./game/algebra-lessons.js?v=20261017-201000";
+import { loadAlgebraPractice, saveAlgebraPractice } from "./state.js?v=20261017-201000";
+import { attachAlgebraEvents } from "./ui/components/algebra-game.js?v=20261017-201000";
+import { renderAlgebraLessonsScreen } from "./ui/screens/algebra-lessons.js?v=20261017-201000";
 
 const SPLASH_DURATION_MS = 1000;
 const appRoot = document.querySelector("#algebra-app");

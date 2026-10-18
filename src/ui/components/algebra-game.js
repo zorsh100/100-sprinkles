@@ -1,12 +1,22 @@
 import {
+  combineSide,
+  divideBothSides,
+  formatNumber,
   formatTerm,
+  getCombinableSides,
+  getDivideBy,
+  getDivisor,
+  getSideActionLabel,
   moveSelectedTerm,
   resetAlgebraState,
   selectAlgebraTerm,
-} from "../../game/algebra.js?v=20261017-160000";
+} from "../../game/algebra.js?v=20261017-201000";
 
 export function renderAlgebraGame({ question, algebraState }) {
   const solved = algebraState.solvedValue !== null;
+  const combinableSides = getCombinableSides(algebraState);
+  const canCombine = combinableSides.length > 0 && !solved;
+  const divideBy = getDivideBy(algebraState);
 
   return `
     <div class="algebra-game ${solved ? "solved" : ""}" data-algebra-game>
@@ -15,17 +25,27 @@ export function renderAlgebraGame({ question, algebraState }) {
           solved
             ? "The mystery jar is balanced!"
             : algebraState.selected
-              ? "Now tap the other side of the = sign to move it."
-              : "Tap a number to pick it up."
+              ? "Now tap the other side of the = sign to undo it on both sides."
+              : combinableSides.length
+                ? "Both sides stay balanced! Now finish each side."
+                : divideBy
+                  ? `x is stuck in ${divideBy} equal groups. Divide both sides by ${divideBy}!`
+                  : "Tap a number to pick it up."
         }</p>
         <button class="ghost-button algebra-reset-button" type="button" data-algebra-reset>Start over</button>
       </div>
 
-      <div class="algebra-equation" aria-label="Equation">
-        ${renderSide("left", algebraState)}
+      <div class="algebra-equation ${canCombine ? "has-combine" : ""}" aria-label="Equation">
+        ${renderSideColumn("left", algebraState, canCombine && combinableSides.includes("left"))}
         <span class="algebra-equals" aria-hidden="true">=</span>
-        ${renderSide("right", algebraState)}
+        ${renderSideColumn("right", algebraState, canCombine && combinableSides.includes("right"))}
       </div>
+
+      ${
+        divideBy
+          ? `<div class="algebra-divide-row"><button class="secondary-button algebra-divide-button" type="button" data-algebra-divide>${markDivide("÷")} Divide both sides by ${divideBy}</button></div>`
+          : ""
+      }
 
       ${
         algebraState.steps.length
@@ -34,7 +54,7 @@ export function renderAlgebraGame({ question, algebraState }) {
               ${algebraState.steps
                 .map(
                   (step, index) => `
-                    <li class="${step.auto ? "auto" : ""}">Step ${index + 1}: ${escapeHtml(step.text)} → <strong>${escapeHtml(step.result)}</strong></li>
+                    <li>Step ${index + 1}: ${markDivide(escapeHtml(step.text))} → <strong>${markDivide(escapeHtml(step.result))}</strong></li>
                   `,
                 )
                 .join("")}
@@ -86,6 +106,16 @@ export function attachAlgebraEvents(root, algebraState, onChange, onConfirm) {
     });
   });
 
+  game.querySelectorAll("[data-algebra-combine]").forEach((button) => {
+    button.addEventListener("click", () => {
+      update(combineSide(algebraState, button.dataset.algebraCombine));
+    });
+  });
+
+  game.querySelector("[data-algebra-divide]")?.addEventListener("click", () => {
+    update(divideBothSides(algebraState));
+  });
+
   game.querySelector("[data-algebra-reset]")?.addEventListener("click", () => {
     update(resetAlgebraState(algebraState));
   });
@@ -95,17 +125,33 @@ export function attachAlgebraEvents(root, algebraState, onChange, onConfirm) {
   });
 }
 
+// Each side sits above its own Combine / Divide button so kids see which part gets finished.
+function renderSideColumn(side, algebraState, showCombine) {
+  return `
+    <div class="algebra-side-column">
+      ${renderSide(side, algebraState)}
+      ${
+        showCombine
+          ? `<button class="secondary-button algebra-combine-button" type="button" data-algebra-combine="${side}">${markDivide(escapeHtml(getSideActionLabel(algebraState, side)))}</button>`
+          : ""
+      }
+    </div>
+  `;
+}
+
 function renderSide(side, algebraState) {
   const items = algebraState[side];
   const isDropTarget = algebraState.selected && algebraState.selected.side !== side;
+  const divisor = getDivisor(algebraState, side);
 
   return `
-    <div class="algebra-side ${isDropTarget ? "drop-target" : ""} ${algebraState.lastMoved === side ? "just-moved" : ""}" data-side="${side}">
+    <div class="algebra-side ${isDropTarget ? "drop-target" : ""} ${algebraState.lastMoved === side || algebraState.lastMoved === "both" ? "just-moved" : ""}" data-side="${side}">
       ${
         items.length
           ? items.map((item, index) => renderItem(item, index, side, algebraState)).join("")
           : '<span class="algebra-zero">0</span>'
       }
+      ${divisor ? `<span class="algebra-operator">${markDivide("÷")}</span><span class="algebra-divisor">${divisor}</span>` : ""}
     </div>
   `;
 }
@@ -124,17 +170,18 @@ function renderItem(item, index, side, algebraState) {
   return `
     ${operatorMarkup}
     <button
-      class="algebra-term-button ${selected ? "selected" : ""}"
+      class="algebra-term-button ${selected ? "selected" : ""} ${item.added ? "added" : ""}"
       type="button"
       data-algebra-term="${side}:${index}"
       aria-pressed="${selected}"
-      ${algebraState.solvedValue !== null ? "disabled" : ""}
-    >${Math.abs(item.value)}</button>
+      ${algebraState.solvedValue !== null || getDivisor(algebraState, "left") || getDivisor(algebraState, "right") ? "disabled" : ""}
+    >${formatNumber(Math.abs(item.value))}</button>
   `;
 }
 
-function formatNumber(value) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(2);
+// Baloo 2 draws ÷ so faintly it reads as +, so every ÷ gets a clearer font.
+export function markDivide(html) {
+  return String(html).replaceAll("÷", '<span class="div-sign">÷</span>');
 }
 
 function escapeHtml(value) {

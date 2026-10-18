@@ -4748,10 +4748,6 @@ body.title-route .app-shell {
   gap: 4px;
 }
 
-.algebra-steps li.auto {
-  font-style: italic;
-}
-
 .algebra-confirm-button {
   width: 100%;
   font-size: 1.15rem;
@@ -4945,4 +4941,112 @@ body.title-route .app-shell {
   .algebra-lesson-card {
     grid-template-columns: 1fr;
   }
+}
+
+.algebra-side-column {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+/* Keep the = sign level with the equation when Combine buttons sit underneath. */
+.algebra-equation.has-combine {
+  align-items: flex-start;
+}
+
+.algebra-equation.has-combine .algebra-equals {
+  align-self: flex-start;
+  line-height: 72px;
+}
+
+.algebra-term-button.added {
+  border-color: var(--accent-3);
+  background: rgba(94, 194, 183, 0.14);
+}
+
+.algebra-combine-button {
+  min-height: 48px;
+  padding: 8px 16px;
+  white-space: nowrap;
+  border: 2px solid var(--accent-3);
+  font-family: "Baloo 2", cursive;
+  font-size: 1rem;
+  font-weight: 800;
+  animation: algebra-slide-in 0.2s ease-out;
+}
+
+/* Before combining, an equation can hold five terms (4x + 4 − 4 = 20 − 4): tighten on phones. */
+@media (max-width: 480px) {
+  .algebra-equation,
+  .algebra-equals {
+    font-size: 21px;
+  }
+
+  .algebra-equation {
+    gap: 4px;
+  }
+
+  .algebra-side {
+    gap: 3px;
+    padding: 4px;
+    min-height: 60px;
+  }
+
+  .algebra-term-button {
+    min-width: 36px;
+    padding: 6px 6px;
+  }
+
+  .algebra-equation.has-combine .algebra-equals {
+    line-height: 60px;
+  }
+
+  .algebra-combine-button {
+    white-space: normal;
+    padding: 6px 10px;
+    font-size: 0.85rem;
+    line-height: 1.15;
+  }
+}
+
+/* Divide both sides: the pending ÷ n on each side, and the button that starts it */
+.algebra-divisor {
+  display: inline-grid;
+  place-items: center;
+  min-width: 48px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 2px solid var(--accent-3);
+  background: rgba(94, 194, 183, 0.14);
+  user-select: none;
+}
+
+.algebra-divide-row {
+  display: flex;
+  justify-content: center;
+}
+
+.algebra-divide-button {
+  min-height: 52px;
+  padding: 10px 24px;
+  border: 2px solid var(--accent-3);
+  font-family: "Baloo 2", cursive;
+  font-size: 1.15rem;
+  font-weight: 800;
+  animation: algebra-slide-in 0.2s ease-out;
+}
+
+@media (max-width: 480px) {
+  .algebra-divisor {
+    min-width: 36px;
+    padding: 6px;
+  }
+}
+
+.div-sign {
+  font-family: "Nunito", system-ui, sans-serif;
+  font-weight: 800;
+  font-size: 1.1em;
+  line-height: 1;
 }

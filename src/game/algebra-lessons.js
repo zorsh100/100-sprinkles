@@ -1,5 +1,5 @@
-import { parseEquation } from "./algebra.js?v=20261017-160000";
-import { QUESTION_BANK } from "./questions/bank.js?v=20261017-160000";
+import { parseEquation } from "./algebra.js?v=20261017-201000";
+import { QUESTION_BANK } from "./questions/bank.js?v=20261017-201000";
 
 // Algebra Lessons is a standalone mini-game: no baker profile, SR, coins, or sprinkles involved.
 export const ALGEBRA_LESSONS = [
@@ -8,32 +8,32 @@ export const ALGEBRA_LESSONS = [
     templateId: "algebraic-missing-add",
     title: "Undo adding",
     form: "x + a = b",
-    explain: "When a number is added to x, move it across the = sign. It flips to a minus.",
-    example: ["x + 7 = 20", "x = 20 − 7", "x = 13"],
+    explain: "To undo + 7, take 7 away from both sides. 7 − 7 is 0, so x is left by itself.",
+    example: ["x + 7 = 20", "x + 7 − 7 = 20 − 7", "x = 13"],
   },
   {
     id: "undo-taking-away",
     templateId: "algebraic-missing-subtract",
     title: "Undo taking away",
     form: "x − a = b",
-    explain: "When a number is taken away from x, move it across the = sign. It flips to a plus.",
-    example: ["x − 5 = 12", "x = 12 + 5", "x = 17"],
+    explain: "To undo − 5, add 5 to both sides. −5 + 5 is 0, so x is left by itself.",
+    example: ["x − 5 = 12", "x − 5 + 5 = 12 + 5", "x = 17"],
   },
   {
     id: "boxes-plus-extra",
     templateId: "algebraic-boxes-plus-extra",
     title: "Equal boxes + extras",
     form: "ax + b = c",
-    explain: "Move the extras first. Then split what is left into the equal boxes by dividing.",
-    example: ["3x + 4 = 19", "3x = 19 − 4 = 15", "x = 15 ÷ 3 = 5"],
+    explain: "Take the extras away from both sides first. Then divide both sides by the number of boxes.",
+    example: ["3x + 4 = 19", "3x + 4 − 4 = 19 − 4", "3x = 15", "3x ÷ 3 = 15 ÷ 3", "x = 5"],
   },
   {
     id: "trays-minus-taste",
     templateId: "algebraic-trays-minus-eaten",
     title: "Equal trays − a taste",
     form: "ax − b = c",
-    explain: "Put back the tasted treats first. Then divide by the number of trays.",
-    example: ["4x − 2 = 18", "4x = 18 + 2 = 20", "x = 20 ÷ 4 = 5"],
+    explain: "Add the tasted treats back to both sides first. Then divide both sides by the number of trays.",
+    example: ["4x − 2 = 18", "4x − 2 + 2 = 18 + 2", "4x = 20", "4x ÷ 4 = 20 ÷ 4", "x = 5"],
   },
 ];
 
