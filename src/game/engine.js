@@ -6,7 +6,7 @@ import {
   createInitialSession,
   getBakeStageByQuestionIndex,
   getBakeStageIndexByQuestionIndex,
-} from "./data.js?v=20260517-173100";
+} from "./data.js?v=20261017-120000";
 import {
   canAffordIngredients,
   clamp,
@@ -22,10 +22,11 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20260517-173100";
-import { formatSignedValue } from "./math.js?v=20260517-173100";
-import { generateQuestion } from "./questions/generator.js?v=20260517-173100";
-import { applySRResult, isVisualMode } from "./sr.js?v=20260517-173100";
+} from "./helpers.js?v=20261017-120000";
+import { formatSignedValue } from "./math.js?v=20261017-120000";
+import { parseEquation } from "./algebra.js?v=20261017-120000";
+import { generateQuestion } from "./questions/generator.js?v=20261017-120000";
+import { applySRResult, isVisualMode } from "./sr.js?v=20261017-120000";
 
 export function setFlash(gameState, kind, text) {
   return {
@@ -167,6 +168,7 @@ export function startOrder(gameState) {
       saleReady: null,
       questionResult: null,
       currentQuestion: nextQuestion,
+      algebraState: getAlgebraState(nextQuestion),
       recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
     },
     flash: {
@@ -278,6 +280,7 @@ export function submitAnswer(gameState, selectedAnswer) {
       },
       questionResult: null,
       currentQuestion: nextQuestion,
+      algebraState: getAlgebraState(nextQuestion),
       recentTemplates: [...session.recentTemplates, nextQuestion.templateId].slice(-6),
     },
     flash: {
@@ -288,6 +291,10 @@ export function submitAnswer(gameState, selectedAnswer) {
           : `${STAGE_META[currentStage].title} keeps rolling. Question ${nextQuestionIndex + 1} of ${QUESTIONS_PER_BAKE}. SR ${formatSignedValue(srResult.delta)}.`,
     },
   };
+}
+
+function getAlgebraState(question) {
+  return question.type === "algebraic" ? parseEquation(question.equation) : null;
 }
 
 function finishOrder(gameState, updatedPlayer, completedStages, orderTotals = {}) {

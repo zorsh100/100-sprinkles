@@ -1,8 +1,9 @@
-import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20260517-173100";
-import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20260517-173100";
-import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20260517-173100";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20260517-173100";
-import { renderStageArt } from "../components/stage-art.js?v=20260517-173100";
+import { INGREDIENT_BULK_BUYS, MAX_SPRINKLES, QUESTIONS_PER_BAKE, RECIPES, STAGES, STAGE_META } from "../../game/data.js?v=20261017-120000";
+import { renderAlgebraGame } from "../components/algebra-game.js?v=20261017-120000";
+import { renderCoinIcon, renderIngredientIcon } from "../components/icons.js?v=20261017-120000";
+import { renderCelebrationBurst, renderMascot } from "../components/mascot.js?v=20261017-120000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-120000";
+import { renderStageArt } from "../components/stage-art.js?v=20261017-120000";
 import {
   canAffordIngredients,
   clampSprinkles,
@@ -15,9 +16,9 @@ import {
   getUnlockedRecipes,
   srToBand,
   supportsRecipeSets,
-} from "../../game/helpers.js?v=20260517-173100";
-import { getSRMode, isVisualMode } from "../../game/sr.js?v=20260517-173100";
-import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20260517-173100";
+} from "../../game/helpers.js?v=20261017-120000";
+import { getSRMode, isVisualMode } from "../../game/sr.js?v=20261017-120000";
+import { renderKindergartenBakery } from "../renderers/kindergarten.js?v=20261017-120000";
 
 const INGREDIENT_META = {
   flour: {
@@ -407,7 +408,9 @@ function renderQuestionPanel(gameState, currentStage) {
         <div class="story-answer-block">
           ${renderStoryHelp(question, session.order?.batchCount ?? 1)}
           ${
-            question.answerMode === "open"
+            question.type === "algebraic" && session.algebraState
+              ? renderAlgebraGame({ question, algebraState: session.algebraState })
+              : question.answerMode === "open"
               ? renderOpenAnswerPanel(question, session.questionResult)
               : `
                 <div class="answer-grid regular-answer-grid">

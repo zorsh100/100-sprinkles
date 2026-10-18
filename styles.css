@@ -4611,3 +4611,169 @@ body.title-route .app-shell {
     flex-direction: column;
   }
 }
+
+/* Mystery jar algebra mini-game */
+.algebra-game {
+  position: relative;
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 10px 24px rgba(117, 74, 41, 0.12);
+}
+
+.algebra-game-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.algebra-game-tip {
+  margin: 0;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.algebra-reset-button {
+  padding: 6px 14px;
+  font-size: 0.9rem;
+  box-shadow: none;
+  border: 2px solid #e8d5c0;
+  flex-shrink: 0;
+}
+
+.algebra-equation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-family: "Baloo 2", cursive;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.algebra-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 120px;
+  min-height: 72px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px dashed transparent;
+  background: #fff8f0;
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+
+.algebra-side:hover,
+.algebra-side.drop-target {
+  border-color: rgba(255, 107, 107, 0.45);
+}
+
+.algebra-side.drop-target {
+  background: #fff0ee;
+}
+
+.algebra-side.just-moved > :last-child {
+  animation: algebra-slide-in 0.2s ease-out;
+}
+
+@keyframes algebra-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.algebra-term-button {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: transparent;
+  border: 2px solid #e8d5c0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: transform 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+
+.algebra-term-button.selected {
+  border-color: var(--accent);
+  background: #fff0ee;
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.25);
+}
+
+.algebra-term-button:disabled {
+  cursor: default;
+  border-color: transparent;
+  opacity: 1;
+}
+
+.algebra-variable,
+.algebra-operator,
+.algebra-zero {
+  user-select: none;
+}
+
+.algebra-zero {
+  color: var(--muted);
+}
+
+.algebra-equals {
+  font-size: 28px;
+  color: var(--muted);
+  padding: 0 8px;
+  user-select: none;
+}
+
+.algebra-steps {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+  color: var(--muted);
+  display: grid;
+  gap: 4px;
+}
+
+.algebra-steps li.auto {
+  font-style: italic;
+}
+
+.algebra-confirm-button {
+  width: 100%;
+  font-size: 1.15rem;
+}
+
+@media (max-width: 480px) {
+  .algebra-equation {
+    flex-wrap: nowrap;
+    gap: 6px;
+  }
+
+  .algebra-side {
+    min-width: 0;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .algebra-term-button {
+    padding: 8px 10px;
+  }
+
+  .algebra-equals {
+    padding: 0 2px;
+  }
+}

@@ -1,4 +1,4 @@
-import { navigate } from "../app/router.js?v=20260517-173100";
+import { navigate } from "../app/router.js?v=20261017-120000";
 import {
   buyIngredient,
   clearQuestionResult,
@@ -8,18 +8,19 @@ import {
   setBatchCount,
   startOrder,
   submitAnswer,
-} from "../game/engine.js?v=20260517-173100";
-import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20260517-173100";
-import { renderShell } from "./shell.js?v=20260517-173100";
-import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20260517-173100";
-import { renderBakeryScreen } from "./screens/bakery.js?v=20260517-173100";
-import { renderLearnScreen } from "./screens/learn.js?v=20260517-173100";
-import { renderOnboardingScreen } from "./screens/onboarding.js?v=20260517-173100";
-import { renderSettingsScreen } from "./screens/settings.js?v=20260517-173100";
-import { renderShopScreen } from "./screens/shop.js?v=20260517-173100";
-import { renderStatsScreen } from "./screens/stats.js?v=20260517-173100";
-import { renderTitleScreen } from "./screens/title.js?v=20260517-173100";
-import { renderUnlockScreen } from "./screens/unlock.js?v=20260517-173100";
+} from "../game/engine.js?v=20261017-120000";
+import { getSaveSummaries, getSaveSummary, isValidPlayerName } from "../state.js?v=20261017-120000";
+import { renderShell } from "./shell.js?v=20261017-120000";
+import { attachAlgebraEvents } from "./components/algebra-game.js?v=20261017-120000";
+import { getPlayerAvatarOption, renderPlayerAvatar } from "./components/player-avatar.js?v=20261017-120000";
+import { renderBakeryScreen } from "./screens/bakery.js?v=20261017-120000";
+import { renderLearnScreen } from "./screens/learn.js?v=20261017-120000";
+import { renderOnboardingScreen } from "./screens/onboarding.js?v=20261017-120000";
+import { renderSettingsScreen } from "./screens/settings.js?v=20261017-120000";
+import { renderShopScreen } from "./screens/shop.js?v=20261017-120000";
+import { renderStatsScreen } from "./screens/stats.js?v=20261017-120000";
+import { renderTitleScreen } from "./screens/title.js?v=20261017-120000";
+import { renderUnlockScreen } from "./screens/unlock.js?v=20261017-120000";
 
 const ANSWER_SPLASH_DURATION_MS = 1000;
 let pendingAnswerAdvance = null;
@@ -275,41 +276,13 @@ function attachShopEvents(root, gameState, dispatch) {
 function attachQuestionEvents(root, gameState, dispatch) {
   root.querySelectorAll("[data-answer]").forEach((button) => {
     button.addEventListener("click", () => {
-      if (pendingAnswerAdvance) {
-        return;
-      }
-
-      let updated = gameState;
-
-      if (gameState.session.questionResult) {
-        updated = clearQuestionResult(gameState);
-      }
-
-      const selectedAnswer = button.dataset.answer;
-      const wasCorrect = isCorrectAnswer(updated.session.currentQuestion, selectedAnswer);
-      updated = submitAnswer(updated, selectedAnswer);
-
-      if (wasCorrect) {
-        showAnswerSplash("Correct!", "success");
-        pendingAnswerAdvance = window.setTimeout(() => {
-          pendingAnswerAdvance = null;
-          dispatch({ type: "UPDATE_GAME", payload: updated });
-        }, ANSWER_SPLASH_DURATION_MS);
-        return;
-      }
-
-      dispatch({ type: "UPDATE_GAME", payload: updated });
-      showAnswerSplash("Try Again", "error");
+      handleAnswer(gameState, button.dataset.answer, dispatch);
     });
   });
 
   root.querySelectorAll("[data-answer-form]").forEach((form) => {
     form.addEventListener("submit", (event) => {
       event.preventDefault();
-
-      if (pendingAnswerAdvance) {
-        return;
-      }
 
       const formData = new FormData(event.currentTarget);
       const answer = String(formData.get("answer") ?? "").trim();
@@ -318,28 +291,40 @@ function attachQuestionEvents(root, gameState, dispatch) {
         return;
       }
 
-      let updated = gameState;
-
-      if (gameState.session.questionResult) {
-        updated = clearQuestionResult(gameState);
-      }
-
-      const wasCorrect = isCorrectAnswer(updated.session.currentQuestion, answer);
-      updated = submitAnswer(updated, answer);
-
-      if (wasCorrect) {
-        showAnswerSplash("Correct!", "success");
-        pendingAnswerAdvance = window.setTimeout(() => {
-          pendingAnswerAdvance = null;
-          dispatch({ type: "UPDATE_GAME", payload: updated });
-        }, ANSWER_SPLASH_DURATION_MS);
-        return;
-      }
-
-      dispatch({ type: "UPDATE_GAME", payload: updated });
-      showAnswerSplash("Try Again", "error");
+      handleAnswer(gameState, answer, dispatch);
     });
   });
+
+  attachAlgebraEvents(root, gameState, dispatch, (solvedValue) => {
+    handleAnswer(gameState, solvedValue, dispatch);
+  });
+}
+
+function handleAnswer(gameState, selectedAnswer, dispatch) {
+  if (pendingAnswerAdvance) {
+    return;
+  }
+
+  let updated = gameState;
+
+  if (gameState.session.questionResult) {
+    updated = clearQuestionResult(gameState);
+  }
+
+  const wasCorrect = isCorrectAnswer(updated.session.currentQuestion, selectedAnswer);
+  updated = submitAnswer(updated, selectedAnswer);
+
+  if (wasCorrect) {
+    showAnswerSplash("Correct!", "success");
+    pendingAnswerAdvance = window.setTimeout(() => {
+      pendingAnswerAdvance = null;
+      dispatch({ type: "UPDATE_GAME", payload: updated });
+    }, ANSWER_SPLASH_DURATION_MS);
+    return;
+  }
+
+  dispatch({ type: "UPDATE_GAME", payload: updated });
+  showAnswerSplash("Try Again", "error");
 }
 
 function isCorrectAnswer(question, selectedAnswer) {

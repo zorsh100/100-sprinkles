@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20260517-173100";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20261017-120000";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -795,6 +795,13 @@ export function algebraicBalance({ targetDifficulty, stage }) {
     choices: makeChoices(x, 8),
     mission: `Solve the mystery jar amount so the topping station balances.`,
     hint: "Subtract the loose berries, then split the rest into equal jars.",
+    equation: {
+      left: [
+        { kind: "term", coefficient: multiplier, variable: "x" },
+        { kind: "constant", value: extra },
+      ],
+      right: [{ kind: "constant", value: total }],
+    },
   };
 }
 

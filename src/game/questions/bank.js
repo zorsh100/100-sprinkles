@@ -20,7 +20,7 @@ import {
   visualCountAll,
   visualCountDifference,
   visualTakeAway,
-} from "./templates.js?v=20260517-173100";
+} from "./templates.js?v=20261017-120000";
 
 const ALL_STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
 
