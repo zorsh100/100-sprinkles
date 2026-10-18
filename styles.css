@@ -4777,3 +4777,172 @@ body.title-route .app-shell {
     padding: 0 2px;
   }
 }
+
+/* Main-page link to the Algebra Lessons mini-game */
+.title-algebra-link {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(420px, calc(100% - 32px));
+  margin: 4px auto 0;
+  padding: 12px 18px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink);
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(117, 74, 41, 0.14);
+  transition: transform 180ms ease;
+}
+
+.title-algebra-link:hover {
+  transform: translateY(-2px);
+}
+
+.title-algebra-link:focus-visible {
+  outline: 3px solid rgba(90, 111, 240, 0.32);
+  outline-offset: 3px;
+}
+
+.title-algebra-icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-4), #8a6ff0);
+  color: #fff;
+  font-family: "Baloo 2", cursive;
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.title-algebra-copy {
+  display: grid;
+  flex: 1;
+}
+
+.title-algebra-copy strong {
+  font-family: "Baloo 2", cursive;
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.title-algebra-copy span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.title-algebra-arrow {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--accent-4);
+}
+
+/* Algebra Lessons standalone page */
+.algebra-lesson-tabs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.algebra-lesson-tab {
+  display: grid;
+  gap: 2px;
+  justify-items: start;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid #e8d5c0;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.algebra-lesson-tab:hover {
+  transform: translateY(-2px);
+}
+
+.algebra-lesson-tab.active {
+  border-color: var(--accent);
+  background: #fff0ee;
+}
+
+.algebra-lesson-tab strong {
+  font-family: "Baloo 2", cursive;
+  font-size: 1.05rem;
+  line-height: 1.15;
+}
+
+.algebra-lesson-number,
+.algebra-lesson-count {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.algebra-lesson-form {
+  font-family: "Baloo 2", cursive;
+  font-weight: 700;
+  color: var(--accent-4);
+}
+
+.algebra-lesson-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.algebra-lesson-card h3 {
+  margin: 2px 0 4px;
+}
+
+.algebra-lesson-card p {
+  margin: 0;
+}
+
+.algebra-example {
+  margin: 0;
+  padding: 12px 18px;
+  list-style: none;
+  border-radius: 12px;
+  background: #fff8f0;
+  font-family: "Baloo 2", cursive;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: grid;
+  gap: 2px;
+}
+
+.algebra-example li:last-child {
+  color: var(--success);
+}
+
+.algebra-practice-card {
+  display: grid;
+  gap: 10px;
+}
+
+.algebra-practice-card .story-problem-copy {
+  margin: 0;
+}
+
+.algebra-home-link {
+  text-decoration: none;
+  text-align: center;
+}
+
+@media (max-width: 560px) {
+  .algebra-lesson-tabs {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .algebra-lesson-card {
+    grid-template-columns: 1fr;
+  }
+}

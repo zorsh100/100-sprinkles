@@ -3,7 +3,7 @@ import {
   moveSelectedTerm,
   resetAlgebraState,
   selectAlgebraTerm,
-} from "../../game/algebra.js?v=20261017-120000";
+} from "../../game/algebra.js?v=20261017-160000";
 
 export function renderAlgebraGame({ question, algebraState }) {
   const solved = algebraState.solvedValue !== null;
@@ -52,23 +52,17 @@ export function renderAlgebraGame({ question, algebraState }) {
   `;
 }
 
-export function attachAlgebraEvents(root, gameState, dispatch, onConfirm) {
+export function attachAlgebraEvents(root, algebraState, onChange, onConfirm) {
   const game = root.querySelector("[data-algebra-game]");
-  const algebraState = gameState.session.algebraState;
 
   if (!game || !algebraState) {
     return;
   }
 
   const update = (nextAlgebraState) => {
-    if (nextAlgebraState === algebraState) {
-      return;
+    if (nextAlgebraState !== algebraState) {
+      onChange(nextAlgebraState);
     }
-
-    dispatch({
-      type: "UPDATE_GAME",
-      payload: { ...gameState, session: { ...gameState.session, algebraState: nextAlgebraState } },
-    });
   };
 
   game.querySelectorAll("[data-algebra-term]").forEach((button) => {

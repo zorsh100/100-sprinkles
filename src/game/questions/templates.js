@@ -1,4 +1,4 @@
-import { clamp, randomInt, shuffle } from "../helpers.js?v=20261017-120000";
+import { clamp, randomInt, shuffle } from "../helpers.js?v=20261017-160000";
 
 const RECIPE_SCENE_ICONS = {
   cupcakes: "🧁",
@@ -780,6 +780,96 @@ export function ratioScale({ targetDifficulty, stage, context }) {
     choices: makeChoices(answer, 6),
     mission: `Keep the flour-to-sugar ratio balanced at the ${getStagePlace(stage)}.`,
     hint: "Scale the sugar part by the same factor as the flour part.",
+  };
+}
+
+export function algebraicMissingAdd({ context, stage }) {
+  const item = getRecipeLabel(context);
+  const added = randomInt(5, 19);
+  const x = randomInt(8, 40);
+  const total = x + added;
+
+  return {
+    prompt: `Some ${item} were on the ${getStagePlace(stage)}. You added ${added} more, and now there are ${total}. Solve x + ${added} = ${total} to find how many were there first.`,
+    answer: x,
+    choices: makeChoices(x, 6),
+    mission: `Find the mystery number of ${item} that started on the ${getStagePlace(stage)}.`,
+    hint: "Move the added amount to the other side to undo the adding.",
+    equation: {
+      left: [
+        { kind: "term", coefficient: 1, variable: "x" },
+        { kind: "constant", value: added },
+      ],
+      right: [{ kind: "constant", value: total }],
+    },
+  };
+}
+
+export function algebraicMissingSubtract({ context, stage }) {
+  const item = getRecipeLabel(context);
+  const sold = randomInt(6, 24);
+  const left = randomInt(5, 30);
+  const x = sold + left;
+
+  return {
+    prompt: `You had some ${item} at the ${getStagePlace(stage)}. Customers bought ${sold}, and ${left} are left. Solve x − ${sold} = ${left} to find how many you had.`,
+    answer: x,
+    choices: makeChoices(x, 6),
+    mission: `Work backward to find how many ${item} you started with.`,
+    hint: "Move the sold amount to the other side to undo the taking away.",
+    equation: {
+      left: [
+        { kind: "term", coefficient: 1, variable: "x" },
+        { kind: "constant", value: -sold },
+      ],
+      right: [{ kind: "constant", value: left }],
+    },
+  };
+}
+
+export function algebraicBoxesPlusExtra({ context, targetDifficulty, stage }) {
+  const item = getRecipeLabel(context);
+  const boxes = randomInt(2, getScale(targetDifficulty, 4, 9));
+  const x = randomInt(3, 12);
+  const extra = randomInt(2, 15);
+  const total = boxes * x + extra;
+
+  return {
+    prompt: `At the ${getStagePlace(stage)}, ${boxes} boxes hold the same number of ${item}, plus ${extra} extra on a plate. That makes ${total} in all. Solve ${boxes}x + ${extra} = ${total} to find how many are in each box.`,
+    answer: x,
+    choices: makeChoices(x, 4),
+    mission: `Find how many ${item} fit in each box.`,
+    hint: "Move the extras first, then split what is left into equal boxes.",
+    equation: {
+      left: [
+        { kind: "term", coefficient: boxes, variable: "x" },
+        { kind: "constant", value: extra },
+      ],
+      right: [{ kind: "constant", value: total }],
+    },
+  };
+}
+
+export function algebraicTraysMinusEaten({ context, targetDifficulty, stage }) {
+  const item = getRecipeLabel(context);
+  const trays = randomInt(2, getScale(targetDifficulty, 4, 9));
+  const x = randomInt(4, 12);
+  const eaten = randomInt(1, Math.min(9, trays * x - 1));
+  const total = trays * x - eaten;
+
+  return {
+    prompt: `You baked ${trays} trays with the same number of ${item} on each. The bakers taste-tested ${eaten}, and ${total} are left. Solve ${trays}x − ${eaten} = ${total} to find how many were on each tray.`,
+    answer: x,
+    choices: makeChoices(x, 4),
+    mission: `Figure out how many ${item} fit on each tray.`,
+    hint: "Undo the taste-test first, then share the total across the trays.",
+    equation: {
+      left: [
+        { kind: "term", coefficient: trays, variable: "x" },
+        { kind: "constant", value: -eaten },
+      ],
+      right: [{ kind: "constant", value: total }],
+    },
   };
 }
 

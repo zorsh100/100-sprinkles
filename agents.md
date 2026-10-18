@@ -49,11 +49,15 @@ Question type rules:
 - below `110`: `arithmetic_visual` only
 - `110+`: `arithmetic`, `cost`
 - `300+`: add `business`, `fraction`
+- `350+`: add `algebraic` (one-step x ± a = b from 380, two-step ax ± b = c from 470, the original jar puzzle stays 800+)
 - `700+`: add `ratio`
-- `800+`: add `algebraic`
 - `900+`: add `optimization`
 
 Do not hardcode difficulty by grade or route. SR remains the global difficulty driver.
+
+Algebraic questions render as an interactive equation mini-game (`src/ui/components/algebra-game.js`, logic in `src/game/algebra.js`) instead of answer buttons. Every algebraic template must return an `equation` field with the `x` term on the left.
+
+Algebra Lessons is a standalone mini-game page (`algebra.html` → `src/algebra-main.js`), linked from the title screen. It has its own save key (`sprinkles-100-algebra`), needs no baker profile, and never touches SR, coins, or sprinkles. Lesson definitions live in `src/game/algebra-lessons.js` and reuse the algebraic question templates.
 
 ## Current Save Rules
 

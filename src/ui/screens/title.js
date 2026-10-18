@@ -1,5 +1,5 @@
-import { renderMascot } from "../components/mascot.js?v=20261017-120000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-120000";
+import { renderMascot } from "../components/mascot.js?v=20261017-160000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-160000";
 
 export function renderTitleScreen(saveSummaries) {
   const filledSlots = saveSummaries.filter((summary) => !summary.empty);
@@ -19,7 +19,7 @@ export function renderTitleScreen(saveSummaries) {
           <div class="store-window window-right"></div>
           <div class="store-door"></div>
         </div>
-        <img class="title-logo" src="./logo.png?v=20261017-120000" alt="100 Sprinkles logo" />
+        <img class="title-logo" src="./logo.png?v=20261017-160000" alt="100 Sprinkles logo" />
       </div>
       <div class="title-mascot-wrap">
         ${renderMascot({ mood: "happy", message: mascotMessage, variant: "speech", className: "title-mascot-scene" })}
@@ -27,6 +27,14 @@ export function renderTitleScreen(saveSummaries) {
       <section class="title-save-grid" aria-label="Player save slots">
         ${saveSummaries.map((summary) => renderSaveSlot(summary)).join("")}
       </section>
+      <a class="title-algebra-link" href="./algebra.html">
+        <span class="title-algebra-icon" aria-hidden="true">x=?</span>
+        <span class="title-algebra-copy">
+          <strong>Algebra Lessons</strong>
+          <span>Mini-game: find the mystery number</span>
+        </span>
+        <span class="title-algebra-arrow" aria-hidden="true">→</span>
+      </a>
       <div class="bakery-counter-scene title-counter-strip" aria-hidden="true">
         <div class="counter-item flour-sack"></div>
         <div class="counter-item mixing-bowl"></div>

@@ -63,7 +63,7 @@ Question Difficulty ≈ SR ± 20
 - Game mode (Visual / Story / Pantry / Simulator / Strategy)
 - Pantry system unlock (SR ≥ 300)
 - Batch size unlock (SR ≥ 400)
-- Advanced question types (ratio 700+, algebraic 800+, optimization 900+)
+- Advanced question types (algebraic 350+, ratio 700+, optimization 900+)
 
 ### What SR Does NOT Control
 - Recipe unlocks (controlled by sprinkles)
@@ -230,7 +230,7 @@ Question = {
 | fraction | 300 | Halves, quarters |
 | business | 300 | Profit, revenue |
 | ratio | 700 | Ratios and rates |
-| algebraic | 800 | Simple algebra |
+| algebraic | 350 | Interactive equation game: x ± a = b, then ax ± b = c; harder jar puzzle at 800 |
 | optimization | 900 | Maximize/minimize |
 
 ---

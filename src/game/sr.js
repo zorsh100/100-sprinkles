@@ -1,5 +1,5 @@
-import { clamp } from "./math.js?v=20261017-120000";
-import { getPromotedGrade } from "./data.js?v=20261017-120000";
+import { clamp } from "./math.js?v=20261017-160000";
+import { getPromotedGrade } from "./data.js?v=20261017-160000";
 
 export const VISUAL_MODE_END_SR = 110;
 export const VISUAL_BRIDGE_START_SR = 80;
@@ -34,8 +34,8 @@ export function getAllowedQuestionTypes(sr) {
   const types = ["arithmetic", "cost"];
 
   if (sr >= 300) types.push("business", "fraction");
+  if (sr >= 350) types.push("algebraic");
   if (sr >= 700) types.push("ratio");
-  if (sr >= 800) types.push("algebraic");
   if (sr >= 900) types.push("optimization");
 
   return types;

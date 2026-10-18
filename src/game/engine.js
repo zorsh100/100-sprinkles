@@ -6,7 +6,7 @@ import {
   createInitialSession,
   getBakeStageByQuestionIndex,
   getBakeStageIndexByQuestionIndex,
-} from "./data.js?v=20261017-120000";
+} from "./data.js?v=20261017-160000";
 import {
   canAffordIngredients,
   clamp,
@@ -22,11 +22,11 @@ import {
   getShopCost,
   getSprinkleCapForBake,
   supportsRecipeSets,
-} from "./helpers.js?v=20261017-120000";
-import { formatSignedValue } from "./math.js?v=20261017-120000";
-import { parseEquation } from "./algebra.js?v=20261017-120000";
-import { generateQuestion } from "./questions/generator.js?v=20261017-120000";
-import { applySRResult, isVisualMode } from "./sr.js?v=20261017-120000";
+} from "./helpers.js?v=20261017-160000";
+import { formatSignedValue } from "./math.js?v=20261017-160000";
+import { parseEquation } from "./algebra.js?v=20261017-160000";
+import { generateQuestion } from "./questions/generator.js?v=20261017-160000";
+import { applySRResult, isVisualMode } from "./sr.js?v=20261017-160000";
 
 export function setFlash(gameState, kind, text) {
   return {

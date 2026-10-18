@@ -1,5 +1,9 @@
 import {
   algebraicBalance,
+  algebraicBoxesPlusExtra,
+  algebraicMissingAdd,
+  algebraicMissingSubtract,
+  algebraicTraysMinusEaten,
   arithmeticAdditionStory,
   arithmeticArrayRows,
   arithmeticDivisionShare,
@@ -20,7 +24,7 @@ import {
   visualCountAll,
   visualCountDifference,
   visualTakeAway,
-} from "./templates.js?v=20261017-120000";
+} from "./templates.js?v=20261017-160000";
 
 const ALL_STAGES = ["prep", "mixing", "timing", "finishing", "serving"];
 
@@ -226,8 +230,45 @@ export const QUESTION_BANK = [
     generator: ratioScale,
   },
   {
+    id: "algebraic-missing-add",
+    type: "algebraic",
+    subtype: "one_step_add",
+    stages: ["prep", "mixing", "serving"],
+    difficulty: 380,
+    steps: 1,
+    generator: algebraicMissingAdd,
+  },
+  {
+    id: "algebraic-missing-subtract",
+    type: "algebraic",
+    subtype: "one_step_subtract",
+    stages: ["mixing", "finishing", "serving"],
+    difficulty: 420,
+    steps: 1,
+    generator: algebraicMissingSubtract,
+  },
+  {
+    id: "algebraic-boxes-plus-extra",
+    type: "algebraic",
+    subtype: "two_step_add",
+    stages: ["prep", "timing", "finishing"],
+    difficulty: 470,
+    steps: 2,
+    generator: algebraicBoxesPlusExtra,
+  },
+  {
+    id: "algebraic-trays-minus-eaten",
+    type: "algebraic",
+    subtype: "two_step_subtract",
+    stages: ["timing", "finishing", "serving"],
+    difficulty: 520,
+    steps: 2,
+    generator: algebraicTraysMinusEaten,
+  },
+  {
     id: "algebraic-balance",
     type: "algebraic",
+    minSR: 800,
     subtype: "one_variable",
     stages: ["prep", "timing"],
     difficulty: 830,

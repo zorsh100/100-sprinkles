@@ -1,4 +1,4 @@
-import { GRADE_TO_SR, PLAYER_AVATAR_IDS, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20261017-120000";
+import { GRADE_TO_SR, PLAYER_AVATAR_IDS, createInitialSession, DEFAULT_PLAYER, normalizePlayer } from "./game/data.js?v=20261017-160000";
 
 const STORAGE_KEY = "sprinkles-100-player";
 const SAVE_VERSION = 4;
@@ -328,4 +328,24 @@ export function updatePlayerProfile(gameState, { username, slotId, avatarId }) {
     activeSaveSlot: targetSlotId,
     flashOverride: flash,
   });
+}
+
+// Algebra Lessons (algebra.html) keeps its own save, separate from the bakery notebooks.
+const ALGEBRA_STORAGE_KEY = "sprinkles-100-algebra";
+
+export function loadAlgebraPractice() {
+  try {
+    const raw = window.localStorage.getItem(ALGEBRA_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveAlgebraPractice(practice) {
+  try {
+    window.localStorage.setItem(ALGEBRA_STORAGE_KEY, JSON.stringify(practice));
+  } catch {
+    // Practice still works for this visit when storage is unavailable.
+  }
 }

@@ -1,6 +1,6 @@
-import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20261017-120000";
-import { renderMascot } from "../components/mascot.js?v=20261017-120000";
-import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-120000";
+import { getAllowedQuestionTypes, getAccuracy, getSRMode, getSRWindow, isBridgeMode, isVisualMode } from "../../game/sr.js?v=20261017-160000";
+import { renderMascot } from "../components/mascot.js?v=20261017-160000";
+import { renderPlayerAvatar } from "../components/player-avatar.js?v=20261017-160000";
 
 const QUESTION_LABELS = {
   arithmetic_visual: "Picture counting",
@@ -217,7 +217,7 @@ function getTypeDescription(type, sr) {
   }
 
   if (type === "algebraic") {
-    return "Solve mystery jar problems by undoing extra bakery pieces first.";
+    return "Solve for x by moving numbers across the = sign, then splitting into equal groups.";
   }
 
   if (type === "optimization") {
@@ -240,14 +240,14 @@ function getUpcomingUnlocks(sr) {
       note: "Business and fraction questions join the mix, and pantry systems matter more.",
     },
     {
+      sr: 350,
+      title: "Mystery jar algebra",
+      note: "Equation puzzles appear: move numbers across the = sign to find x.",
+    },
+    {
       sr: 700,
       title: "Strategy ratios unlock",
       note: "Recipe ratios and long-range planning arrive in Strategy Mode.",
-    },
-    {
-      sr: 800,
-      title: "Mystery jar algebra",
-      note: "Algebraic bakery puzzles appear with unknown amounts to solve.",
     },
     {
       sr: 900,
